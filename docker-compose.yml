@@ -1,0 +1,7 @@
+services:
+  anchor:
+    image: coralxyz/anchor:latest
+    volumes:
+      - ./:/workdir
+    working_dir: /workdir
+    command: /bin/sh -c "tail -f /dev/null"
