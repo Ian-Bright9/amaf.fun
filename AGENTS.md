@@ -5,6 +5,7 @@ This file contains guidelines for agentic coding assistants working on this repo
 ## Project Overview
 
 This is a Kalshi-like prediction market web app using Solana tokens for fun betting (no real money).
+
 - **Frontend**: SvelteKit with TypeScript, dark mode UI similar to Kalshi
 - **Backend**: Solana smart contracts using Anchor Framework
 - **Hosting**: Cloudflare Pages at amaf.holydoor.dev
@@ -13,6 +14,7 @@ This is a Kalshi-like prediction market web app using Solana tokens for fun bett
 ## Build Commands
 
 ### Frontend (SvelteKit)
+
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production (Cloudflare Pages)
@@ -28,6 +30,7 @@ npm run test:coverage # Run tests with coverage
 ```
 
 ### Solana (Anchor via Docker)
+
 **Due to GLIBC compatibility, use Docker for Anchor commands:**
 
 ```bash
@@ -48,12 +51,14 @@ make shell
 ```
 
 **Or use docker-compose directly:**
+
 ```bash
 docker compose run --rm anchor anchor build
 docker compose run --rm anchor anchor test
 ```
 
 **Docker Setup Required (one-time):**
+
 ```bash
 sudo apt-get install -y docker.io docker-compose
 sudo usermod -aG docker $USER
@@ -63,6 +68,7 @@ sudo usermod -aG docker $USER
 ## Testing
 
 ### Run All Tests
+
 ```bash
 # Frontend (Vitest)
 npm test
@@ -72,6 +78,7 @@ anchor test --skip-local-validator
 ```
 
 ### Run Single Test
+
 ```bash
 # Frontend - specific test file
 npm test src/lib/utils/format.test.ts
@@ -81,6 +88,7 @@ anchor test --skip-local-validator --skip-build --test create_contract
 ```
 
 ### Watch Mode
+
 ```bash
 npm test -- --watch
 ```
@@ -88,6 +96,7 @@ npm test -- --watch
 ## Code Style Guidelines
 
 ### TypeScript / SvelteKit
+
 - Use **strict mode** in `tsconfig.json`
 - Use **Svelte stores** for state management instead of React hooks
 - Use **Server Load Functions** (`+page.server.ts`) for server data
@@ -97,49 +106,53 @@ npm test -- --watch
 - Prefer **$derived** runes for computed values over derived stores when possible
 
 ### Anchor / Rust
+
 - Use **Rust 2021 edition**
 - Define account constraints with `#[account]` macros
 - Use `#[program]` macro for instruction handlers
 - Follow Anchor naming conventions: snake_case for variables, CamelCase for types
 
 ### Imports
+
 ```typescript
 // SvelteKit - group and sort imports
-import { walletStore } from '$lib/stores/wallet.js'
-import { createContract } from '$lib/api/contracts.js'
-import { formatCurrency } from '$lib/utils/format.js'
-import type { Contract } from '$lib/types/index.js'
+import { walletStore } from '$lib/stores/wallet.js';
+import { createContract } from '$lib/api/contracts.js';
+import { formatCurrency } from '$lib/utils/format.js';
+import type { Contract } from '$lib/types/index.js';
 ```
 
 ### Svelte Component Patterns
+
 ```svelte
 <script lang="ts">
-  import { marketsStore } from '$lib/stores/markets.js'
+	import { marketsStore } from '$lib/stores/markets.js';
 
-  // Use $derived for computed values
-  const markets = $derived($marketsStore.markets)
+	// Use $derived for computed values
+	const markets = $derived($marketsStore.markets);
 
-  // Event handlers
-  function handleCreate() {
-    // Logic here
-  }
+	// Event handlers
+	function handleCreate() {
+		// Logic here
+	}
 </script>
 
 <!-- Template syntax -->
 <div class="container">
-  {#each markets as market}
-    <div class="card">{market.contract.question}</div>
-  {/each}
+	{#each markets as market}
+		<div class="card">{market.contract.question}</div>
+	{/each}
 </div>
 
 <style>
-  .container {
-    padding: 1rem;
-  }
+	.container {
+		padding: 1rem;
+	}
 </style>
 ```
 
 ### Naming Conventions
+
 - TypeScript: camelCase for variables/functions, PascalCase for components/types
 - Svelte: PascalCase for components (.svelte files)
 - Rust: snake_case for variables/functions, PascalCase for structs/enums
@@ -147,27 +160,29 @@ import type { Contract } from '$lib/types/index.js'
 - Files: PascalCase for components, lowercase for utilities
 
 ### Error Handling
+
 ```typescript
 // Use try-catch with specific error types
 try {
-  const contract = await createContract(params)
-  marketsStore.addMarket({
-    contract,
-    yesPrice: 0.5,
-    noPrice: 0.5,
-    volume: 0,
-    bets: []
-  })
+	const contract = await createContract(params);
+	marketsStore.addMarket({
+		contract,
+		yesPrice: 0.5,
+		noPrice: 0.5,
+		volume: 0,
+		bets: []
+	});
 } catch (error) {
-  if (error instanceof Error) {
-    marketsStore.setError(error.message)
-  } else {
-    marketsStore.setError('Unknown error occurred')
-  }
+	if (error instanceof Error) {
+		marketsStore.setError(error.message);
+	} else {
+		marketsStore.setError('Unknown error occurred');
+	}
 }
 ```
 
 ### Formatting
+
 - Use **Prettier** with default settings
 - Configure ESLint to match Prettier
 - Max line length: 100 characters
@@ -176,17 +191,20 @@ try {
 ## Solana Specifics
 
 ### Program Structure
+
 - Program ID defined in `Anchor.toml`
 - Anchor IDL auto-generated in `target/idl/`
 - Key files: `programs/<program-name>/src/lib.rs`
 
 ### Wallet Integration
+
 - Use `@solana/wallet-adapter-react` for wallet connection
 - Create Svelte stores to wrap React wallet adapter
 - Support Phantom wallet primarily
 - Handle wallet connection/disconnection gracefully
 
 ### Local Development
+
 ```bash
 solana-test-validator   # Start local validator
 solana config set       # Configure network (localnet/devnet/mainnet-beta)
@@ -244,50 +262,53 @@ solana config set       # Configure network (localnet/devnet/mainnet-beta)
 ## SvelteKit-Specific Patterns
 
 ### Server Load Functions
+
 ```typescript
 // src/routes/+page.server.ts
-import { getContracts } from '$lib/api/contracts.js'
+import { getContracts } from '$lib/api/contracts.js';
 
 export async function load() {
-  try {
-    const contracts = await getContracts()
-    return { contracts }
-  } catch (error) {
-    return { contracts: [], error: 'Failed to load contracts' }
-  }
+	try {
+		const contracts = await getContracts();
+		return { contracts };
+	} catch (error) {
+		return { contracts: [], error: 'Failed to load contracts' };
+	}
 }
 ```
 
 ### API Routes
+
 ```typescript
 // src/routes/api/contracts/+server.ts
-import type { RequestHandler } from '@sveltejs/kit'
+import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async () => {
-  return new Response(JSON.stringify({ contracts: [] }), {
-    headers: { 'Content-Type': 'application/json' }
-  })
-}
+	return new Response(JSON.stringify({ contracts: [] }), {
+		headers: { 'Content-Type': 'application/json' }
+	});
+};
 
 export const POST: RequestHandler = async ({ request }) => {
-  const body = await request.json()
-  // Process request
-  return new Response(JSON.stringify({ success: true }), {
-    headers: { 'Content-Type': 'application/json' },
-    status: 201
-  })
-}
+	const body = await request.json();
+	// Process request
+	return new Response(JSON.stringify({ success: true }), {
+		headers: { 'Content-Type': 'application/json' },
+		status: 201
+	});
+};
 ```
 
 ### Svelte Stores
+
 ```typescript
 // src/lib/stores/example.ts
-import { writable } from 'svelte/store'
+import { writable } from 'svelte/store';
 
 export const exampleStore = writable({
-  value: 0,
-  loading: false
-})
+	value: 0,
+	loading: false
+});
 ```
 
 ## Notes for Agents
@@ -305,4 +326,35 @@ export const exampleStore = writable({
 11. **Anchor commands must use Docker** due to GLIBC compatibility - use `make build` not `anchor build`
 12. When working with Solana contracts, run `make shell` to get bash shell in Anchor container
 13. Solana program ID: `Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn`
+
+## Recent Changes
+
+**Step 1: Anchor Installation + Docker Setup** (2026-01-18)
+
+- ✅ Installed Rust 1.92.0 and Anchor Version Manager (avm) v0.32.1
+- ✅ Created Docker-based Anchor setup to bypass GLIBC compatibility
+- ✅ Configured docker-compose.yml with coralxyz/anchor:latest image
+- ✅ Created Makefile with build, test, deploy, verify, shell commands
+- ✅ Set up simple counter program in programs/amafcoin/
+- ✅ Configured Anchor.toml with program ID for all networks
+- ✅ Updated AGENTS.md with Docker workflow instructions
+
+**Step 2: SvelteKit Migration** (2026-01-18)
+
+- ✅ Complete SvelteKit project with TypeScript
+- ✅ Dark theme UI structure (Kalshi-like)
+- ✅ Svelte stores for state management (wallet, markets)
+- ✅ API routes and market pages (create, list, navigation)
+- ✅ 13/13 tests passing (format utilities, stores)
+- ✅ ESLint v9 with Prettier, TypeScript, and Svelte plugins
+- ✅ Cloudflare Pages adapter configured
+- ✅ Project structure ready for development
+
+**Step 3: Git Commit** (2026-01-18)
+
+- ✅ Committed 1,748 files (1,748 additions, 82 deletions)
+- ✅ Comprehensive commit message created
+- ⚠️ Requires GitHub authentication to push
+- 📦 Repository: https://github.com/Ian-Bright9/amaf.fun
+
 14. **Docker must be installed before running Anchor commands** - run `sudo apt-get install -y docker.io docker-compose && sudo usermod -aG docker $USER` then log out and back in
