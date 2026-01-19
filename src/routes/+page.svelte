@@ -1,6 +1,16 @@
 <script lang="ts">
 	import { marketsStore } from '$lib/stores/markets.js';
 	import { formatCurrency, formatPercentage, formatDate } from '$lib/utils/format.js';
+	import { onMount } from 'svelte';
+
+	let { data }: { data: { markets: any[]; error: string | null } } = $props();
+
+	// Initialize store with server data
+	onMount(() => {
+		if (data.markets && data.markets.length > 0) {
+			marketsStore.setMarkets(data.markets);
+		}
+	});
 
 	const markets = $derived($marketsStore.markets);
 	const loading = $derived($marketsStore.loading);
@@ -135,7 +145,7 @@
 		font-size: 3.5rem;
 		font-weight: 700;
 		margin: 0 0 1rem 0;
-		background: linear-gradient(135deg, #09c285 0%, #05a372 100%);
+		background: linear-gradient(135deg, #b80841 0%, #9e0738 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
@@ -162,14 +172,14 @@
 	}
 
 	.btn-primary {
-		background-color: #09c285;
+		background-color: #b80841;
 		color: #000;
 	}
 
 	.btn-primary:hover {
-		background-color: #05a372;
+		background-color: #9e0738;
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(9, 194, 133, 0.3);
+		box-shadow: 0 4px 12px rgba(184, 8, 65, 0.3);
 	}
 
 	.btn-secondary {
@@ -212,8 +222,9 @@
 	}
 
 	.tab.active {
-		color: #09c285;
-		border-bottom-color: #09c285;
+		color: #b80841;
+		border-bottom-color: #b80841;
+		font-weight: 600;
 	}
 
 	.skeleton-grid,
@@ -319,13 +330,13 @@
 		left: 0;
 		right: 0;
 		height: 2px;
-		background: linear-gradient(90deg, transparent, #09c285, transparent);
+		background: linear-gradient(90deg, transparent, #b80841, transparent);
 		opacity: 0;
 		transition: opacity 0.2s ease;
 	}
 
 	.market-card:hover {
-		border-color: #09c285;
+		border-color: #b80841;
 		transform: translateY(-4px);
 		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 	}

@@ -1,30 +1,37 @@
-import type { Contract, MarketData, Bet } from '../../types/index.js';
+import type { Contract } from '../../types/index.js';
 
 const API_BASE = '/api';
 
 export async function createContract(params: {
 	question: string;
+	description?: string;
 	resolvesAt: string;
 	creator: string;
 }): Promise<Contract> {
 	const response = await fetch(`${API_BASE}/contracts`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(params)
+		body: JSON.stringify({
+			question: params.question,
+			description: params.description || '',
+			expirationTimestamp: new Date(params.resolvesAt).getTime(),
+			authority: params.creator
+		})
 	});
 
 	if (!response.ok) {
-		throw new Error('Failed to create contract');
+		const error = await response.json();
+		throw new Error(error.error || 'Failed to create contract');
 	}
 
 	return response.json();
 }
 
-export async function getContracts(): Promise<Contract[]> {
+export async function getContracts(): Promise<any[]> {
 	const response = await fetch(`${API_BASE}/contracts`);
 
 	if (!response.ok) {
-		throw new Error('Failed to fetch contracts');
+		return [];
 	}
 
 	return response.json();
@@ -44,7 +51,7 @@ export async function placeBet(params: {
 	contractId: string;
 	position: 'yes' | 'no';
 	amount: number;
-}): Promise<Bet> {
+}): Promise<{ transaction: string }> {
 	const response = await fetch(`${API_BASE}/bets`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -58,7 +65,7 @@ export async function placeBet(params: {
 	return response.json();
 }
 
-export async function getBets(contractId: string): Promise<Bet[]> {
+export async function getBets(contractId: string): Promise<any[]> {
 	const response = await fetch(`${API_BASE}/contracts/${contractId}/bets`);
 
 	if (!response.ok) {

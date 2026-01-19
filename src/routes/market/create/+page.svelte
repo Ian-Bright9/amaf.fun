@@ -1,16 +1,38 @@
 <script lang="ts">
 	import { createContract } from '$lib/api/contracts.js';
 	import { marketsStore } from '$lib/stores/markets.js';
+	import { walletStore } from '$lib/stores/wallet.js';
+	import { goto } from '$app/navigation';
 
-	let question = '';
-	let description = '';
-	let resolvesAt = '';
+	let question = $state('');
+	let description = $state('');
+	let resolvesAt = $state('');
 	let submitting = $state(false);
 	let error = $state('');
 
 	async function handleSubmit() {
 		if (!question || !resolvesAt) {
 			error = 'Please fill in all required fields';
+			return;
+		}
+
+		// Check if wallet is connected
+		if (!$walletStore.connected) {
+			error = 'Please connect your wallet to create a market';
+			return;
+		}
+
+		// Validate resolution date is in the future
+		const resolveDate = new Date(resolvesAt);
+		const now = new Date();
+		if (resolveDate <= now) {
+			error = 'Resolution date must be in the future';
+			return;
+		}
+
+		// Validate question isn't too short
+		if (question.length < 10) {
+			error = 'Question must be at least 10 characters long';
 			return;
 		}
 
@@ -22,7 +44,7 @@
 			const contract = await createContract({
 				question,
 				resolvesAt,
-				creator: 'temp-wallet'
+				creator: $walletStore.publicKey || 'temp-wallet'
 			});
 			marketsStore.addMarket({
 				contract,
@@ -31,9 +53,9 @@
 				volume: 0,
 				bets: []
 			});
-			question = '';
-			description = '';
-			resolvesAt = '';
+
+			// Redirect to the new market page
+			goto(`/market/${contract.id}`);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to create market';
 		} finally {
@@ -48,6 +70,14 @@
 		<h1>Create New Market</h1>
 		<p>Launch your prediction market on the blockchain</p>
 	</div>
+
+	{#if !$walletStore.connected}
+		<div class="wallet-warning">
+			<div class="warning-icon">⚠️</div>
+			<h3>Wallet Not Connected</h3>
+			<p>Please connect your wallet to create a new market.</p>
+		</div>
+	{/if}
 
 	<form
 		onsubmit={(e) => {
@@ -105,7 +135,11 @@
 		</div>
 
 		<div class="form-actions">
-			<button type="submit" class="btn btn-primary" disabled={submitting}>
+			<button
+				type="submit"
+				class="btn btn-primary"
+				disabled={submitting || !$walletStore.connected}
+			>
 				{#if submitting}
 					<span class="loading-spinner"></span>
 					Creating Market...
@@ -146,7 +180,7 @@
 		font-size: 2.5rem;
 		font-weight: 700;
 		margin: 0 0 0.75rem 0;
-		background: linear-gradient(135deg, #09c285 0%, #05a372 100%);
+		background: linear-gradient(135deg, #b80841 0%, #9e0738 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
@@ -163,6 +197,34 @@
 		border: 1px solid #2d2d2d;
 		border-radius: 0.75rem;
 		padding: 2rem;
+	}
+
+	.wallet-warning {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		padding: 2rem;
+		background-color: rgba(245, 158, 11, 0.1);
+		border: 1px solid #f59e0b;
+		border-radius: 0.75rem;
+		margin-bottom: 2rem;
+		text-align: center;
+	}
+
+	.wallet-warning .warning-icon {
+		font-size: 3rem;
+	}
+
+	.wallet-warning h3 {
+		margin: 0;
+		color: #f59e0b;
+		font-size: 1.25rem;
+	}
+
+	.wallet-warning p {
+		margin: 0;
+		color: #9ca3af;
 	}
 
 	.error-alert {
@@ -218,8 +280,8 @@
 	.form-group input:focus,
 	.form-group textarea:focus {
 		outline: none;
-		border-color: #09c285;
-		box-shadow: 0 0 0 3px rgba(9, 194, 133, 0.1);
+		border-color: #b80841;
+		box-shadow: 0 0 0 3px rgba(184, 8, 65, 0.2);
 	}
 
 	.form-group input::placeholder,
@@ -259,14 +321,14 @@
 	}
 
 	.btn-primary {
-		background-color: #09c285;
+		background-color: #b80841;
 		color: #000;
 	}
 
 	.btn-primary:hover:not(:disabled) {
-		background-color: #05a372;
+		background-color: #9e0738;
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(9, 194, 133, 0.3);
+		box-shadow: 0 4px 12px rgba(184, 8, 65, 0.3);
 	}
 
 	.btn-secondary {
