@@ -10,14 +10,14 @@
 
 	let { data, height = 400 }: Props = $props();
 
-	const series = [
+	const series = $derived([
 		{
 			data: data.map((p) => ({
 				x: p.x,
 				y: p.y
 			}))
 		}
-	];
+	]);
 
 	const options: ApexCharts.ApexOptions = {
 		chart: {

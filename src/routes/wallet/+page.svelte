@@ -5,6 +5,11 @@
 </script>
 
 <div class="wallet-page">
+	<nav class="breadcrumbs">
+		<a href="/" class="breadcrumb-item">Home</a>
+		<span class="separator">/</span>
+		<span class="breadcrumb-item current">Wallet</span>
+	</nav>
 	<div class="wallet-header">
 		<div class="header-content">
 			<div class="header-left">
@@ -31,6 +36,9 @@
 <style>
 	.wallet-page {
 		min-height: calc(100vh - 350px);
+		width: 100%;
+		max-width: 1800px;
+		margin: 0 auto;
 		padding: 2rem;
 	}
 
@@ -39,11 +47,46 @@
 		padding: 0 2rem;
 	}
 
+	.breadcrumbs {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid var(--border-color);
+		font-size: 0.875rem;
+		margin-bottom: 2rem;
+	}
+
+	.breadcrumb-item {
+		color: var(--text-secondary);
+		text-decoration: none;
+		padding: 0.5rem 0.75rem;
+		border-radius: var(--border-radius-md);
+		transition: all 0.2s ease;
+	}
+
+	.breadcrumb-item:hover {
+		color: var(--text-primary);
+		background-color: var(--bg-hover);
+		transform: translateY(-1px);
+	}
+
+	.breadcrumb-item.current {
+		color: var(--text-primary);
+		font-weight: 600;
+		pointer-events: none;
+	}
+
+	.separator {
+		color: var(--text-muted);
+	}
+
 	.header-content {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		max-width: 1400px;
+		width: 100%;
+		max-width: 1800px;
 		margin: 0 auto;
 		gap: 2rem;
 	}
@@ -65,7 +108,7 @@
 	.header-subtitle {
 		margin: 0;
 		font-size: 1.125rem;
-		color: #9ca3af;
+		color: var(--text-secondary);
 		font-weight: 500;
 	}
 
@@ -74,10 +117,11 @@
 	}
 
 	.wallet-content {
-		max-width: 1400px;
+		width: 100%;
+		max-width: 1800px;
 		margin: 0 auto;
 		display: grid;
-		gap: 2rem;
+		gap: 2.5rem;
 	}
 
 	.balance-section {

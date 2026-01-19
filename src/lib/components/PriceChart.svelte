@@ -9,28 +9,31 @@
 	const gridColor = '#2d2d2d';
 
 	const days = 7;
-	const yesPrice = contract?.yesPrice || 0;
-	const noPrice = contract?.noPrice || 0;
 
-	let history = [];
+	function generateHistory(contractData: Contract) {
+		const result = [];
+		for (let i = days; i >= 0; i--) {
+			const volatility = 0.02 + Math.random() * 0.05;
+			let yesP = (contractData?.yesPrice || 0.5) + Math.sin(i * 0.5) * volatility * 0.5;
+			let noP = 1 - yesP;
 
-	for (let i = days; i >= 0; i--) {
-		const volatility = 0.02 + Math.random() * 0.05;
-		let yesP = (contract?.yesPrice || 0.5) + Math.sin(i * 0.5) * volatility * 0.5;
-		let noP = 1 - yesP;
+			yesP = Math.max(0.05, Math.min(0.95, yesP));
+			noP = Math.max(0.05, Math.min(0.95, noP));
 
-		yesP = Math.max(0.05, Math.min(0.95, yesP));
-		noP = Math.max(0.05, Math.min(0.95, noP));
-
-		history.push({
-			date: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-			yesPrice: yesP,
-			noPrice: noP
-		});
+			result.push({
+				date: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
+				yesPrice: yesP,
+				noPrice: noP
+			});
+		}
+		return result;
 	}
 
-	const maxYes = Math.max(...history.map((h) => h.yesPrice));
-	const maxNo = Math.max(...history.map((h) => h.noPrice));
+	const yesPrice = $derived(contract?.yesPrice || 0);
+	const noPrice = $derived(contract?.noPrice || 0);
+	const history = $derived(generateHistory(contract));
+	const maxYes = $derived(Math.max(...history.map((h) => h.yesPrice)));
+	const maxNo = $derived(Math.max(...history.map((h) => h.noPrice)));
 </script>
 
 <div class="price-chart">

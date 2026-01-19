@@ -5,17 +5,23 @@
 	export let bets: Bet[];
 
 	// Sort bets by timestamp (newest first)
-	$: sortedBets = bets.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+	$: sortedBets = bets.sort(
+		(a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+	);
 
 	// Calculate volume for each position
-	$: yesVolume = bets.filter(bet => bet.position === 'yes').reduce((sum, bet) => sum + bet.amount, 0);
-	$: noVolume = bets.filter(bet => bet.position === 'no').reduce((sum, bet) => sum + bet.amount, 0);
+	$: yesVolume = bets
+		.filter((bet) => bet.position === 'yes')
+		.reduce((sum, bet) => sum + bet.amount, 0);
+	$: noVolume = bets
+		.filter((bet) => bet.position === 'no')
+		.reduce((sum, bet) => sum + bet.amount, 0);
 	$: totalVolume = yesVolume + noVolume;
 </script>
 
 <div class="order-book">
 	<h3>Recent Activity</h3>
-	
+
 	<!-- Volume Summary -->
 	<div class="volume-summary">
 		<div class="volume-item yes">

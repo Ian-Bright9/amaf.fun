@@ -24,6 +24,9 @@
 </script>
 
 <div class="container">
+	<nav class="breadcrumbs">
+		<a href="/" class="breadcrumb-item">Home</a>
+	</nav>
 	<header class="hero">
 		<div class="hero-content">
 			<h1>Bet on the Future</h1>
@@ -124,16 +127,41 @@
 
 <style>
 	.container {
-		max-width: 1400px;
+		width: 100%;
+		max-width: 1800px;
 		margin: 0 auto;
-		padding: 0 1.5rem;
+		padding: 0 2rem 4rem;
+	}
+
+	.breadcrumbs {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid var(--border-color);
+		font-size: 0.875rem;
+		margin-bottom: 2rem;
+	}
+
+	.breadcrumb-item {
+		color: var(--text-secondary);
+		text-decoration: none;
+		padding: 0.5rem 0.75rem;
+		border-radius: var(--border-radius-md);
+		transition: all 0.2s ease;
+	}
+
+	.breadcrumb-item:hover {
+		color: var(--text-primary);
+		background-color: var(--bg-hover);
+		transform: translateY(-1px);
 	}
 
 	.hero {
 		padding: 4rem 0;
 		text-align: center;
-		background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-		border-bottom: 1px solid #2d2d2d;
+		background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-elevated) 100%);
+		border-bottom: 1px solid var(--border-color);
 	}
 
 	.hero-content {
@@ -230,8 +258,20 @@
 	.skeleton-grid,
 	.market-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-		gap: 1.25rem;
+		grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+		gap: 1.5rem;
+	}
+
+	@media (min-width: 1400px) {
+		.market-grid {
+			grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+		}
+	}
+
+	@media (min-width: 1920px) {
+		.market-grid {
+			grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+		}
 	}
 
 	.skeleton-card {
@@ -314,13 +354,14 @@
 
 	.market-card {
 		display: block;
-		padding: 1.5rem;
-		background-color: #1a1a1a;
-		border: 1px solid #2d2d2d;
-		border-radius: 0.5rem;
-		transition: all 0.2s ease;
+		padding: 1.75rem;
+		background-color: var(--bg-card);
+		border: 1px solid var(--border-color);
+		border-radius: var(--border-radius-lg);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		position: relative;
 		overflow: hidden;
+		height: 100%;
 	}
 
 	.market-card::before {
@@ -329,16 +370,19 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 2px;
-		background: linear-gradient(90deg, transparent, #b80841, transparent);
+		height: 3px;
+		background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
 		opacity: 0;
-		transition: opacity 0.2s ease;
+		transition: opacity 0.3s ease;
 	}
 
 	.market-card:hover {
-		border-color: #b80841;
-		transform: translateY(-4px);
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+		border-color: var(--color-primary);
+		background-color: var(--bg-elevated);
+		transform: translateY(-8px) scale(1.02);
+		box-shadow:
+			0 16px 40px rgba(184, 8, 65, 0.4),
+			0 8px 16px rgba(0, 0, 0, 0.2);
 	}
 
 	.market-card:hover::before {

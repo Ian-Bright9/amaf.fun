@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { marketsStore } from '$lib/stores/markets.js';
-	import { formatAmafCurrency, formatPercentage, formatDate } from '$lib/utils/format.js';
 	import { onMount } from 'svelte';
 	import type { MarketData } from '../../types/index.js';
+	import MarketCard from '$lib/components/MarketCard.svelte';
 
 	let { data }: { data: { markets: MarketData[]; error: string | null } } = $props();
 
@@ -22,33 +22,14 @@
 	function setTab(tab: 'trending' | 'new' | 'all') {
 		activeTab = tab;
 	}
-
-	function formatTimeLeft(resolvesAt: string): string {
-		const now = new Date();
-		const resolve = new Date(resolvesAt);
-		const diff = resolve.getTime() - now.getTime();
-
-		if (diff < 0) return 'Resolved';
-		if (diff < 24 * 60 * 60 * 1000) {
-			const hours = Math.floor(diff / (60 * 60 * 1000));
-			return `${hours}h left`;
-		}
-		if (diff < 7 * 24 * 60 * 60 * 1000) {
-			const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-			return `${days}d left`;
-		}
-		return formatDate(resolvesAt);
-	}
-
-	function getTrend(market: MarketData): 'up' | 'down' | 'neutral' {
-		const change = (market.contract.currentYesPrice || 0) - (market.contract.yesPrice || 0);
-		if (change > 0.01) return 'up';
-		if (change < -0.01) return 'down';
-		return 'neutral';
-	}
 </script>
 
 <div class="container">
+	<nav class="breadcrumbs">
+		<a href="/" class="breadcrumb-item">Home</a>
+		<span class="separator">/</span>
+		<a href="/market" class="breadcrumb-item current">Markets</a>
+	</nav>
 	<div class="page-header">
 		<h1>Prediction Markets</h1>
 		<a href="/market/create" class="create-btn">
@@ -131,64 +112,7 @@
 	{:else}
 		<div class="market-grid">
 			{#each markets as market (market.contract.id)}
-				<a href="/market/{market.contract.id}" class="market-card">
-					<div class="card-header">
-						<span class="status-badge status-{market.contract.status}">
-							{market.contract.status}
-						</span>
-						<span class="time-left">{formatTimeLeft(market.contract.resolvesAt)}</span>
-					</div>
-
-					<h3 class="card-title">{market.contract.question}</h3>
-
-					{#if market.contract.description}
-						<p class="card-description">{market.contract.description}</p>
-					{/if}
-
-					<div class="price-section">
-						<div class="price-bar">
-							<div class="bar-fill yes" style="width: {market.yesPrice * 100}%"></div>
-							<div class="bar-fill no" style="width: {market.noPrice * 100}%"></div>
-						</div>
-						<div class="price-labels">
-							<span class="yes-price">
-								<strong>{formatPercentage(market.yesPrice)}</strong>
-								<span class="trend trend-{getTrend(market)}">
-									{#if getTrend(market) === 'up'}
-										↑
-									{:else if getTrend(market) === 'down'}
-										↓
-									{/if}
-								</span>
-							</span>
-							<span class="no-price">
-								<strong>{formatPercentage(market.noPrice)}</strong>
-							</span>
-						</div>
-					</div>
-
-					<div class="card-footer">
-						<span class="volume">
-							<svg
-								width="14"
-								height="14"
-								viewBox="0 0 14 14"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M7 1.5V12.5M3.5 4.5L10.5 9.5M10.5 4.5L3.5 9.5"
-									stroke="currentColor"
-									stroke-width="1.5"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								/>
-							</svg>
-							{formatAmafCurrency(market.volume)}
-						</span>
-						<span class="bets">{market.contract.betCount || 0} bets</span>
-					</div>
-				</a>
+				<MarketCard {market} />
 			{/each}
 		</div>
 	{/if}
@@ -196,16 +120,51 @@
 
 <style>
 	.container {
-		max-width: 1400px;
+		width: 100%;
+		max-width: 1800px;
 		margin: 0 auto;
-		padding: 0 1.5rem 2rem;
+		padding: 0 2rem 4rem;
+	}
+
+	.breadcrumbs {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid var(--border-color);
+		font-size: 0.875rem;
+		margin-bottom: 2rem;
+	}
+
+	.breadcrumb-item {
+		color: var(--text-secondary);
+		text-decoration: none;
+		padding: 0.5rem 0.75rem;
+		border-radius: var(--border-radius-md);
+		transition: all 0.2s ease;
+	}
+
+	.breadcrumb-item:hover {
+		color: var(--text-primary);
+		background-color: var(--bg-hover);
+		transform: translateY(-1px);
+	}
+
+	.breadcrumb-item.current {
+		color: var(--text-primary);
+		font-weight: 600;
+		pointer-events: none;
+	}
+
+	.separator {
+		color: var(--text-muted);
 	}
 
 	.page-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 2rem 0;
+		padding: 0 0 2rem 0;
 		gap: 1rem;
 	}
 
@@ -219,29 +178,32 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
-		padding: 0.75rem 1.25rem;
-		background-color: #2d2d2d;
-		color: #fff;
-		border: 1px solid #3d3d3d;
-		border-radius: 0.5rem;
+		padding: 0.75rem 1.5rem;
+		background-color: var(--bg-elevated);
+		color: var(--text-primary);
+		border: 1px solid var(--border-color);
+		border-radius: var(--border-radius-md);
 		font-weight: 600;
 		font-size: 0.875rem;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.create-btn:hover {
-		background-color: #3d3d3d;
-		border-color: #4d4d4d;
+		background-color: var(--bg-hover);
+		border-color: var(--border-light);
+		transform: translateY(-2px) scale(1.02);
+		box-shadow: 0 4px 16px rgba(184, 8, 65, 0.3);
 	}
 
 	.create-btn.primary {
-		background-color: #b80841;
-		border-color: #b80841;
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--text-dark);
 	}
 
 	.create-btn.primary:hover {
-		background-color: #9e0738;
+		background-color: var(--color-primary-hover);
 	}
 
 	.tabs {
@@ -277,8 +239,20 @@
 	.loading-grid,
 	.market-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-		gap: 1.25rem;
+		grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+		gap: 1.5rem;
+	}
+
+	@media (min-width: 1400px) {
+		.market-grid {
+			grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+		}
+	}
+
+	@media (min-width: 1920px) {
+		.market-grid {
+			grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+		}
 	}
 
 	.skeleton-card {
@@ -349,9 +323,9 @@
 	.empty-state {
 		text-align: center;
 		padding: 4rem 2rem;
-		background-color: #1a1a1a;
-		border: 1px solid #2d2d2d;
-		border-radius: 0.75rem;
+		background-color: var(--bg-card);
+		border: 1px solid var(--border-color);
+		border-radius: var(--border-radius-lg);
 	}
 
 	.error-icon,
@@ -374,191 +348,21 @@
 	}
 
 	.retry-btn {
-		padding: 0.75rem 1.5rem;
-		background-color: #2d2d2d;
-		color: #fff;
-		border: 1px solid #3d3d3d;
-		border-radius: 0.5rem;
+		padding: 0.75rem 2rem;
+		background-color: var(--bg-elevated);
+		color: var(--text-primary);
+		border: 1px solid var(--border-color);
+		border-radius: var(--border-radius-md);
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.retry-btn:hover {
-		background-color: #3d3d3d;
-	}
-
-	.error-state p,
-	.empty-state p {
-		color: #9ca3af;
-		margin: 0 0 2rem 0;
-	}
-
-	.retry-btn {
-		padding: 0.75rem 1.5rem;
-		background-color: #2d2d2d;
-		color: #fff;
-		border: 1px solid #3d3d3d;
-		border-radius: 0.5rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.retry-btn:hover {
-		background-color: #3d3d3d;
-	}
-
-	.market-card {
-		display: flex;
-		flex-direction: column;
-		padding: 1.5rem;
-		background-color: #1a1a1a;
-		border: 1px solid #2d2d2d;
-		border-radius: 0.75rem;
-		transition: all 0.2s ease;
-		text-decoration: none;
-	}
-
-	.market-card:hover {
-		border-color: #b80841;
-		transform: translateY(-4px);
-		box-shadow: 0 8px 24px rgba(184, 8, 65, 0.15);
-	}
-
-	.card-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.75rem;
-	}
-
-	.status-badge {
-		padding: 0.25rem 0.75rem;
-		border-radius: 0.375rem;
-		font-size: 0.6875rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.status-active {
-		background-color: rgba(184, 8, 65, 0.15);
-		color: #b80841;
-	}
-
-	.status-resolved {
-		background-color: rgba(59, 130, 246, 0.15);
-		color: #3b82f6;
-	}
-
-	.status-cancelled {
-		background-color: rgba(239, 68, 68, 0.15);
-		color: #ef4444;
-	}
-
-	.time-left {
-		font-size: 0.75rem;
-		color: #6b7280;
-		font-weight: 500;
-	}
-
-	.card-title {
-		font-size: 1.125rem;
-		font-weight: 600;
-		color: #fff;
-		margin: 0 0 0.5rem 0;
-		line-height: 1.4;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.card-description {
-		font-size: 0.875rem;
-		color: #9ca3af;
-		margin: 0 0 1rem 0;
-		line-height: 1.5;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.price-section {
-		margin-bottom: 1rem;
-	}
-
-	.price-bar {
-		display: flex;
-		height: 6px;
-		background-color: #2d2d2d;
-		border-radius: 0.375rem;
-		overflow: hidden;
-		margin-bottom: 0.5rem;
-	}
-
-	.bar-fill.yes {
-		background-color: #b80841;
-		transition: width 0.3s ease;
-	}
-
-	.bar-fill.no {
-		background-color: #ef4444;
-		transition: width 0.3s ease;
-	}
-
-	.price-labels {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.8125rem;
-	}
-
-	.yes-price {
-		color: #b80841;
-		display: flex;
-		align-items: center;
-		gap: 0.375rem;
-	}
-
-	.no-price {
-		color: #ef4444;
-		text-align: right;
-	}
-
-	.trend {
-		font-size: 0.75rem;
-	}
-
-	.trend-up {
-		color: #10b981;
-	}
-
-	.trend-down {
-		color: #ef4444;
-	}
-
-	.card-footer {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding-top: 1rem;
-		border-top: 1px solid #2d2d2d;
-		margin-top: auto;
-	}
-
-	.volume {
-		display: flex;
-		align-items: center;
-		gap: 0.375rem;
-		font-size: 0.8125rem;
-		color: #6b7280;
-	}
-
-	.bets {
-		font-size: 0.75rem;
-		color: #6b7280;
+		background-color: var(--bg-hover);
+		border-color: var(--border-light);
+		transform: translateY(-2px) scale(1.02);
+		box-shadow: 0 4px 16px rgba(184, 8, 65, 0.3);
 	}
 
 	@media (max-width: 768px) {

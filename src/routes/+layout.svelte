@@ -22,8 +22,8 @@
 	<link rel="stylesheet" href="/lib/styles/variables.css" />
 	<style>
 		:global(body) {
-			background-color: #0a0a0a;
-			color: #ffffff;
+			background-color: var(--bg-primary);
+			color: var(--text-primary);
 			font-family:
 				'Inter',
 				-apple-system,
@@ -113,9 +113,9 @@
 
 <style>
 	.header {
-		background-color: rgba(10, 10, 10, 0.8);
+		background-color: rgba(10, 10, 10, 0.95);
 		backdrop-filter: blur(12px);
-		border-bottom: 1px solid #2d2d2d;
+		border-bottom: 1px solid var(--border-color);
 		padding: 0.75rem 1.5rem;
 		position: sticky;
 		top: 0;
@@ -126,7 +126,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		max-width: 1400px;
+		width: 100%;
+		max-width: 1800px;
 		margin: 0 auto;
 		gap: 2rem;
 	}
@@ -165,15 +166,17 @@
 	}
 
 	.nav a {
-		color: #9ca3af;
+		color: var(--text-secondary);
 		font-weight: 500;
 		font-size: 0.9375rem;
 		padding: 0.5rem 0;
 		position: relative;
+		transition: all 0.2s ease;
 	}
 
 	.nav a:hover {
-		color: #ffffff;
+		color: var(--text-primary);
+		transform: translateY(-1px);
 	}
 
 	.nav a::after {
@@ -201,13 +204,13 @@
 	.main {
 		min-height: calc(100vh - 350px);
 		padding: 0;
-		max-width: 1400px;
+		width: 100%;
 		margin: 0 auto;
 	}
 
 	.footer {
-		background-color: #0f0f0f;
-		border-top: 1px solid #2d2d2d;
+		background-color: var(--bg-secondary);
+		border-top: 1px solid var(--border-color);
 		padding: 4rem 1.5rem 2rem;
 		margin-top: auto;
 	}
@@ -216,14 +219,15 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 		gap: 2rem;
-		max-width: 1400px;
+		width: 100%;
+		max-width: 1800px;
 		margin: 0 auto 3rem;
 	}
 
 	.footer-section h4 {
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: #ffffff;
+		color: var(--text-primary);
 		margin: 0 0 1rem 0;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
@@ -231,21 +235,22 @@
 
 	.footer-section a {
 		display: block;
-		color: #9ca3af;
+		color: var(--text-secondary);
 		font-size: 0.875rem;
 		padding: 0.375rem 0;
 		line-height: 1.5;
 	}
 
 	.footer-section a:hover {
-		color: #ffffff;
+		color: var(--text-primary);
 	}
 
 	.footer-bottom {
-		max-width: 1400px;
+		width: 100%;
+		max-width: 1800px;
 		margin: 0 auto;
 		padding-top: 2rem;
-		border-top: 1px solid #2d2d2d;
+		border-top: 1px solid var(--border-color);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -255,16 +260,38 @@
 
 	.footer-bottom p {
 		font-size: 0.8125rem;
-		color: #6b7280;
+		color: var(--text-muted);
 		margin: 0;
 		line-height: 1.5;
 	}
 
 	.disclaimer {
-		color: #9ca3af !important;
+		color: var(--text-secondary) !important;
+	}
+
+	@media (min-width: 1400px) {
+		.main {
+			max-width: 1800px;
+		}
+	}
+
+	@media (min-width: 1920px) {
+		.main {
+			max-width: 2000px;
+		}
+	}
+
+	@media (min-width: 2560px) {
+		.main {
+			max-width: 2400px;
+		}
 	}
 
 	@media (max-width: 768px) {
+		.main {
+			max-width: 100%;
+		}
+
 		.header-content {
 			flex-direction: column;
 			gap: 1rem;

@@ -74,9 +74,10 @@
 
 		<!-- Amount Input -->
 		<div class="amount-section">
-			<label>Bet Amount</label>
+			<label for="bet-amount">Bet Amount</label>
 			<div class="amount-input-group">
 				<input
+					id="bet-amount"
 					type="number"
 					bind:value={amount}
 					min="1"

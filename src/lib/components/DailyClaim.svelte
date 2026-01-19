@@ -193,21 +193,21 @@
 	</div>
 
 	{#if success}
-		<div class="success-toast" onclick={dismissSuccess}>
+		<button class="success-toast" onclick={dismissSuccess} type="button">
 			<div class="toast-content">
 				<span class="toast-icon">✓</span>
 				<span class="toast-message">{success}</span>
 			</div>
-		</div>
+		</button>
 	{/if}
 
 	{#if error}
-		<div class="error-toast" onclick={dismissError}>
+		<button class="error-toast" onclick={dismissError} type="button">
 			<div class="toast-content">
 				<span class="toast-icon">✕</span>
 				<span class="toast-message">{error}</span>
 			</div>
-		</div>
+		</button>
 	{/if}
 </div>
 
@@ -350,6 +350,9 @@
 		animation: slideUp 0.3s ease;
 		z-index: 10000;
 		backdrop-filter: blur(8px);
+		border: none;
+		width: auto;
+		display: block;
 	}
 
 	.success-toast {

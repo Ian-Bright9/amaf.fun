@@ -10,14 +10,16 @@
 
 	let { data, height = 400 }: Props = $props();
 
-	const yesData = data.map((p) => p.yesPrice);
-	const noData = data.map((p) => p.noPrice);
-	const timestamps = data.map((p) => {
-		const date = new Date(p.timestamp);
-		return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:00`;
-	});
+	const yesData = $derived(data.map((p) => p.yesPrice));
+	const noData = $derived(data.map((p) => p.noPrice));
+	const timestamps = $derived(
+		data.map((p) => {
+			const date = new Date(p.timestamp);
+			return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:00`;
+		})
+	);
 
-	const series = [
+	const series = $derived([
 		{
 			name: 'YES',
 			data: yesData
@@ -26,9 +28,9 @@
 			name: 'NO',
 			data: noData
 		}
-	];
+	]);
 
-	const options: ApexCharts.ApexOptions = {
+	const options = $derived<ApexCharts.ApexOptions>({
 		chart: {
 			background: '#111827',
 			foreColor: '#d1d5db'
@@ -92,7 +94,7 @@
 			position: 'top' as const,
 			horizontalAlign: 'left' as const
 		}
-	};
+	});
 </script>
 
 <div class="chart-container">

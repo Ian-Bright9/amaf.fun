@@ -14,7 +14,7 @@
 	let chartData = $state(generateChartData(7));
 	let activeTab = $state('line');
 
-	const stats = chartData.stats;
+	const stats = $derived(chartData.stats);
 
 	onMount(() => {
 		chartData = generateChartData(7);
