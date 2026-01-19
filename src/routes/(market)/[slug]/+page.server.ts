@@ -1,0 +1,43 @@
+import type { PageServerLoad } from '@sveltejs/kit';
+import { getContract } from '../../../lib/api/contracts.js';
+import type { Contract, Bet } from '../../../types/index.js';
+
+export const load: PageServerLoad = async ({ params }) => {
+	try {
+		const contract = await getContract(params.slug);
+		
+		// Mock bet data for now
+		const mockBets: Bet[] = [
+			{
+				id: '1',
+				contractId: params.slug,
+				user: '0x1234...5678',
+				amount: 100,
+				position: 'yes',
+				timestamp: new Date(Date.now() - 3600000).toISOString(),
+				odds: 0.65
+			},
+			{
+				id: '2',
+				contractId: params.slug,
+				user: '0x8765...4321',
+				amount: 50,
+				position: 'no',
+				timestamp: new Date(Date.now() - 7200000).toISOString(),
+				odds: 0.35
+			}
+		];
+
+		return {
+			contract,
+			bets: mockBets,
+			error: null
+		};
+	} catch (error) {
+		return {
+			contract: null,
+			bets: [],
+			error: error instanceof Error ? error.message : 'Market not found'
+		};
+	}
+};

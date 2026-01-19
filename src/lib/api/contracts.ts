@@ -30,7 +30,7 @@ export async function getContracts(): Promise<Contract[]> {
 	return response.json();
 }
 
-export async function getContract(id: string): Promise<MarketData> {
+export async function getContract(id: string): Promise<Contract> {
 	const response = await fetch(`${API_BASE}/contracts/${id}`);
 
 	if (!response.ok) {
