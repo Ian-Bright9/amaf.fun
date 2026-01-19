@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { marketsStore } from '../../../lib/stores/markets.js';
-	import { formatCurrency, formatPercentage } from '../../../lib/utils/format.js';
+	import { marketsStore } from '../../lib/stores/markets.js';
+	import { formatCurrency, formatPercentage } from '../../lib/utils/format.js';
 </script>
 
 <h1>All Markets</h1>

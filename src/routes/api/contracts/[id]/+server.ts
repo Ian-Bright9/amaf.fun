@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import type { Contract } from '../../../types/index.js';
+import type { Contract } from '../../../../types/index.js';
 
 // Mock data for development
 const mockContracts: Contract[] = [
@@ -12,6 +12,7 @@ const mockContracts: Contract[] = [
 		resolution: 'pending',
 		status: 'active',
 		createdAt: new Date('2024-01-15T10:00:00Z').toISOString(),
+		resolvesAt: new Date('2025-12-31T23:59:59Z').toISOString(),
 		expirationTimestamp: new Date('2025-12-31T23:59:59Z').getTime(),
 		resolved: false,
 		totalYesAmount: 32500,
@@ -19,7 +20,9 @@ const mockContracts: Contract[] = [
 		betCount: 156,
 		totalVolume: 50000,
 		yesPrice: 0.65,
-		noPrice: 0.35
+		noPrice: 0.35,
+		currentYesPrice: 0.65,
+		currentNoPrice: 0.35
 	},
 	{
 		id: '2',
@@ -30,6 +33,7 @@ const mockContracts: Contract[] = [
 		resolution: 'pending',
 		status: 'active',
 		createdAt: new Date('2024-02-01T14:30:00Z').toISOString(),
+		resolvesAt: new Date('2030-01-01T00:00:00Z').toISOString(),
 		expirationTimestamp: new Date('2030-01-01T00:00:00Z').getTime(),
 		resolved: false,
 		totalYesAmount: 10500,
@@ -37,7 +41,9 @@ const mockContracts: Contract[] = [
 		betCount: 89,
 		totalVolume: 25000,
 		yesPrice: 0.42,
-		noPrice: 0.58
+		noPrice: 0.58,
+		currentYesPrice: 0.42,
+		currentNoPrice: 0.58
 	},
 	{
 		id: '3',
@@ -48,6 +54,7 @@ const mockContracts: Contract[] = [
 		resolution: 'yes',
 		status: 'resolved',
 		createdAt: new Date('2024-01-01T09:00:00Z').toISOString(),
+		resolvesAt: new Date('2024-06-30T23:59:59Z').toISOString(),
 		expirationTimestamp: new Date('2024-06-30T23:59:59Z').getTime(),
 		resolved: true,
 		outcome: true,
@@ -56,7 +63,9 @@ const mockContracts: Contract[] = [
 		betCount: 42,
 		totalVolume: 15000,
 		yesPrice: 1.0,
-		noPrice: 0.0
+		noPrice: 0.0,
+		currentYesPrice: 1.0,
+		currentNoPrice: 0.0
 	}
 ];
 

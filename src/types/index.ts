@@ -7,6 +7,7 @@ export interface Contract {
 	resolution: 'yes' | 'no' | 'pending';
 	status: 'active' | 'resolved' | 'cancelled';
 	createdAt: string;
+	resolvesAt: string;
 	expirationTimestamp: number;
 	resolved: boolean;
 	outcome?: boolean;
@@ -17,6 +18,8 @@ export interface Contract {
 	totalVolume: number;
 	yesPrice: number;
 	noPrice: number;
+	currentYesPrice: number;
+	currentNoPrice: number;
 }
 
 export interface Bet {
