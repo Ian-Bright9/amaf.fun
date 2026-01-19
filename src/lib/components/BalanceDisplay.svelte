@@ -76,7 +76,7 @@
 
 	.balance-card {
 		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		grid-template-columns: 1fr 1px 1fr;
 		gap: 0;
 		background-color: rgba(26, 26, 26, 0.9);
 		border: 1px solid #2d2d2d;

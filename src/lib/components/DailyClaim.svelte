@@ -34,7 +34,7 @@
 		if (!window.solana || !window.solana.publicKey) return;
 		try {
 			const provider = await solanaClient.initializeProvider(window.solana);
-			await solanaClient.initializeProgram(provider, idl);
+			await solanaClient.initializeProgram(provider);
 			programInitialized = true;
 		} catch (err) {
 			console.error('Error initializing program:', err);
@@ -55,8 +55,8 @@
 			const result = await checkCanClaim(connection, publicKey);
 			canClaim = result.canClaim;
 
-			if (!result.canClaim) {
-				walletStore.setLastClaimTime(new Date(result.lastClaimTime! * 1000).toISOString());
+			if (!result.canClaim && result.lastClaimTime) {
+				walletStore.setLastClaimTime(new Date(result.lastClaimTime * 1000).toISOString());
 			}
 		} catch (err) {
 			console.error('Error checking claim eligibility:', err);

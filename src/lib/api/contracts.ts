@@ -1,4 +1,5 @@
 import type { Contract } from '../../types/index.js';
+import { Connection } from '@solana/web3.js';
 
 const API_BASE = '/api';
 
@@ -17,7 +18,7 @@ export async function createContract(
 		body: JSON.stringify({
 			question: params.question,
 			description: params.description || '',
-			expirationTimestamp: new Date(params.resolvesAt).getTime(),
+			expirationTimestamp: Math.floor(new Date(params.resolvesAt).getTime() / 1000),
 			authority: params.creator
 		})
 	});

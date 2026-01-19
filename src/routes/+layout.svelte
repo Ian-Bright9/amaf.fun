@@ -1,6 +1,12 @@
 <script lang="ts">
 	import WalletAdapter from '$lib/components/WalletAdapter.svelte';
 	let { children } = $props();
+	let walletAdapter = $state<any>(null);
+
+	function setWalletAdapter(adapter: any) {
+		walletAdapter = adapter;
+		(window as any).walletAdapter = adapter;
+	}
 </script>
 
 <svelte:head>

@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { PROGRAM_ID } from '$lib/utils/solana-constants.js';
+import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 import { deriveTokenStateAddress } from '$lib/utils/pda.js';
 import idl from '$lib/idl/amafcoin.json';
 

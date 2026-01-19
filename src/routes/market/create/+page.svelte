@@ -1,14 +1,44 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { createContract } from '$lib/api/contracts.js';
 	import { marketsStore } from '$lib/stores/markets.js';
 	import { walletStore } from '$lib/stores/wallet.js';
 	import { goto } from '$app/navigation';
+	import { Connection, Transaction } from '@solana/web3.js';
 
 	let question = $state('');
 	let description = $state('');
 	let resolvesAt = $state('');
 	let submitting = $state(false);
 	let error = $state('');
+	let connection: Connection;
+
+	onMount(() => {
+		connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+	});
+
+	async function signTransactionFromBase64(
+		base64Tx: string,
+		walletAdapter: any,
+		conn: Connection
+	): Promise<string> {
+		if (!walletAdapter.connected) {
+			throw new Error('Wallet not connected');
+		}
+
+		const txBuffer = Buffer.from(base64Tx, 'base64');
+		const transaction = Transaction.from(txBuffer);
+
+		const signedTx = await walletAdapter.signTransaction(transaction);
+		const signature = await conn.sendRawTransaction(signedTx.serialize(), {
+			skipPreflight: false,
+			preflightCommitment: 'confirmed'
+		});
+
+		await conn.confirmTransaction(signature, 'confirmed');
+
+		return signature;
+	}
 
 	async function handleSubmit() {
 		if (!question || !resolvesAt) {
@@ -16,21 +46,18 @@
 			return;
 		}
 
-		// Check if wallet is connected
-		if (!$walletStore.connected) {
+		if (!$walletStore.connected || !$walletStore.publicKey) {
 			error = 'Please connect your wallet to create a market';
 			return;
 		}
 
-		// Validate resolution date is in the future
 		const resolveDate = new Date(resolvesAt);
 		const now = new Date();
 		if (resolveDate <= now) {
-			error = 'Resolution date must be in the future';
+			error = 'Resolution date must be in future';
 			return;
 		}
 
-		// Validate question isn't too short
 		if (question.length < 10) {
 			error = 'Question must be at least 10 characters long';
 			return;
@@ -41,21 +68,28 @@
 
 		try {
 			marketsStore.setLoading(true);
-			const contract = await createContract({
+
+			const walletAdapter = (window as any).walletAdapter;
+			if (!walletAdapter) {
+				error = 'Wallet not available';
+				return;
+			}
+
+			const result = await createContract({
 				question,
 				resolvesAt,
-				creator: $walletStore.publicKey || 'temp-wallet'
-			});
-			marketsStore.addMarket({
-				contract,
-				yesPrice: 0.5,
-				noPrice: 0.5,
-				volume: 0,
-				bets: []
+				creator: $walletStore.publicKey
 			});
 
-			// Redirect to the new market page
-			goto(`/market/${contract.id}`);
+			const signature = await signTransactionFromBase64(
+				result.transaction,
+				walletAdapter,
+				connection
+			);
+
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			goto(`/market/${result.contractAddress}`);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to create market';
 		} finally {

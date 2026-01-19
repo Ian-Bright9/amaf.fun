@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { Connection, PublicKey, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
-import { Program, AnchorProvider, BN } from '@project-serum/anchor';
+import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
 import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 import idl from '$lib/idl/amafcoin.json';
 
@@ -9,12 +9,12 @@ const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const body = await request.json();
-		const { contractId, position, amount, bettor, authority } = body;
+		const { contractId, resolution, authority } = body;
 
-		if (!contractId || !position || !amount || !bettor) {
+		if (!contractId || !resolution || !authority) {
 			return new Response(
 				JSON.stringify({
-					error: 'Missing required fields: contractId, position, amount, bettor'
+					error: 'Missing required fields: contractId, resolution, authority'
 				}),
 				{
 					headers: { 'Content-Type': 'application/json' },
@@ -24,17 +24,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		const contractPubkey = new PublicKey(contractId);
-		const bettorPubkey = new PublicKey(bettor);
-		const betKeypair = Keypair.generate();
-		const authorityPubkey = new PublicKey(authority || bettor);
-
-		const betSize = 8 + 32 + 32 + 8 + 1 + 8;
-		const rent = await connection.getMinimumBalanceForRentExemption(betSize);
+		const authorityPubkey = new PublicKey(authority);
 
 		const provider = new AnchorProvider(
 			connection,
 			{
-				publicKey: bettorPubkey,
+				publicKey: authorityPubkey,
 				signTransaction: async (tx: any) => {
 					return tx;
 				},
@@ -49,25 +44,13 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const transaction = new Transaction();
 		transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-		transaction.feePayer = bettorPubkey;
+		transaction.feePayer = authorityPubkey;
 
 		transaction.add(
-			SystemProgram.createAccount({
-				fromPubkey: bettorPubkey,
-				newAccountPubkey: betKeypair.publicKey,
-				lamports: rent,
-				space: betSize,
-				programId: PROGRAM_ID
-			})
-		);
-
-		transaction.add(
-			program.instruction.placeBet(new BN(amount), position === 'yes', {
+			program.instruction.resolveContract(resolution === 'yes', {
 				accounts: {
 					contract: contractPubkey,
-					bet: betKeypair.publicKey,
-					bettor: bettorPubkey,
-					systemProgram: SystemProgram.programId
+					authority: authorityPubkey
 				}
 			})
 		);
@@ -75,8 +58,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		return new Response(
 			JSON.stringify({
 				transaction: transaction.serialize({ requireAllSignatures: false }).toString('base64'),
-				betAddress: betKeypair.publicKey.toBase58(),
-				message: 'Transaction created. Sign with wallet to place bet.'
+				message: 'Transaction created. Sign with wallet to resolve contract.'
 			}),
 			{
 				headers: { 'Content-Type': 'application/json' },
@@ -84,10 +66,10 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 		);
 	} catch (error) {
-		console.error('Error placing bet:', error);
+		console.error('Error resolving contract:', error);
 		return new Response(
 			JSON.stringify({
-				error: error instanceof Error ? error.message : 'Failed to place bet'
+				error: error instanceof Error ? error.message : 'Failed to resolve contract'
 			}),
 			{
 				headers: { 'Content-Type': 'application/json' },

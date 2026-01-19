@@ -9,12 +9,12 @@ const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const body = await request.json();
-		const { contractId, position, amount, bettor, authority } = body;
+		const { question, description, expirationTimestamp, authority } = body;
 
-		if (!contractId || !position || !amount || !bettor) {
+		if (!question || !expirationTimestamp || !authority) {
 			return new Response(
 				JSON.stringify({
-					error: 'Missing required fields: contractId, position, amount, bettor'
+					error: 'Missing required fields: question, expirationTimestamp, authority'
 				}),
 				{
 					headers: { 'Content-Type': 'application/json' },
@@ -23,18 +23,17 @@ export const POST: RequestHandler = async ({ request }) => {
 			);
 		}
 
-		const contractPubkey = new PublicKey(contractId);
-		const bettorPubkey = new PublicKey(bettor);
-		const betKeypair = Keypair.generate();
-		const authorityPubkey = new PublicKey(authority || bettor);
+		const authorityPubkey = new PublicKey(authority);
+		const contractKeypair = Keypair.generate();
 
-		const betSize = 8 + 32 + 32 + 8 + 1 + 8;
-		const rent = await connection.getMinimumBalanceForRentExemption(betSize);
+		const contractSize =
+			8 + 32 + 4 + question.length + 4 + (description?.length || 0) + 8 + 1 + 2 + 8 + 8 + 8;
+		const rent = await connection.getMinimumBalanceForRentExemption(contractSize);
 
 		const provider = new AnchorProvider(
 			connection,
 			{
-				publicKey: bettorPubkey,
+				publicKey: authorityPubkey,
 				signTransaction: async (tx: any) => {
 					return tx;
 				},
@@ -49,24 +48,23 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const transaction = new Transaction();
 		transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-		transaction.feePayer = bettorPubkey;
+		transaction.feePayer = authorityPubkey;
 
 		transaction.add(
 			SystemProgram.createAccount({
-				fromPubkey: bettorPubkey,
-				newAccountPubkey: betKeypair.publicKey,
+				fromPubkey: authorityPubkey,
+				newAccountPubkey: contractKeypair.publicKey,
 				lamports: rent,
-				space: betSize,
+				space: contractSize,
 				programId: PROGRAM_ID
 			})
 		);
 
 		transaction.add(
-			program.instruction.placeBet(new BN(amount), position === 'yes', {
+			program.instruction.createContract(question, description || '', new BN(expirationTimestamp), {
 				accounts: {
-					contract: contractPubkey,
-					bet: betKeypair.publicKey,
-					bettor: bettorPubkey,
+					contract: contractKeypair.publicKey,
+					authority: authorityPubkey,
 					systemProgram: SystemProgram.programId
 				}
 			})
@@ -75,8 +73,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		return new Response(
 			JSON.stringify({
 				transaction: transaction.serialize({ requireAllSignatures: false }).toString('base64'),
-				betAddress: betKeypair.publicKey.toBase58(),
-				message: 'Transaction created. Sign with wallet to place bet.'
+				contractAddress: contractKeypair.publicKey.toBase58(),
+				message: 'Transaction created. Sign with wallet to create contract.'
 			}),
 			{
 				headers: { 'Content-Type': 'application/json' },
@@ -84,10 +82,10 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 		);
 	} catch (error) {
-		console.error('Error placing bet:', error);
+		console.error('Error creating contract transaction:', error);
 		return new Response(
 			JSON.stringify({
-				error: error instanceof Error ? error.message : 'Failed to place bet'
+				error: error instanceof Error ? error.message : 'Failed to create contract'
 			}),
 			{
 				headers: { 'Content-Type': 'application/json' },
