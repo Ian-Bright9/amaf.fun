@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { formatCurrency, formatPercentage, shortenAddress } from '$lib/utils/format.js';
+import {
+	formatCurrency,
+	formatAmafCurrency,
+	formatPercentage,
+	shortenAddress
+} from '$lib/utils/format.js';
 
 describe('formatCurrency', () => {
 	it('formats numbers with default decimals', () => {
@@ -12,6 +17,24 @@ describe('formatCurrency', () => {
 
 	it('formats integers correctly', () => {
 		expect(formatCurrency(10)).toBe('10.00 SOL');
+	});
+});
+
+describe('formatAmafCurrency', () => {
+	it('formats numbers with default decimals', () => {
+		expect(formatAmafCurrency(1.23456)).toBe('1.23 ¤');
+	});
+
+	it('formats numbers with custom decimals', () => {
+		expect(formatAmafCurrency(1.23456, 4)).toBe('1.2346 ¤');
+	});
+
+	it('formats integers correctly', () => {
+		expect(formatAmafCurrency(100)).toBe('100.00 ¤');
+	});
+
+	it('formats zero correctly', () => {
+		expect(formatAmafCurrency(0)).toBe('0.00 ¤');
 	});
 });
 

@@ -2,6 +2,10 @@ export function formatCurrency(amount: number, decimals: number = 2): string {
 	return `${amount.toFixed(decimals)} SOL`;
 }
 
+export function formatAmafCurrency(amount: number, decimals: number = 2): string {
+	return `${amount.toFixed(decimals)} ¤`;
+}
+
 export function formatPercentage(value: number): string {
 	return `${(value * 100).toFixed(1)}%`;
 }

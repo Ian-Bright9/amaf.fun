@@ -5,15 +5,17 @@
 	import { walletStore } from '$lib/stores/wallet.js';
 	import { getBalance } from '$lib/utils/wallet.js';
 	import { getAmafBalance } from '$lib/utils/tokens.js';
+	import { deriveTokenMintAddress } from '$lib/utils/pda.js';
+	import { DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 
 	let walletAdapter: PhantomWalletAdapter | null = null;
 	let connecting = $state(false);
 	let error: string | null = $state(null);
 	let connection: Connection | null = $state(null);
-	let network = $state('Mainnet');
+	let network = $state('Devnet');
 
 	onMount(async () => {
-		connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+		connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 		walletAdapter = new PhantomWalletAdapter();
 
 		walletAdapter.on('connect', async (publicKey) => {
@@ -21,10 +23,12 @@
 			walletStore.setConnected(true);
 
 			try {
+				if (!connection) return;
 				const solBalance = await getBalance(connection, publicKey);
 				walletStore.setBalance(solBalance);
 
-				const amafBalance = await getAmafBalance(connection, publicKey);
+				const tokenMint = deriveTokenMintAddress();
+				const amafBalance = await getAmafBalance(connection, publicKey, tokenMint);
 				walletStore.setAmafBalance(amafBalance);
 			} catch (err) {
 				console.error('Error fetching balances:', err);

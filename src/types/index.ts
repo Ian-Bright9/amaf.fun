@@ -56,3 +56,54 @@ export type WalletAdapter = {
 	disconnect: () => Promise<void>;
 	sendTransaction: (transaction: any) => Promise<string>;
 };
+
+export interface TokenState {
+	authority: string;
+	lastClaimTime: number;
+	totalClaimed: number;
+}
+
+export interface AmafTokenBalance {
+	balance: number;
+	canClaim: boolean;
+	nextClaimTime?: Date;
+}
+
+export interface PriceDataPoint {
+	timestamp: number;
+	yesPrice: number;
+	noPrice: number;
+}
+
+export interface CandlestickDataPoint {
+	timestamp: number;
+	x: string;
+	y: [number, number, number, number];
+}
+
+export interface ChartStats {
+	currentYes: number;
+	currentNo: number;
+	high: number;
+	low: number;
+	change24h: number;
+	volume: number;
+}
+
+export interface ChartData {
+	prices: PriceDataPoint[];
+	candlestick: CandlestickDataPoint[];
+	stats: ChartStats;
+}
+
+export interface ChartOptions {
+	colors: {
+		yes: string;
+		no: string;
+		background: string;
+		grid: string;
+		text: string;
+		tooltip: string;
+	};
+	responsive: boolean;
+}

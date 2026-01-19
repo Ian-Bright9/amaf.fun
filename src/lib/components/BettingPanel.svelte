@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatCurrency } from '../utils/format.js';
+	import { formatAmafCurrency } from '../utils/format.js';
 	import { walletStore } from '../stores/wallet.js';
 	import type { Contract } from '../../types/index.js';
 
@@ -25,7 +25,7 @@
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// Success feedback
-			console.log(`Placed ${amount} SOL bet on ${selectedPosition} for contract ${contract.id}`);
+			console.log(`Placed ${amount} ¤ bet on ${selectedPosition} for contract ${contract.id}`);
 			amount = 10; // Reset amount
 		} catch (error) {
 			betError = error instanceof Error ? error.message : 'Failed to place bet';
@@ -84,7 +84,7 @@
 					placeholder="0"
 					class="amount-input"
 				/>
-				<span class="amount-currency">SOL</span>
+				<span class="amount-currency">¤</span>
 			</div>
 			<div class="quick-amounts">
 				{#each [10, 25, 50, 100] as value}
@@ -105,11 +105,11 @@
 			</div>
 			<div class="summary-row">
 				<span>Bet Amount:</span>
-				<span>{formatCurrency(amount)}</span>
+				<span>{formatAmafCurrency(amount)}</span>
 			</div>
 			<div class="summary-row potential-return">
 				<span>Potential Return:</span>
-				<span>{formatCurrency(potentialReturn)}</span>
+				<span>{formatAmafCurrency(potentialReturn)}</span>
 			</div>
 		</div>
 

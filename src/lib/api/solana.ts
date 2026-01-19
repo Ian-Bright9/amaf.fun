@@ -1,11 +1,19 @@
 import { Connection, PublicKey, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
 import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 import {
 	createCreateContractInstruction,
 	createPlaceBetInstruction,
-	createResolveContractInstruction
+	createResolveContractInstruction,
+	createInitializeTokenMintInstruction,
+	createClaimDailyTokensInstruction
 } from './instructions.js';
+import {
+	deriveTokenMintAddress,
+	deriveTokenStateAddress,
+	deriveUserTokenAccount
+} from '$lib/utils/pda.js';
 
 const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 
@@ -142,6 +150,52 @@ export class SolanaProgramClient {
 		);
 
 		return new Transaction().add(resolveInstruction);
+	}
+
+	async initializeTokenMint(walletAdapter: any): Promise<Transaction> {
+		const provider = await this.initializeProvider(walletAdapter);
+
+		if (!this.program) {
+			throw new Error('Program not initialized');
+		}
+
+		const tokenState = deriveTokenStateAddress();
+		const instruction = createInitializeTokenMintInstruction(
+			this.program,
+			tokenState,
+			walletAdapter.publicKey
+		);
+
+		return new Transaction().add(instruction);
+	}
+
+	async claimDailyTokens(
+		walletAdapter: any
+	): Promise<{ transaction: Transaction; signature: string }> {
+		const provider = await this.initializeProvider(walletAdapter);
+
+		if (!this.program) {
+			throw new Error('Program not initialized');
+		}
+
+		const tokenMint = deriveTokenMintAddress();
+		const tokenState = deriveTokenStateAddress();
+		const userTokenAccount = deriveUserTokenAccount(walletAdapter.publicKey, tokenMint);
+
+		const instruction = createClaimDailyTokensInstruction(
+			this.program,
+			tokenMint,
+			tokenState,
+			userTokenAccount,
+			walletAdapter.publicKey,
+			TOKEN_PROGRAM_ID
+		);
+
+		const transaction = new Transaction().add(instruction);
+
+		const signature = await walletAdapter.signAndSendTransaction(transaction);
+
+		return { transaction, signature };
 	}
 }
 

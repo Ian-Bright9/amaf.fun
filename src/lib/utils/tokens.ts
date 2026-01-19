@@ -1,14 +1,13 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 
-export const AMAF_TOKEN_MINT = new PublicKey('placeholder_mint_address');
-
 export async function getAmafBalance(
 	connection: Connection,
-	publicKey: PublicKey
+	publicKey: PublicKey,
+	tokenMint: PublicKey
 ): Promise<number> {
 	try {
 		const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
-			mint: AMAF_TOKEN_MINT
+			mint: tokenMint
 		});
 
 		if (tokenAccounts.value.length === 0) {
@@ -26,11 +25,12 @@ export async function getAmafBalance(
 
 export async function getAmafTokenAccount(
 	connection: Connection,
-	publicKey: PublicKey
+	publicKey: PublicKey,
+	tokenMint: PublicKey
 ): Promise<PublicKey | null> {
 	try {
 		const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
-			mint: AMAF_TOKEN_MINT
+			mint: tokenMint
 		});
 
 		if (tokenAccounts.value.length === 0) {
@@ -44,9 +44,12 @@ export async function getAmafTokenAccount(
 	}
 }
 
-export async function getAmafTokenSupply(connection: Connection): Promise<number> {
+export async function getAmafTokenSupply(
+	connection: Connection,
+	tokenMint: PublicKey
+): Promise<number> {
 	try {
-		const supply = await connection.getTokenSupply(AMAF_TOKEN_MINT);
+		const supply = await connection.getTokenSupply(tokenMint);
 		return supply.value.uiAmount || 0;
 	} catch (error) {
 		console.error('Error fetching AMAF token supply:', error);

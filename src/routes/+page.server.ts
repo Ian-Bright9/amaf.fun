@@ -2,9 +2,9 @@ import type { ServerLoad } from '@sveltejs/kit';
 import { getContracts } from '$lib/api/contracts.js';
 import type { MarketData } from '../types/index.js';
 
-export const load: ServerLoad = async () => {
+export const load: ServerLoad = async ({ fetch }) => {
 	try {
-		const contracts = await getContracts();
+		const contracts = await getContracts(fetch);
 
 		if (!contracts || contracts.length === 0) {
 			return {

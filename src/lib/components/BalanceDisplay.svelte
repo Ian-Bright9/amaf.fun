@@ -3,13 +3,16 @@
 	import { walletStore } from '$lib/stores/wallet.js';
 	import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 	import { getBalance } from '$lib/utils/wallet.js';
+	import { DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 
 	let connection: Connection | null = $state(null);
 	let solPrice = $state(0);
 
-	$: if ($walletStore.connected && connection && $walletStore.publicKey) {
-		updateBalance();
-	}
+	$effect(() => {
+		if ($walletStore.connected && connection && $walletStore.publicKey) {
+			updateBalance();
+		}
+	});
 
 	async function updateBalance() {
 		if (!$walletStore.publicKey || !connection) return;
@@ -24,7 +27,7 @@
 	}
 
 	onMount(() => {
-		connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+		connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 	});
 </script>
 
@@ -33,7 +36,7 @@
 		<div class="balance-item">
 			<div class="balance-header">
 				<span class="balance-label">SOL Balance</span>
-				<span class="balance-network">Mainnet</span>
+				<span class="balance-network">Devnet</span>
 			</div>
 			<div class="balance-value">
 				<span class="balance-amount">
@@ -47,14 +50,14 @@
 
 		<div class="balance-item amaf">
 			<div class="balance-header">
-				<span class="balance-label">AMAF Balance</span>
+				<span class="balance-label">Balance</span>
 				<span class="balance-tag">Free Tokens</span>
 			</div>
 			<div class="balance-value">
 				<span class="balance-amount">
 					{$walletStore.amafBalance.toFixed(0)}
 				</span>
-				<span class="balance-symbol">AMAF</span>
+				<span class="balance-symbol">¤</span>
 			</div>
 		</div>
 	</div>

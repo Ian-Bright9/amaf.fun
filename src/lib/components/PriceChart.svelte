@@ -2,7 +2,7 @@
 	import { formatPercentage } from '../utils/format.js';
 	import type { Contract } from '../../types/index.js';
 
-	let { contract } = $props<Contract>();
+	let { contract }: { contract: Contract } = $props();
 
 	const yesColor = '#10b981';
 	const noColor = '#ef4444';

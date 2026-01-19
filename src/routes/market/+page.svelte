@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { marketsStore } from '$lib/stores/markets.js';
-	import { formatCurrency, formatPercentage, formatDate } from '$lib/utils/format.js';
+	import { formatAmafCurrency, formatPercentage, formatDate } from '$lib/utils/format.js';
 	import { onMount } from 'svelte';
 	import type { MarketData } from '../../types/index.js';
 
@@ -184,7 +184,7 @@
 									stroke-linejoin="round"
 								/>
 							</svg>
-							{formatCurrency(market.volume)}
+							{formatAmafCurrency(market.volume)}
 						</span>
 						<span class="bets">{market.contract.betCount || 0} bets</span>
 					</div>

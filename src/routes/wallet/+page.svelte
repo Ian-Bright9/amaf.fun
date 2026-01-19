@@ -9,7 +9,7 @@
 		<div class="header-content">
 			<div class="header-left">
 				<h1>Wallet</h1>
-				<p class="header-subtitle">Manage your SOL and AMAF tokens</p>
+				<p class="header-subtitle">Manage your SOL and ¤</p>
 			</div>
 			<div class="header-right">
 				<WalletAdapter />

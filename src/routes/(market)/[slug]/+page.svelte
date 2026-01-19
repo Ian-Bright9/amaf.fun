@@ -8,7 +8,7 @@
 	} from '../../../lib/utils/format.js';
 	import { marketsStore } from '../../../lib/stores/markets.js';
 	import BettingPanel from '../../../lib/components/BettingPanel.svelte';
-	import PriceChart from '../../../lib/components/PriceChart.svelte';
+	import ApexMarketChart from '../../../lib/components/ApexMarketChart.svelte';
 	import OrderBook from '../../../lib/components/OrderBook.svelte';
 	import MarketStats from '../../../lib/components/MarketStats.svelte';
 	import type { Contract, Bet } from '../../../types/index.js';
@@ -103,7 +103,7 @@
 				{/if}
 
 				<!-- Price Chart -->
-				<PriceChart {contract} />
+				<ApexMarketChart {contract} />
 
 				<!-- Market Description -->
 				{#if contract.description}

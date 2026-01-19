@@ -2,10 +2,10 @@ import type { ServerLoad } from '@sveltejs/kit';
 import { getContract } from '../../../lib/api/contracts.js';
 import type { Contract, Bet } from '../../../types/index.js';
 
-export const load: ServerLoad = async ({ params }) => {
+export const load: ServerLoad = async ({ params, fetch }) => {
 	const slug = params.slug as string;
 	try {
-		const contract = await getContract(params.slug);
+		const contract = await getContract(params.slug, fetch);
 
 		// Mock bet data for now
 		const mockBets: Bet[] = [

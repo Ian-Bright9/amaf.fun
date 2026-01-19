@@ -2,8 +2,12 @@
 	import { onMount } from 'svelte';
 	import { walletStore } from '$lib/stores/wallet.js';
 	import { Connection, PublicKey } from '@solana/web3.js';
-	import { claimDailyTokens, checkCanClaim } from '$lib/api/amaf-token.js';
+	import { checkCanClaim } from '$lib/api/amaf-token.js';
 	import { getAmafBalance } from '$lib/utils/tokens.js';
+	import { deriveTokenMintAddress } from '$lib/utils/pda.js';
+	import { solanaClient } from '$lib/api/solana.js';
+	import { DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
+	import idl from '$lib/idl/amafcoin.json';
 
 	let claiming = $state(false);
 	let error: string | null = $state(null);
@@ -11,17 +15,37 @@
 	let connection: Connection | null = $state(null);
 	let countdown = $state('');
 	let canClaim = $state(false);
+	let programInitialized = $state(false);
 
-	onMount(async () => {
-		connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+	onMount(() => {
+		connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 		updateCountdown();
-		const interval = setInterval(updateCountdown, 1000);
+		const interval = setInterval(() => updateCountdown(), 1000);
 		return () => clearInterval(interval);
 	});
 
-	$: if ($walletStore.connected && connection && $walletStore.publicKey) {
-		updateClaimEligibility();
+	$effect(() => {
+		if ($walletStore.connected && connection && $walletStore.publicKey && !programInitialized) {
+			initializeProgram();
+		}
+	});
+
+	async function initializeProgram() {
+		if (!window.solana || !window.solana.publicKey) return;
+		try {
+			const provider = await solanaClient.initializeProvider(window.solana);
+			await solanaClient.initializeProgram(provider, idl);
+			programInitialized = true;
+		} catch (err) {
+			console.error('Error initializing program:', err);
+		}
 	}
+
+	$effect(() => {
+		if ($walletStore.connected && connection && $walletStore.publicKey && programInitialized) {
+			updateClaimEligibility();
+		}
+	});
 
 	async function updateClaimEligibility() {
 		if (!$walletStore.publicKey || !connection) return;
@@ -61,8 +85,8 @@
 		}
 	}
 
-	async function claimDailyTokens() {
-		if (!$walletStore.publicKey || !connection) {
+	async function handleClaim() {
+		if (!$walletStore.publicKey || !connection || !window.solana) {
 			error = 'Wallet not connected';
 			return;
 		}
@@ -77,17 +101,18 @@
 				return;
 			}
 
-			const publicKey = new PublicKey($walletStore.publicKey);
-			const result = await claimDailyTokens(connection, window.solana);
+			const result = await solanaClient.claimDailyTokens(window.solana);
 
-			if (result.signature) {
+			if (connection && result.signature) {
 				await connection.confirmTransaction(result.signature, 'confirmed');
 				walletStore.setLastClaimTime(new Date().toISOString());
 
-				const newBalance = await getAmafBalance(connection, publicKey);
+				const tokenMint = deriveTokenMintAddress();
+				const publicKey = new PublicKey($walletStore.publicKey);
+				const newBalance = await getAmafBalance(connection, publicKey, tokenMint);
 				walletStore.setAmafBalance(newBalance);
 
-				success = 'Successfully claimed 100 AMAF tokens!';
+				success = 'Successfully claimed 100 ¤!';
 				updateClaimEligibility();
 			} else {
 				error = 'Failed to claim tokens - no signature returned';
@@ -134,7 +159,7 @@
 			</div>
 			<div class="claim-info">
 				<h2>Daily Token Claim</h2>
-				<p>Claim 100 AMAF tokens every 24 hours</p>
+				<p>Claim 100 ¤ every 24 hours</p>
 			</div>
 		</div>
 
@@ -148,13 +173,13 @@
 				<button
 					class="claim-button"
 					disabled={claiming || !$walletStore.connected}
-					onclick={claimDailyTokens}
+					onclick={handleClaim}
 				>
 					{#if claiming}
 						<span class="spinner"></span>
 						Claiming...
 					{:else}
-						Claim 100 AMAF
+						Claim 100 ¤
 					{/if}
 				</button>
 			{/if}
@@ -168,7 +193,7 @@
 	</div>
 
 	{#if success}
-		<div class="success-toast" on:click={dismissSuccess}>
+		<div class="success-toast" onclick={dismissSuccess}>
 			<div class="toast-content">
 				<span class="toast-icon">✓</span>
 				<span class="toast-message">{success}</span>
@@ -177,7 +202,7 @@
 	{/if}
 
 	{#if error}
-		<div class="error-toast" on:click={dismissError}>
+		<div class="error-toast" onclick={dismissError}>
 			<div class="toast-content">
 				<span class="toast-icon">✕</span>
 				<span class="toast-message">{error}</span>

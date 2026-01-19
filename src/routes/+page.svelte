@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { marketsStore } from '$lib/stores/markets.js';
-	import { formatCurrency, formatPercentage, formatDate } from '$lib/utils/format.js';
+	import { formatAmafCurrency, formatPercentage, formatDate } from '$lib/utils/format.js';
 	import { onMount } from 'svelte';
 
 	let { data }: { data: { markets: any[]; error: string | null } } = $props();
@@ -86,7 +86,7 @@
 								<span class="status-badge status-{market.contract.status}">
 									{market.contract.status}
 								</span>
-								<span class="volume">{formatCurrency(market.volume)}</span>
+								<span class="volume">{formatAmafCurrency(market.volume)}</span>
 							</div>
 							<h3>{market.contract.question}</h3>
 							<p class="description">{market.contract.description || 'No description'}</p>

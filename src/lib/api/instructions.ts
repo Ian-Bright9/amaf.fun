@@ -1,5 +1,5 @@
 import type { Program } from '@project-serum/anchor';
-import { BN } from '@project-serum/anchor';
+import BN from 'bn.js';
 import { SystemProgram } from '@solana/web3.js';
 import type { PublicKey, TransactionInstruction } from '@solana/web3.js';
 
@@ -48,6 +48,38 @@ export function createResolveContractInstruction(
 		accounts: {
 			contract: contract,
 			authority: authority
+		}
+	});
+}
+
+export function createInitializeTokenMintInstruction(
+	program: Program,
+	tokenState: PublicKey,
+	authority: PublicKey
+): TransactionInstruction {
+	return program.instruction.initializeTokenMint({
+		accounts: {
+			tokenState: tokenState,
+			authority: authority
+		}
+	});
+}
+
+export function createClaimDailyTokensInstruction(
+	program: Program,
+	tokenMint: PublicKey,
+	tokenState: PublicKey,
+	userTokenAccount: PublicKey,
+	authority: PublicKey,
+	tokenProgram: PublicKey
+): TransactionInstruction {
+	return program.instruction.claimDailyTokens({
+		accounts: {
+			tokenMint: tokenMint,
+			tokenState: tokenState,
+			userTokenAccount: userTokenAccount,
+			authority: authority,
+			tokenProgram: tokenProgram
 		}
 	});
 }
