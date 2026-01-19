@@ -8,11 +8,12 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
-
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link
 		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 		rel="stylesheet"
 	/>
+	<link rel="stylesheet" href="/lib/styles/variables.css" />
 	<style>
 		:global(body) {
 			background-color: #0a0a0a;
@@ -36,13 +37,13 @@
 		}
 
 		:global(a) {
-			color: #09c285;
+			color: #b80841;
 			text-decoration: none;
 			transition: color 0.2s ease;
 		}
 
 		:global(a:hover) {
-			color: #05a372;
+			color: #9e0738;
 		}
 	</style>
 </svelte:head>
