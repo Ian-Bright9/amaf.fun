@@ -1,11 +1,12 @@
-import type { PageServerLoad } from '@sveltejs/kit';
+import type { ServerLoad } from '@sveltejs/kit';
 import { getContract } from '../../../lib/api/contracts.js';
 import type { Contract, Bet } from '../../../types/index.js';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: ServerLoad = async ({ params }) => {
+	const slug = params.slug as string;
 	try {
 		const contract = await getContract(params.slug);
-		
+
 		// Mock bet data for now
 		const mockBets: Bet[] = [
 			{

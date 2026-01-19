@@ -4,43 +4,50 @@
 
 	export let contract: Contract;
 
+	// Chart data and dimensions
+	const chartWidth = 100;
+	const chartHeight = 60;
+	const padding = 5;
+
 	// Mock price history data
-	$:{ priceHistory = [
+	$: priceHistory = [
 		{ date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), yesPrice: 0.45, noPrice: 0.55 },
 		{ date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), yesPrice: 0.48, noPrice: 0.52 },
 		{ date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), yesPrice: 0.52, noPrice: 0.48 },
-		{ date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), yesPrice: 0.50, noPrice: 0.50 },
+		{ date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), yesPrice: 0.5, noPrice: 0.5 },
 		{ date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), yesPrice: 0.55, noPrice: 0.45 },
 		{ date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), yesPrice: 0.58, noPrice: 0.42 },
 		{ date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), yesPrice: 0.62, noPrice: 0.38 },
-		{ date: new Date(), yesPrice: contract.currentYesPrice, noPrice: contract.currentNoPrice }
-	] };
-
-	// Calculate chart dimensions
-	$:{ chartWidth = 100 };
-	$:{ chartHeight = 60 };
-	$:{ padding = 5 };
+		{ date: new Date(), yesPrice: contract.yesPrice, noPrice: contract.noPrice }
+	];
 
 	// Calculate scales
-	$:{ maxPrice = Math.max(...priceHistory.map(p => Math.max(p.yesPrice, p.noPrice))) };
-	$:{ minPrice = Math.min(...priceHistory.map(p => Math.min(p.yesPrice, p.noPrice))) };
-	$:{ priceRange = maxPrice - minPrice || 0.1 };
+	$: maxPrice = Math.max(...priceHistory.map((p) => Math.max(p.yesPrice, p.noPrice)));
+	$: minPrice = Math.min(...priceHistory.map((p) => Math.min(p.yesPrice, p.noPrice)));
+	$: priceRange = maxPrice - minPrice || 0.1;
 
 	// Generate path data for charts
-	$:{ yesPath = generatePath(priceHistory.map(p => ({
-		x: (priceHistory.indexOf(p) / (priceHistory.length - 1)) * chartWidth,
-		y: chartHeight - ((p.yesPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) - padding
-	}))) };
+	$: yesPath = generatePath(
+		priceHistory.map((p, i) => ({
+			x: (i / (priceHistory.length - 1)) * chartWidth,
+			y:
+				chartHeight - ((p.yesPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) - padding
+		}))
+	);
 
-	$:{ noPath = generatePath(priceHistory.map(p => ({
-		x: (priceHistory.indexOf(p) / (priceHistory.length - 1)) * chartWidth,
-		y: chartHeight - ((p.noPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) - padding
-	}))) };
+	$: noPath = generatePath(
+		priceHistory.map((p, i) => ({
+			x: (i / (priceHistory.length - 1)) * chartWidth,
+			y: chartHeight - ((p.noPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) - padding
+		}))
+	);
 
+	// Helper function to generate SVG path
 	function generatePath(points: { x: number; y: number }[]): string {
-		return points.map((point, i) => 
-			`${i === 0 ? 'M' : 'L'} ${point.x} ${point.y}`
-		).join(' ');
+		if (points.length === 0) return '';
+		return points.reduce((path, point, index) => {
+			return path + (index === 0 ? 'M' : 'L') + point.x.toFixed(1) + ',' + point.y.toFixed(1);
+		}, '');
 	}
 </script>
 
@@ -60,35 +67,27 @@
 			{/each}
 
 			<!-- YES price line -->
-			<path
-				d={yesPath}
-				fill="none"
-				stroke="#10b981"
-				stroke-width="2"
-				class="price-line yes"
-			/>
+			<path d={yesPath} fill="none" stroke="#10b981" stroke-width="2" class="price-line yes" />
 
 			<!-- NO price line -->
-			<path
-				d={noPath}
-				fill="none"
-				stroke="#ef4444"
-				stroke-width="2"
-				class="price-line no"
-			/>
+			<path d={noPath} fill="none" stroke="#ef4444" stroke-width="2" class="price-line no" />
 
 			<!-- Data points -->
 			{#each priceHistory as point, i}
 				<circle
 					cx={(i / (priceHistory.length - 1)) * chartWidth}
-					cy={chartHeight - ((point.yesPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) - padding}
+					cy={chartHeight -
+						((point.yesPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) -
+						padding}
 					r="2"
 					fill="#10b981"
 					class="data-point"
 				/>
 				<circle
 					cx={(i / (priceHistory.length - 1)) * chartWidth}
-					cy={chartHeight - ((point.noPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) - padding}
+					cy={chartHeight -
+						((point.noPrice - minPrice) / priceRange) * (chartHeight - 2 * padding) -
+						padding}
 					r="2"
 					fill="#ef4444"
 					class="data-point"

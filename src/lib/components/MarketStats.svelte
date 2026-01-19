@@ -6,46 +6,50 @@
 	export let bets: Bet[];
 
 	// Calculate statistics
-	$: uniqueUsers = new Set(bets.map(bet => bet.user)).size;
+	$: uniqueUsers = new Set(bets.map((bet) => bet.user)).size;
 	$: totalVolume = bets.reduce((sum, bet) => sum + bet.amount, 0);
-	$: yesVolume = bets.filter(bet => bet.position === 'yes').reduce((sum, bet) => sum + bet.amount, 0);
-	$: noVolume = bets.filter(bet => bet.position === 'no').reduce((sum, bet) => sum + bet.amount, 0);
+	$: yesVolume = bets
+		.filter((bet) => bet.position === 'yes')
+		.reduce((sum, bet) => sum + bet.amount, 0);
+	$: noVolume = bets
+		.filter((bet) => bet.position === 'no')
+		.reduce((sum, bet) => sum + bet.amount, 0);
 	$: averageBetSize = bets.length > 0 ? totalVolume / bets.length : 0;
 
 	// Time calculations
-	$: timeToResolution = contract.resolvesAt 
-		? new Date(contract.resolvesAt).getTime() - new Date().getTime()
+	$: timeToResolution = contract.expirationTimestamp
+		? contract.expirationTimestamp - new Date().getTime()
 		: null;
 
-	$: daysToResolution = timeToResolution 
+	$: daysToResolution = timeToResolution
 		? Math.max(0, Math.floor(timeToResolution / (1000 * 60 * 60 * 24)))
 		: null;
 
-	$: hoursToResolution = timeToResolution 
+	$: hoursToResolution = timeToResolution
 		? Math.max(0, Math.floor((timeToResolution % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)))
 		: null;
 </script>
 
 <div class="market-stats">
 	<h3>Market Statistics</h3>
-	
+
 	<!-- Key Metrics -->
 	<div class="stats-grid">
 		<div class="stat-item">
 			<div class="stat-label">Total Volume</div>
 			<div class="stat-value">{formatCurrency(totalVolume)}</div>
 		</div>
-		
+
 		<div class="stat-item">
 			<div class="stat-label">Participants</div>
 			<div class="stat-value">{uniqueUsers}</div>
 		</div>
-		
+
 		<div class="stat-item">
 			<div class="stat-label">Total Bets</div>
 			<div class="stat-value">{bets.length}</div>
 		</div>
-		
+
 		<div class="stat-item">
 			<div class="stat-label">Avg Bet Size</div>
 			<div class="stat-value">{formatCurrency(averageBetSize, 0)}</div>
@@ -56,8 +60,14 @@
 	<div class="volume-breakdown">
 		<h4>Volume Breakdown</h4>
 		<div class="volume-bars">
-			<div class="volume-bar yes" style="width: {totalVolume > 0 ? (yesVolume / totalVolume) * 100 : 50}%"></div>
-			<div class="volume-bar no" style="width: {totalVolume > 0 ? (noVolume / totalVolume) * 100 : 50}%"></div>
+			<div
+				class="volume-bar yes"
+				style="width: {totalVolume > 0 ? (yesVolume / totalVolume) * 100 : 50}%"
+			></div>
+			<div
+				class="volume-bar no"
+				style="width: {totalVolume > 0 ? (noVolume / totalVolume) * 100 : 50}%"
+			></div>
 		</div>
 		<div class="volume-legend">
 			<div class="legend-item yes">

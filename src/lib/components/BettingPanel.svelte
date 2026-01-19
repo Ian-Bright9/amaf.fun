@@ -11,7 +11,8 @@
 	let betError: string | null = null;
 
 	$: canPlaceBet = amount > 0 && $walletStore.connected && !isPlacingBet;
-	$: potentialReturn = selectedPosition === 'yes' ? amount / contract.currentYesPrice : amount / contract.currentNoPrice;
+	$: potentialReturn =
+		selectedPosition === 'yes' ? amount / contract.yesPrice : amount / contract.noPrice;
 
 	async function placeBet() {
 		if (!canPlaceBet) return;
@@ -21,8 +22,8 @@
 
 		try {
 			// Mock bet placement - in real app, this would call Solana program
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 			// Success feedback
 			console.log(`Placed ${amount} SOL bet on ${selectedPosition} for contract ${contract.id}`);
 			amount = 10; // Reset amount
@@ -40,7 +41,7 @@
 
 <div class="betting-panel">
 	<h3>Place Bet</h3>
-	
+
 	{#if !$walletStore.connected}
 		<div class="connect-wallet-prompt">
 			<p>Connect your wallet to place bets</p>
@@ -51,23 +52,23 @@
 	{:else}
 		<!-- Position Selection -->
 		<div class="position-selector">
-			<button 
-				class="position-btn yes" 
+			<button
+				class="position-btn yes"
 				class:selected={selectedPosition === 'yes'}
-				onclick={() => selectedPosition = 'yes'}
+				onclick={() => (selectedPosition = 'yes')}
 			>
 				<div class="position-label">YES</div>
-				<div class="position-odds">{(1 / contract.currentYesPrice).toFixed(2)}x</div>
-				<div class="position-probability">{(contract.currentYesPrice * 100).toFixed(1)}%</div>
+				<div class="position-odds">{(1 / contract.yesPrice).toFixed(2)}x</div>
+				<div class="position-probability">{(contract.yesPrice * 100).toFixed(1)}%</div>
 			</button>
-			<button 
-				class="position-btn no" 
+			<button
+				class="position-btn no"
 				class:selected={selectedPosition === 'no'}
-				onclick={() => selectedPosition = 'no'}
+				onclick={() => (selectedPosition = 'no')}
 			>
 				<div class="position-label">NO</div>
-				<div class="position-odds">{(1 / contract.currentNoPrice).toFixed(2)}x</div>
-				<div class="position-probability">{(contract.currentNoPrice * 100).toFixed(1)}%</div>
+				<div class="position-odds">{(1 / contract.noPrice).toFixed(2)}x</div>
+				<div class="position-probability">{(contract.noPrice * 100).toFixed(1)}%</div>
 			</button>
 		</div>
 
@@ -75,10 +76,10 @@
 		<div class="amount-section">
 			<label>Bet Amount</label>
 			<div class="amount-input-group">
-				<input 
-					type="number" 
-					bind:value={amount} 
-					min="1" 
+				<input
+					type="number"
+					bind:value={amount}
+					min="1"
 					step="1"
 					placeholder="0"
 					class="amount-input"
@@ -86,14 +87,11 @@
 				<span class="amount-currency">SOL</span>
 			</div>
 			<div class="quick-amounts">
-				{[10, 25, 50, 100].map(value => (
-					<button 
-						class="quick-amount-btn" 
-						onclick={() => quickSetAmount(value)}
-					>
+				{#each [10, 25, 50, 100] as value}
+					<button class="quick-amount-btn" onclick={() => quickSetAmount(value)}>
 						{value}
 					</button>
-				))}
+				{/each}
 			</div>
 		</div>
 
@@ -123,8 +121,8 @@
 		{/if}
 
 		<!-- Place Bet Button -->
-		<button 
-			class="btn-place-bet" 
+		<button
+			class="btn-place-bet"
 			class:disabled={!canPlaceBet}
 			onclick={placeBet}
 			disabled={!canPlaceBet}

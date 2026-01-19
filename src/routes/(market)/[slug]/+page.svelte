@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { formatCurrency, formatPercentage, formatDate, shortenAddress } from '../../../lib/utils/format.js';
+	import {
+		formatCurrency,
+		formatPercentage,
+		formatDate,
+		shortenAddress
+	} from '../../../lib/utils/format.js';
 	import { marketsStore } from '../../../lib/stores/markets.js';
 	import BettingPanel from '../../../lib/components/BettingPanel.svelte';
 	import PriceChart from '../../../lib/components/PriceChart.svelte';
@@ -14,8 +19,8 @@
 	$: error = data.error;
 
 	// Calculate derived values
-	$: yesProbability = contract ? contract.currentYesPrice : 0;
-	$: noProbability = contract ? contract.currentNoPrice : 0;
+	$: yesProbability = contract ? contract.yesPrice : 0;
+	$: noProbability = contract ? contract.noPrice : 0;
 	$: totalVolume = contract ? contract.totalVolume : 0;
 	$: isResolved = contract ? contract.status === 'resolved' : false;
 	$: resolution = contract ? contract.resolution : null;

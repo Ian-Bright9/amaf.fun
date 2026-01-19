@@ -1,14 +1,22 @@
 export interface Contract {
 	id: string;
 	question: string;
+	description?: string;
 	creator: string;
+	authority: string;
 	resolution: 'yes' | 'no' | 'pending';
 	status: 'active' | 'resolved' | 'cancelled';
 	createdAt: string;
-	resolvesAt?: string;
+	expirationTimestamp: number;
+	resolved: boolean;
+	outcome?: boolean;
+	totalYesAmount: number;
+	totalNoAmount: number;
+	betCount: number;
+	// Calculated fields
 	totalVolume: number;
-	currentYesPrice: number;
-	currentNoPrice: number;
+	yesPrice: number;
+	noPrice: number;
 }
 
 export interface Bet {

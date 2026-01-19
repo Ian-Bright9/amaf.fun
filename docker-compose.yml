@@ -1,6 +1,6 @@
 services:
   anchor:
-    image: coralxyz/anchor:latest
+    image: projectserum/build:v0.27.0
     volumes:
       - ./:/workdir
     working_dir: /workdir
