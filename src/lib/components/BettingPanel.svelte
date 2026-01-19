@@ -10,6 +10,9 @@
 	let isPlacingBet = false;
 	let betError: string | null = null;
 
+	$: maxBetAmount = $walletStore.amafBalance > 0 ? $walletStore.amafBalance : 500;
+	$: quickAmounts = [10, 25, 50, 100, 250].filter((value) => value <= maxBetAmount);
+
 	$: canPlaceBet = amount > 0 && $walletStore.connected && !isPlacingBet;
 	$: potentialReturn =
 		selectedPosition === 'yes' ? amount / contract.yesPrice : amount / contract.noPrice;
@@ -74,21 +77,26 @@
 
 		<!-- Amount Input -->
 		<div class="amount-section">
-			<label for="bet-amount">Bet Amount</label>
-			<div class="amount-input-group">
-				<input
-					id="bet-amount"
-					type="number"
-					bind:value={amount}
-					min="1"
-					step="1"
-					placeholder="0"
-					class="amount-input"
-				/>
-				<span class="amount-currency">¤</span>
+			<div class="amount-label-row">
+				<label for="bet-amount">Bet Amount</label>
+				<span class="amount-display">{formatAmafCurrency(amount)}</span>
+			</div>
+			<input
+				id="bet-amount"
+				type="range"
+				bind:value={amount}
+				min="1"
+				max={maxBetAmount}
+				step="1"
+				class="amount-slider"
+			/>
+			<div class="slider-markers">
+				<span>1</span>
+				<span>{maxBetAmount / 2}</span>
+				<span>{maxBetAmount}</span>
 			</div>
 			<div class="quick-amounts">
-				{#each [10, 25, 50, 100] as value}
+				{#each quickAmounts as value}
 					<button class="quick-amount-btn" onclick={() => quickSetAmount(value)}>
 						{value}
 					</button>
@@ -139,14 +147,14 @@
 
 <style>
 	.betting-panel {
-		background-color: #1f2937;
+		background-color: #181926;
 		padding: 1.5rem;
 		border-radius: 0.5rem;
 		margin-bottom: 2rem;
 	}
 
 	.betting-panel h3 {
-		color: #f9fafb;
+		color: #cad3f5;
 		margin-bottom: 1.5rem;
 		font-size: 1.25rem;
 		font-weight: 600;
@@ -158,7 +166,7 @@
 	}
 
 	.connect-wallet-prompt p {
-		color: #9ca3af;
+		color: #a5adcb;
 		margin-bottom: 1rem;
 	}
 
@@ -173,14 +181,14 @@
 		padding: 1rem;
 		border: 2px solid transparent;
 		border-radius: 0.5rem;
-		background-color: #374151;
+		background-color: #363a4f;
 		cursor: pointer;
 		transition: all 0.2s;
 		text-align: center;
 	}
 
 	.position-btn:hover {
-		background-color: #4b5563;
+		background-color: #494d64;
 	}
 
 	.position-btn.selected {
@@ -189,21 +197,21 @@
 	}
 
 	.position-btn.yes {
-		border-color: #10b981;
+		border-color: #a6da95;
 	}
 
 	.position-btn.yes.selected {
-		background-color: rgba(16, 185, 129, 0.2);
-		border-color: #10b981;
+		background-color: rgba(166, 218, 149, 0.2);
+		border-color: #a6da95;
 	}
 
 	.position-btn.no {
-		border-color: #ef4444;
+		border-color: #ed8796;
 	}
 
 	.position-btn.no.selected {
-		background-color: rgba(239, 68, 68, 0.2);
-		border-color: #ef4444;
+		background-color: rgba(237, 135, 150, 0.2);
+		border-color: #ed8796;
 	}
 
 	.position-label {
@@ -213,11 +221,11 @@
 	}
 
 	.position-btn.yes .position-label {
-		color: #10b981;
+		color: #a6da95;
 	}
 
 	.position-btn.no .position-label {
-		color: #ef4444;
+		color: #ed8796;
 	}
 
 	.position-odds {
@@ -235,40 +243,73 @@
 		margin-bottom: 1.5rem;
 	}
 
-	.amount-section label {
-		display: block;
-		color: #f9fafb;
-		margin-bottom: 0.5rem;
-		font-weight: 500;
-	}
-
-	.amount-input-group {
+	.amount-label-row {
 		display: flex;
+		justify-content: space-between;
 		align-items: center;
-		background-color: #374151;
-		border: 1px solid #4b5563;
-		border-radius: 0.375rem;
-		margin-bottom: 0.75rem;
+		margin-bottom: 0.5rem;
 	}
 
-	.amount-input {
-		flex: 1;
-		background: none;
-		border: none;
-		padding: 0.75rem;
-		color: #f9fafb;
-		font-size: 1rem;
-		outline: none;
-	}
-
-	.amount-input:focus {
-		box-shadow: inset 0 0 0 2px #4ade80;
-	}
-
-	.amount-currency {
-		padding: 0.75rem;
-		color: #9ca3af;
+	.amount-section label {
+		color: #cad3f5;
 		font-weight: 500;
+	}
+
+	.amount-display {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: #a6da95;
+	}
+
+	.amount-slider {
+		width: 100%;
+		height: 8px;
+		border-radius: 4px;
+		background: #363a4f;
+		outline: none;
+		-webkit-appearance: none;
+		appearance: none;
+		margin-bottom: 0.5rem;
+	}
+
+	.amount-slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		appearance: none;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #c6a0f6;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.amount-slider::-webkit-slider-thumb:hover {
+		background: #b58fd5;
+		transform: scale(1.1);
+	}
+
+	.amount-slider::-moz-range-thumb {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #c6a0f6;
+		cursor: pointer;
+		border: none;
+		transition: all 0.2s;
+	}
+
+	.amount-slider::-moz-range-thumb:hover {
+		background: #b58fd5;
+		transform: scale(1.1);
+	}
+
+	.slider-markers {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 1rem;
+		color: #6e738d;
+		font-size: 0.75rem;
 	}
 
 	.quick-amounts {
@@ -279,22 +320,22 @@
 	.quick-amount-btn {
 		flex: 1;
 		padding: 0.5rem;
-		background-color: #374151;
-		border: 1px solid #4b5563;
+		background-color: #363a4f;
+		border: 1px solid #494d64;
 		border-radius: 0.25rem;
-		color: #f9fafb;
+		color: #cad3f5;
 		cursor: pointer;
 		font-size: 0.875rem;
 		transition: all 0.2s;
 	}
 
 	.quick-amount-btn:hover {
-		background-color: #4b5563;
-		border-color: #6b7280;
+		background-color: #494d64;
+		border-color: #6e738d;
 	}
 
 	.bet-summary {
-		background-color: #374151;
+		background-color: #363a4f;
 		padding: 1rem;
 		border-radius: 0.375rem;
 		margin-bottom: 1rem;
@@ -305,7 +346,7 @@
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: 0.5rem;
-		color: #d1d5db;
+		color: #b8c0e0;
 	}
 
 	.summary-row:last-child {
@@ -317,22 +358,22 @@
 	}
 
 	.position-highlight.yes {
-		color: #10b981;
+		color: #a6da95;
 	}
 
 	.position-highlight.no {
-		color: #ef4444;
+		color: #ed8796;
 	}
 
 	.potential-return {
-		color: #4ade80;
+		color: #a6da95;
 		font-weight: 600;
 	}
 
 	.error-message {
-		background-color: rgba(239, 68, 68, 0.1);
-		border: 1px solid #ef4444;
-		color: #ef4444;
+		background-color: rgba(237, 135, 150, 0.1);
+		border: 1px solid #ed8796;
+		color: #ed8796;
 		padding: 0.75rem;
 		border-radius: 0.375rem;
 		margin-bottom: 1rem;
@@ -342,8 +383,8 @@
 	.btn-place-bet {
 		width: 100%;
 		padding: 1rem;
-		background-color: #4ade80;
-		color: #111827;
+		background-color: #c6a0f6;
+		color: #24273a;
 		border: none;
 		border-radius: 0.375rem;
 		font-weight: 600;
@@ -353,13 +394,13 @@
 	}
 
 	.btn-place-bet:hover:not(.disabled) {
-		background-color: #22c55e;
+		background-color: #b58fd5;
 		transform: translateY(-1px);
 	}
 
 	.btn-place-bet.disabled {
-		background-color: #374151;
-		color: #6b7280;
+		background-color: #363a4f;
+		color: #6e738d;
 		cursor: not-allowed;
 		transform: none;
 	}
@@ -374,11 +415,11 @@
 	}
 
 	.btn-primary {
-		background-color: #4ade80;
-		color: #111827;
+		background-color: #c6a0f6;
+		color: #24273a;
 	}
 
 	.btn-primary:hover {
-		background-color: #22c55e;
+		background-color: #b58fd5;
 	}
 </style>
