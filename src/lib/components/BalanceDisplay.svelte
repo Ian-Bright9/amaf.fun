@@ -33,6 +33,21 @@
 
 <div class="balance-display">
 	<div class="balance-card">
+		<div class="balance-item amaf">
+			<div class="balance-header">
+				<span class="balance-label">Balance</span>
+				<span class="balance-tag">AMAF.COIN</span>
+			</div>
+			<div class="balance-value">
+				<span class="balance-amount">
+					{$walletStore.amafBalance.toFixed(0)}
+				</span>
+				<span class="balance-symbol">¤</span>
+			</div>
+		</div>
+
+		<div class="balance-divider"></div>
+
 		<div class="balance-item">
 			<div class="balance-header">
 				<span class="balance-label">SOL Balance</span>
@@ -43,21 +58,6 @@
 					{($walletStore.balance / LAMPORTS_PER_SOL).toFixed(4)}
 				</span>
 				<span class="balance-symbol">SOL</span>
-			</div>
-		</div>
-
-		<div class="balance-divider"></div>
-
-		<div class="balance-item amaf">
-			<div class="balance-header">
-				<span class="balance-label">Balance</span>
-				<span class="balance-tag">Free Tokens</span>
-			</div>
-			<div class="balance-value">
-				<span class="balance-amount">
-					{$walletStore.amafBalance.toFixed(0)}
-				</span>
-				<span class="balance-symbol">¤</span>
 			</div>
 		</div>
 	</div>

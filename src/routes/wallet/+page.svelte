@@ -1,5 +1,4 @@
 <script lang="ts">
-	import WalletAdapter from '$lib/components/WalletAdapter.svelte';
 	import DailyClaim from '$lib/components/DailyClaim.svelte';
 	import BalanceDisplay from '$lib/components/BalanceDisplay.svelte';
 </script>
@@ -15,9 +14,6 @@
 			<div class="header-left">
 				<h1>Wallet</h1>
 				<p class="header-subtitle">Manage your SOL and ¤</p>
-			</div>
-			<div class="header-right">
-				<WalletAdapter />
 			</div>
 		</div>
 	</div>
@@ -84,7 +80,7 @@
 	.header-content {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: flex-start;
 		width: 100%;
 		max-width: 1800px;
 		margin: 0 auto;
@@ -110,10 +106,6 @@
 		font-size: 1.125rem;
 		color: var(--text-secondary);
 		font-weight: 500;
-	}
-
-	.header-right {
-		flex-shrink: 0;
 	}
 
 	.wallet-content {
@@ -149,10 +141,6 @@
 
 		.header-subtitle {
 			font-size: 1rem;
-		}
-
-		.header-right {
-			width: 100%;
 		}
 	}
 

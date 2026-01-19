@@ -1,6 +1,7 @@
 import { Connection, PublicKey, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Program, AnchorProvider, BN } from '@project-serum/anchor';
+import * as anchor from '@project-serum/anchor';
+import BN from 'bn.js';
 import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 import {
 	createCreateContractInstruction,
@@ -21,7 +22,7 @@ const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 export class SolanaProgramClient {
 	connection: Connection;
 	programId: PublicKey;
-	program: Program | null = null;
+	program: any = null;
 	idl: any;
 
 	constructor(programId: PublicKey, idlData: any) {
@@ -35,14 +36,14 @@ export class SolanaProgramClient {
 			throw new Error('Wallet not connected');
 		}
 
-		const provider = new AnchorProvider(this.connection, walletAdapter, {
+		const provider = new anchor.AnchorProvider(this.connection, walletAdapter, {
 			commitment: 'confirmed'
 		});
 		return provider;
 	}
 
-	async initializeProgram(provider: AnchorProvider) {
-		this.program = new Program(this.idl, this.programId, provider);
+	async initializeProgram(provider: any) {
+		this.program = new anchor.Program(this.idl, this.programId, provider);
 		return this.program;
 	}
 
@@ -67,7 +68,7 @@ export class SolanaProgramClient {
 		const provider = await this.initializeProvider(walletAdapter);
 
 		if (!this.program) {
-			this.program = new Program(this.idl, this.programId, provider);
+			this.program = new anchor.Program(this.idl, this.programId, provider);
 		}
 
 		const contractSize =
@@ -112,7 +113,7 @@ export class SolanaProgramClient {
 		const provider = await this.initializeProvider(walletAdapter);
 
 		if (!this.program) {
-			this.program = new Program(this.idl, this.programId, provider);
+			this.program = new anchor.Program(this.idl, this.programId, provider);
 		}
 
 		const betSize = 8 + 32 + 32 + 8 + 1 + 8;
@@ -155,7 +156,7 @@ export class SolanaProgramClient {
 		const provider = await this.initializeProvider(walletAdapter);
 
 		if (!this.program) {
-			this.program = new Program(this.idl, this.programId, provider);
+			this.program = new anchor.Program(this.idl, this.programId, provider);
 		}
 
 		const transaction = new Transaction();
@@ -188,7 +189,11 @@ export class SolanaProgramClient {
 			walletAdapter.publicKey
 		);
 
-		return new Transaction().add(instruction);
+		const transaction = new Transaction().add(instruction);
+		transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+		transaction.feePayer = walletAdapter.publicKey;
+
+		return transaction;
 	}
 
 	async claimDailyTokens(
@@ -214,6 +219,8 @@ export class SolanaProgramClient {
 		);
 
 		const transaction = new Transaction().add(instruction);
+		transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+		transaction.feePayer = walletAdapter.publicKey;
 
 		const signature = await walletAdapter.signAndSendTransaction(transaction);
 
