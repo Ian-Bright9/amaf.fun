@@ -1,25 +1,54 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
+	import { Connection, PublicKey } from '@solana/web3.js';
 	import { walletStore } from '$lib/stores/wallet.js';
+	import { getBalance } from '$lib/utils/wallet.js';
+	import { getAmafBalance } from '$lib/utils/tokens.js';
 
 	let walletAdapter: PhantomWalletAdapter | null = null;
 	let connecting = $state(false);
 	let error: string | null = $state(null);
+	let connection: Connection | null = $state(null);
+	let network = $state('Mainnet');
 
-	onMount(() => {
+	onMount(async () => {
+		connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 		walletAdapter = new PhantomWalletAdapter();
-		walletAdapter.on('connect', (publicKey) => {
+
+		walletAdapter.on('connect', async (publicKey) => {
 			walletStore.setPublicKey(publicKey.toBase58());
 			walletStore.setConnected(true);
+
+			try {
+				const solBalance = await getBalance(connection, publicKey);
+				walletStore.setBalance(solBalance);
+
+				const amafBalance = await getAmafBalance(connection, publicKey);
+				walletStore.setAmafBalance(amafBalance);
+			} catch (err) {
+				console.error('Error fetching balances:', err);
+			}
 		});
+
 		walletAdapter.on('disconnect', () => {
 			walletStore.setPublicKey(null);
 			walletStore.setConnected(false);
+			walletStore.setBalance(0);
+			walletStore.setAmafBalance(0);
 		});
+
 		walletAdapter.on('error', (err) => {
 			error = err instanceof Error ? err.message : 'Wallet error';
 		});
+
+		try {
+			if (walletAdapter.readyState === 'Installed') {
+				await walletAdapter.connect();
+			}
+		} catch (err) {
+			console.log('Auto-connect failed:', err);
+		}
 	});
 
 	async function handleConnect() {
@@ -52,29 +81,40 @@
 			error = err instanceof Error ? err.message : 'Failed to disconnect wallet';
 		}
 	}
+
+	function installPhantom() {
+		window.open('https://phantom.app/', '_blank');
+	}
 </script>
 
 {#if $walletStore.connected}
 	<div class="wallet-connected">
 		<div class="wallet-icon">
 			<svg
-				width="20"
-				height="20"
-				viewBox="0 0 20 20"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 			>
 				<path
-					d="M10 2C5.58 2 2 6.58 2 10C2 13.42 5.58 18 10 18C14.42 18 18 13.42 18 10C18 6.58 14.42 2 10 2ZM10 3.5C13.59 3.5 16.5 6.41 16.5 10C16.5 13.59 13.59 16.5 10 16.5C6.41 16.5 3.5 13.59 3.5 10ZM10 5.5C11.93 5.5 13.5 7.07 13.5 9C13.5 10.93 11.93 12.5 10 12.5C8.07 12.5 6.5 10.93 6.5 9C6.5 7.07 8.07 5.5 10 5.5ZM10 6.5C8.62 6.5 7.5 7.62 7.5 9C7.5 10.38 8.62 11.5 10 11.5C11.38 11.5 12.5 10.38 12.5 9C12.5 7.62 11.38 6.5 10 6.5Z"
-					fill="currentColor"
+					d="M12 2L2 7L12 12L22 7L12 2Z"
+					stroke="#AB9FF2"
+					stroke-width="2"
+					stroke-linejoin="round"
+					fill="#AB9FF2"
 				/>
+				<path d="M2 17L12 22L22 17" stroke="#AB9FF2" stroke-width="2" stroke-linejoin="round" />
+				<path d="M2 7V17" stroke="#AB9FF2" stroke-width="2" stroke-linejoin="round" />
+				<path d="M22 7V17" stroke="#AB9FF2" stroke-width="2" stroke-linejoin="round" />
+				<path d="M12 12V22" stroke="#AB9FF2" stroke-width="2" stroke-linejoin="round" />
 			</svg>
 		</div>
 		<div class="wallet-info">
 			<span class="wallet-address">
 				{$walletStore.publicKey?.slice(0, 4)}...{$walletStore.publicKey?.slice(-4)}
 			</span>
-			<span class="wallet-network">Devnet</span>
+			<span class="wallet-network">Mainnet</span>
 		</div>
 		<button class="disconnect-button" disabled={connecting} onclick={handleDisconnect}>
 			{connecting ? 'Disconnecting...' : 'Disconnect'}
@@ -90,19 +130,34 @@
 				<svg
 					width="18"
 					height="18"
-					viewBox="0 0 18 18"
+					viewBox="0 0 24 24"
 					fill="none"
 					xmlns="http://www.w3.org/2000/svg"
 				>
 					<path
-						d="M9 1C4.58 1 1 4.58 1 9C1 13.42 4.58 17 9 17C13.42 17 17 13.42 17 9C17 4.58 13.42 1 9 1ZM9 2.5C12.59 2.5 15.5 5.41 15.5 9C15.5 12.59 12.59 15.5 9 15.5C5.41 15.5 2.5 12.59 2.5 9ZM9 4.5C10.93 4.5 12.5 6.07 12.5 8C12.5 9.93 10.93 11.5 9 11.5C7.07 11.5 5.5 9.93 5.5 8C5.5 6.07 7.07 4.5 9 4.5Z"
+						d="M12 2L2 7L12 12L22 7L12 2Z"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linejoin="round"
 						fill="currentColor"
 					/>
+					<path
+						d="M2 17L12 22L22 17"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linejoin="round"
+					/>
+					<path d="M2 7V17" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+					<path d="M22 7V17" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+					<path d="M12 12V22" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
 				</svg>
 			</span>
-			Connect Wallet
+			Connect Phantom
 		{/if}
 	</button>
+	<a href="https://phantom.app/" target="_blank" rel="noopener noreferrer" class="install-link">
+		Install Phantom
+	</a>
 {/if}
 {#if error}
 	<div class="error-toast">{error}</div>
@@ -123,11 +178,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 2rem;
-		height: 2rem;
-		background: linear-gradient(135deg, #09c285 0%, #05a372 100%);
-		border-radius: 0.375rem;
-		color: #000;
+		width: 2.5rem;
+		height: 2.5rem;
+		background: linear-gradient(135deg, #ab9ff2 0%, #8a7fe8 100%);
+		border-radius: 0.5rem;
 	}
 
 	.wallet-info {
@@ -145,7 +199,7 @@
 
 	.wallet-network {
 		font-size: 0.6875rem;
-		color: #09c285;
+		color: #ab9ff2;
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
@@ -157,7 +211,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		padding: 0.625rem 1.25rem;
-		background-color: #09c285;
+		background-color: #ab9ff2;
 		color: #000;
 		border: none;
 		border-radius: 0.5rem;
@@ -170,9 +224,9 @@
 
 	.connect-button:hover:not(:disabled),
 	.disconnect-button:hover:not(:disabled) {
-		background-color: #05a372;
+		background-color: #9a8fe1;
 		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(9, 194, 133, 0.3);
+		box-shadow: 0 4px 12px rgba(171, 159, 242, 0.3);
 	}
 
 	.connect-button:disabled,
@@ -197,6 +251,24 @@
 	.button-icon {
 		display: flex;
 		align-items: center;
+	}
+
+	.install-link {
+		display: block;
+		color: #9ca3af;
+		font-size: 0.75rem;
+		text-decoration: none;
+		padding: 0.375rem 0.75rem;
+		border-radius: 0.375rem;
+		border: 1px solid #2d2d2d;
+		transition: all 0.2s ease;
+		margin-top: 0.5rem;
+	}
+
+	.install-link:hover {
+		color: #fff;
+		border-color: #3d3d3d;
+		background-color: rgba(26, 26, 26, 0.5);
 	}
 
 	.loading-spinner {

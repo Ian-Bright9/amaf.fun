@@ -44,6 +44,8 @@ export interface WalletState {
 	publicKey: string | null;
 	connected: boolean;
 	balance: number;
+	amafBalance: number;
+	lastClaimTime: string | null;
 }
 
 export type WalletAdapter = {

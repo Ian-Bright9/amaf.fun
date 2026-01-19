@@ -17,7 +17,7 @@ amafcoin = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "mainnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

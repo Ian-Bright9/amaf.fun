@@ -4,4 +4,4 @@ services:
     volumes:
       - ./:/workdir
     working_dir: /workdir
-    command: /bin/sh -c "sleep infinity"
+    command: /bin/sh -c "anchor build"

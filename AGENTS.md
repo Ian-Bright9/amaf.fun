@@ -20,9 +20,10 @@ npm run dev          # Start development server
 npm run build        # Build for production (Cloudflare Pages)
 npm run preview      # Preview production build
 npm run check        # Run svelte-check + lint
+npm run check:watch  # Run svelte-check in watch mode
 npm run lint         # Run ESLint
 npm run lint:fix     # Fix ESLint issues
-npm run format       # Check code formatting
+npm run format       # Check code formatting with Prettier
 npm run format:fix   # Format code with Prettier
 npm test             # Run Vitest tests
 npm run test:ui      # Run Vitest with UI
@@ -48,6 +49,9 @@ make verify
 
 # Open shell in Anchor container
 make shell
+
+# Clean build artifacts
+make clean
 ```
 
 **Or use docker-compose directly:**
@@ -188,6 +192,14 @@ try {
 - Max line length: 100 characters
 - Use 2 spaces for indentation (tabs in Svelte files)
 
+### ESLint Configuration
+
+- ESLint v9 with flat config format
+- TypeScript, Svelte, and Prettier plugins enabled
+- Key rules: `no-console`, `no-debugger`, `no-duplicate-imports`
+- Unused variables allowed with `_` prefix pattern
+- Strict TypeScript checking enabled
+
 ## Solana Specifics
 
 ### Program Structure
@@ -326,6 +338,7 @@ export const exampleStore = writable({
 11. **Anchor commands must use Docker** due to GLIBC compatibility - use `make build` not `anchor build`
 12. When working with Solana contracts, run `make shell` to get bash shell in Anchor container
 13. Solana program ID: `Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn`
+14. **Docker must be installed before running Anchor commands** - run `sudo apt-get install -y docker.io docker-compose && sudo usermod -aG docker $USER` then log out and back in
 
 ## Recent Changes
 

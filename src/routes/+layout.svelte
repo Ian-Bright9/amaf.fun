@@ -60,8 +60,11 @@
 				<a href="/market/create">Create</a>
 			</nav>
 		</div>
-		<div class="header-right">
-			<WalletAdapter />
+			<nav class="nav">
+				<a href="/market">Markets</a>
+				<a href="/market/create">Create</a>
+				<a href="/wallet">Wallet</a>
+			</nav>
 		</div>
 	</div>
 </header>
