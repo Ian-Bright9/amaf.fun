@@ -1,15 +1,38 @@
-import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
-import { PROGRAM_ID } from '$lib/utils/solana-constants.js';
+import { Connection, PublicKey, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
+import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
+import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
+import {
+	createCreateContractInstruction,
+	createPlaceBetInstruction,
+	createResolveContractInstruction
+} from './instructions.js';
 
-const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 
 export class SolanaProgramClient {
 	connection: Connection;
 	programId: PublicKey;
+	program: Program | null = null;
 
 	constructor(programId: PublicKey) {
 		this.connection = connection;
 		this.programId = programId;
+	}
+
+	async initializeProvider(walletAdapter: any) {
+		if (!walletAdapter.publicKey) {
+			throw new Error('Wallet not connected');
+		}
+
+		const provider = new AnchorProvider(this.connection, walletAdapter, {
+			commitment: 'confirmed'
+		});
+		return provider;
+	}
+
+	async initializeProgram(provider: AnchorProvider, idl: any) {
+		this.program = new Program(idl, this.programId, provider);
+		return this.program;
 	}
 
 	async getContractAccount(contractAddress: string) {
@@ -27,52 +50,98 @@ export class SolanaProgramClient {
 		question: string,
 		description: string,
 		expirationTimestamp: number,
-		signer: PublicKey
-	): Promise<Transaction> {
-		const contractKeypair = new PublicKey(0);
+		walletAdapter: any
+	): Promise<{ transaction: Transaction; contractKeypair: Keypair }> {
+		const contractKeypair = Keypair.generate();
+		const provider = await this.initializeProvider(walletAdapter);
 
-		const instruction = SystemProgram.createAccount({
-			fromPubkey: signer,
-			newAccountPubkey: contractKeypair,
-			lamports: await this.connection.getMinimumBalanceForRentExemption(1000),
-			space: 1000,
-			programId: this.programId
-		});
+		if (!this.program) {
+			throw new Error('Program not initialized');
+		}
 
-		return new Transaction().add(instruction);
+		const transaction = new Transaction();
+		transaction.add(
+			SystemProgram.createAccount({
+				fromPubkey: walletAdapter.publicKey,
+				newAccountPubkey: contractKeypair.publicKey,
+				lamports: await this.connection.getMinimumBalanceForRentExemption(1000),
+				space: 1000,
+				programId: this.programId
+			})
+		);
+
+		const createInstruction = createCreateContractInstruction(
+			this.program,
+			contractKeypair.publicKey,
+			walletAdapter.publicKey,
+			question,
+			description,
+			expirationTimestamp
+		);
+
+		transaction.add(createInstruction);
+
+		return { transaction, contractKeypair };
 	}
 
 	async placeBet(
 		contractAddress: string,
 		betAmount: number,
 		betOnYes: boolean,
-		signer: PublicKey
-	): Promise<Transaction> {
+		walletAdapter: any
+	): Promise<{ transaction: Transaction; betKeypair: Keypair }> {
 		const contractPubkey = new PublicKey(contractAddress);
+		const betKeypair = Keypair.generate();
+		const provider = await this.initializeProvider(walletAdapter);
 
-		const instruction = SystemProgram.transfer({
-			fromPubkey: signer,
-			toPubkey: contractPubkey,
-			lamports: betAmount
-		});
+		if (!this.program) {
+			throw new Error('Program not initialized');
+		}
 
-		return new Transaction().add(instruction);
+		const transaction = new Transaction();
+		transaction.add(
+			SystemProgram.createAccount({
+				fromPubkey: walletAdapter.publicKey,
+				newAccountPubkey: betKeypair.publicKey,
+				lamports: await this.connection.getMinimumBalanceForRentExemption(200),
+				space: 200,
+				programId: this.programId
+			})
+		);
+
+		const betInstruction = createPlaceBetInstruction(
+			this.program,
+			contractPubkey,
+			betKeypair.publicKey,
+			walletAdapter.publicKey,
+			betAmount,
+			betOnYes
+		);
+
+		transaction.add(betInstruction);
+
+		return { transaction, betKeypair };
 	}
 
 	async resolveContract(
 		contractAddress: string,
 		outcome: boolean,
-		signer: PublicKey
+		walletAdapter: any
 	): Promise<Transaction> {
 		const contractPubkey = new PublicKey(contractAddress);
 
-		const instruction = SystemProgram.transfer({
-			fromPubkey: contractPubkey,
-			toPubkey: signer,
-			lamports: 0
-		});
+		if (!this.program) {
+			throw new Error('Program not initialized');
+		}
 
-		return new Transaction().add(instruction);
+		const resolveInstruction = createResolveContractInstruction(
+			this.program,
+			contractPubkey,
+			walletAdapter.publicKey,
+			outcome
+		);
+
+		return new Transaction().add(resolveInstruction);
 	}
 }
 
