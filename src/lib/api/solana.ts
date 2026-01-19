@@ -1,11 +1,7 @@
 import { Connection, PublicKey, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
-import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
+import { Program, AnchorProvider, BN } from '@project-serum/anchor';
 import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
-import {
-	createCreateContractInstruction,
-	createPlaceBetInstruction,
-	createResolveContractInstruction
-} from './instructions.js';
+import idl from '$lib/idl/amafcoin.json';
 
 const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 
@@ -13,10 +9,12 @@ export class SolanaProgramClient {
 	connection: Connection;
 	programId: PublicKey;
 	program: Program | null = null;
+	idl: any;
 
-	constructor(programId: PublicKey) {
+	constructor(programId: PublicKey, idlData: any) {
 		this.connection = connection;
 		this.programId = programId;
+		this.idl = idlData;
 	}
 
 	async initializeProvider(walletAdapter: any) {
@@ -30,8 +28,8 @@ export class SolanaProgramClient {
 		return provider;
 	}
 
-	async initializeProgram(provider: AnchorProvider, idl: any) {
-		this.program = new Program(idl, this.programId, provider);
+	async initializeProgram(provider: AnchorProvider) {
+		this.program = new Program(this.idl, this.programId, provider);
 		return this.program;
 	}
 
@@ -56,30 +54,36 @@ export class SolanaProgramClient {
 		const provider = await this.initializeProvider(walletAdapter);
 
 		if (!this.program) {
-			throw new Error('Program not initialized');
+			this.program = new Program(this.idl, this.programId, provider);
 		}
 
+		const contractSize =
+			8 + 32 + 4 + question.length + 4 + description.length + 8 + 1 + 2 + 8 + 8 + 8;
+		const rent = await this.connection.getMinimumBalanceForRentExemption(contractSize);
+
 		const transaction = new Transaction();
+		transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+		transaction.feePayer = walletAdapter.publicKey;
+
 		transaction.add(
 			SystemProgram.createAccount({
 				fromPubkey: walletAdapter.publicKey,
 				newAccountPubkey: contractKeypair.publicKey,
-				lamports: await this.connection.getMinimumBalanceForRentExemption(1000),
-				space: 1000,
+				lamports: rent,
+				space: contractSize,
 				programId: this.programId
 			})
 		);
 
-		const createInstruction = createCreateContractInstruction(
-			this.program,
-			contractKeypair.publicKey,
-			walletAdapter.publicKey,
-			question,
-			description,
-			expirationTimestamp
+		transaction.add(
+			this.program.instruction.createContract(question, description, new BN(expirationTimestamp), {
+				accounts: {
+					contract: contractKeypair.publicKey,
+					authority: walletAdapter.publicKey,
+					systemProgram: SystemProgram.programId
+				}
+			})
 		);
-
-		transaction.add(createInstruction);
 
 		return { transaction, contractKeypair };
 	}
@@ -95,30 +99,36 @@ export class SolanaProgramClient {
 		const provider = await this.initializeProvider(walletAdapter);
 
 		if (!this.program) {
-			throw new Error('Program not initialized');
+			this.program = new Program(this.idl, this.programId, provider);
 		}
 
+		const betSize = 8 + 32 + 32 + 8 + 1 + 8;
+		const rent = await this.connection.getMinimumBalanceForRentExemption(betSize);
+
 		const transaction = new Transaction();
+		transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+		transaction.feePayer = walletAdapter.publicKey;
+
 		transaction.add(
 			SystemProgram.createAccount({
 				fromPubkey: walletAdapter.publicKey,
 				newAccountPubkey: betKeypair.publicKey,
-				lamports: await this.connection.getMinimumBalanceForRentExemption(200),
-				space: 200,
+				lamports: rent,
+				space: betSize,
 				programId: this.programId
 			})
 		);
 
-		const betInstruction = createPlaceBetInstruction(
-			this.program,
-			contractPubkey,
-			betKeypair.publicKey,
-			walletAdapter.publicKey,
-			betAmount,
-			betOnYes
+		transaction.add(
+			this.program.instruction.placeBet(new BN(betAmount), betOnYes, {
+				accounts: {
+					contract: contractPubkey,
+					bet: betKeypair.publicKey,
+					bettor: walletAdapter.publicKey,
+					systemProgram: SystemProgram.programId
+				}
+			})
 		);
-
-		transaction.add(betInstruction);
 
 		return { transaction, betKeypair };
 	}
@@ -129,20 +139,27 @@ export class SolanaProgramClient {
 		walletAdapter: any
 	): Promise<Transaction> {
 		const contractPubkey = new PublicKey(contractAddress);
+		const provider = await this.initializeProvider(walletAdapter);
 
 		if (!this.program) {
-			throw new Error('Program not initialized');
+			this.program = new Program(this.idl, this.programId, provider);
 		}
 
-		const resolveInstruction = createResolveContractInstruction(
-			this.program,
-			contractPubkey,
-			walletAdapter.publicKey,
-			outcome
+		const transaction = new Transaction();
+		transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+		transaction.feePayer = walletAdapter.publicKey;
+
+		transaction.add(
+			this.program.instruction.resolveContract(outcome, {
+				accounts: {
+					contract: contractPubkey,
+					authority: walletAdapter.publicKey
+				}
+			})
 		);
 
-		return new Transaction().add(resolveInstruction);
+		return transaction;
 	}
 }
 
-export const solanaClient = new SolanaProgramClient(PROGRAM_ID);
+export const solanaClient = new SolanaProgramClient(PROGRAM_ID, idl);

@@ -10,17 +10,26 @@
 	let connecting = $state(false);
 	let error: string | null = $state(null);
 	let connection: Connection | null = $state(null);
-	let network = $state('Mainnet');
+	let network = $state('Devnet');
+
+	export function getWalletAdapter(): PhantomWalletAdapter | null {
+		return walletAdapter;
+	}
 
 	onMount(async () => {
-		connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+		connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 		walletAdapter = new PhantomWalletAdapter();
+		(window as any).walletAdapter = walletAdapter;
 
 		walletAdapter.on('connect', async (publicKey) => {
 			walletStore.setPublicKey(publicKey.toBase58());
 			walletStore.setConnected(true);
 
 			try {
+				if (!connection) {
+					console.error('Connection not initialized');
+					return;
+				}
 				const solBalance = await getBalance(connection, publicKey);
 				walletStore.setBalance(solBalance);
 
@@ -114,7 +123,7 @@
 			<span class="wallet-address">
 				{$walletStore.publicKey?.slice(0, 4)}...{$walletStore.publicKey?.slice(-4)}
 			</span>
-			<span class="wallet-network">Mainnet</span>
+			<span class="wallet-network">Devnet</span>
 		</div>
 		<button class="disconnect-button" disabled={connecting} onclick={handleDisconnect}>
 			{connecting ? 'Disconnecting...' : 'Disconnect'}

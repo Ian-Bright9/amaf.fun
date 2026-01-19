@@ -1,4 +1,32 @@
-import type { Transaction, VersionedTransaction, PublicKey } from '@solana/web3.js';
+import { Transaction, type VersionedTransaction, type PublicKey } from '@solana/web3.js';
+
+export async function signTransactionFromBase64(
+	base64Tx: string,
+	walletAdapter: any,
+	connection: any
+): Promise<string> {
+	try {
+		if (!walletAdapter.connected) {
+			throw new Error('Wallet not connected');
+		}
+
+		const txBuffer = Buffer.from(base64Tx, 'base64');
+		const transaction = Transaction.from(txBuffer);
+
+		const signedTx = await walletAdapter.signTransaction(transaction);
+		const signature = await connection.sendRawTransaction(signedTx.serialize(), {
+			skipPreflight: false,
+			preflightCommitment: 'confirmed'
+		});
+
+		await connection.confirmTransaction(signature, 'confirmed');
+
+		return signature;
+	} catch (error) {
+		console.error('Error signing transaction:', error);
+		throw error instanceof Error ? error : new Error('Failed to sign transaction');
+	}
+}
 
 export async function signAndSendTransaction(
 	transaction: Transaction,

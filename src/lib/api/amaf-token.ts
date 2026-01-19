@@ -1,7 +1,8 @@
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { signAndSendTransaction } from '$lib/utils/wallet.js';
+import { PROGRAM_ID } from '$lib/utils/solana-constants.js';
 
-const AMAF_TOKEN_MINT = new PublicKey('placeholder_mint_address');
+const AMAF_TOKEN_MINT = new PublicKey('FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE');
 
 export async function claimDailyTokens(
 	connection: Connection,
@@ -17,7 +18,7 @@ export async function claimDailyTokens(
 		const claimInstruction = {
 			keys: [
 				{
-					pubkey: new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn'),
+					pubkey: PROGRAM_ID,
 					isSigner: false,
 					isWritable: true
 				},
@@ -27,7 +28,7 @@ export async function claimDailyTokens(
 					isWritable: false
 				}
 			],
-			programId: new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn'),
+			programId: PROGRAM_ID,
 			data: Buffer.from([1])
 		};
 
@@ -76,10 +77,7 @@ export async function checkCanClaim(
 	try {
 		const tokenStateSeeds = [Buffer.from('token_state'), publicKey.toBuffer()];
 
-		const [tokenStateAddress] = PublicKey.findProgramAddressSync(
-			tokenStateSeeds,
-			new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn')
-		);
+		const [tokenStateAddress] = PublicKey.findProgramAddressSync(tokenStateSeeds, PROGRAM_ID);
 
 		const accountInfo = await connection.getAccountInfo(tokenStateAddress);
 

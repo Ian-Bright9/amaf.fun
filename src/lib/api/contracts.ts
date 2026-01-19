@@ -1,20 +1,22 @@
 import type { Contract } from '../../types/index.js';
+import { Connection } from '@solana/web3.js';
 
 const API_BASE = '/api';
+const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 export async function createContract(params: {
 	question: string;
 	description?: string;
 	resolvesAt: string;
 	creator: string;
-}): Promise<Contract> {
-	const response = await fetch(`${API_BASE}/contracts`, {
+}): Promise<{ transaction: string; contractAddress: string; message: string }> {
+	const response = await fetch(`${API_BASE}/transactions/create-contract`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			question: params.question,
 			description: params.description || '',
-			expirationTimestamp: new Date(params.resolvesAt).getTime(),
+			expirationTimestamp: Math.floor(new Date(params.resolvesAt).getTime() / 1000),
 			authority: params.creator
 		})
 	});

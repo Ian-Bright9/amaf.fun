@@ -1,6 +1,12 @@
 <script lang="ts">
 	import WalletAdapter from '$lib/components/WalletAdapter.svelte';
 	let { children } = $props();
+	let walletAdapter = $state<any>(null);
+
+	function setWalletAdapter(adapter: any) {
+		walletAdapter = adapter;
+		(window as any).walletAdapter = adapter;
+	}
 </script>
 
 <svelte:head>
@@ -8,7 +14,7 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
 	<link
 		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 		rel="stylesheet"
@@ -55,11 +61,6 @@
 				<span class="logo-text">AMAF</span>
 				<span class="logo-dot">.fun</span>
 			</a>
-			<nav class="nav">
-				<a href="/market">Markets</a>
-				<a href="/market/create">Create</a>
-			</nav>
-		</div>
 			<nav class="nav">
 				<a href="/market">Markets</a>
 				<a href="/market/create">Create</a>

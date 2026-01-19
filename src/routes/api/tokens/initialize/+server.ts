@@ -1,6 +1,13 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { Connection, PublicKey, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
-import { Program, AnchorProvider, BN } from '@project-serum/anchor';
+import {
+	Connection,
+	PublicKey,
+	Keypair,
+	Transaction,
+	SystemProgram,
+	LAMPORTS_PER_SOL
+} from '@solana/web3.js';
+import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
 import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 import idl from '$lib/idl/amafcoin.json';
 
@@ -9,12 +16,12 @@ const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const body = await request.json();
-		const { contractId, position, amount, bettor, authority } = body;
+		const { authority } = body;
 
-		if (!contractId || !position || !amount || !bettor) {
+		if (!authority) {
 			return new Response(
 				JSON.stringify({
-					error: 'Missing required fields: contractId, position, amount, bettor'
+					error: 'Missing required field: authority'
 				}),
 				{
 					headers: { 'Content-Type': 'application/json' },
@@ -23,18 +30,20 @@ export const POST: RequestHandler = async ({ request }) => {
 			);
 		}
 
-		const contractPubkey = new PublicKey(contractId);
-		const bettorPubkey = new PublicKey(bettor);
-		const betKeypair = Keypair.generate();
-		const authorityPubkey = new PublicKey(authority || bettor);
+		const authorityPubkey = new PublicKey(authority);
+		const tokenStateKeypair = Keypair.generate();
+		const [tokenStatePda] = PublicKey.findProgramAddressSync(
+			[Buffer.from('token_state')],
+			PROGRAM_ID
+		);
 
-		const betSize = 8 + 32 + 32 + 8 + 1 + 8;
-		const rent = await connection.getMinimumBalanceForRentExemption(betSize);
+		const tokenStateSize = 8 + 32 + 8 + 8;
+		const rent = await connection.getMinimumBalanceForRentExemption(tokenStateSize);
 
 		const provider = new AnchorProvider(
 			connection,
 			{
-				publicKey: bettorPubkey,
+				publicKey: authorityPubkey,
 				signTransaction: async (tx: any) => {
 					return tx;
 				},
@@ -49,25 +58,23 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const transaction = new Transaction();
 		transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-		transaction.feePayer = bettorPubkey;
+		transaction.feePayer = authorityPubkey;
 
 		transaction.add(
 			SystemProgram.createAccount({
-				fromPubkey: bettorPubkey,
-				newAccountPubkey: betKeypair.publicKey,
+				fromPubkey: authorityPubkey,
+				newAccountPubkey: tokenStateKeypair.publicKey,
 				lamports: rent,
-				space: betSize,
+				space: tokenStateSize,
 				programId: PROGRAM_ID
 			})
 		);
 
 		transaction.add(
-			program.instruction.placeBet(new BN(amount), position === 'yes', {
+			program.instruction.initializeTokenMint({
 				accounts: {
-					contract: contractPubkey,
-					bet: betKeypair.publicKey,
-					bettor: bettorPubkey,
-					systemProgram: SystemProgram.programId
+					tokenState: tokenStateKeypair.publicKey,
+					authority: authorityPubkey
 				}
 			})
 		);
@@ -75,8 +82,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		return new Response(
 			JSON.stringify({
 				transaction: transaction.serialize({ requireAllSignatures: false }).toString('base64'),
-				betAddress: betKeypair.publicKey.toBase58(),
-				message: 'Transaction created. Sign with wallet to place bet.'
+				tokenStateAddress: tokenStateKeypair.publicKey.toBase58(),
+				message: 'Transaction created. Sign with wallet to initialize token system.'
 			}),
 			{
 				headers: { 'Content-Type': 'application/json' },
@@ -84,10 +91,10 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 		);
 	} catch (error) {
-		console.error('Error placing bet:', error);
+		console.error('Error initializing token mint:', error);
 		return new Response(
 			JSON.stringify({
-				error: error instanceof Error ? error.message : 'Failed to place bet'
+				error: error instanceof Error ? error.message : 'Failed to initialize token system'
 			}),
 			{
 				headers: { 'Content-Type': 'application/json' },

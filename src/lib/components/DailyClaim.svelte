@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { walletStore } from '$lib/stores/wallet.js';
 	import { Connection, PublicKey } from '@solana/web3.js';
-	import { claimDailyTokens, checkCanClaim } from '$lib/api/amaf-token.js';
+	import { claimDailyTokens as claimDailyTokensApi, checkCanClaim } from '$lib/api/amaf-token.js';
 	import { getAmafBalance } from '$lib/utils/tokens.js';
 
 	let claiming = $state(false);
@@ -12,16 +12,18 @@
 	let countdown = $state('');
 	let canClaim = $state(false);
 
-	onMount(async () => {
-		connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+	onMount(() => {
+		connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 		updateCountdown();
 		const interval = setInterval(updateCountdown, 1000);
 		return () => clearInterval(interval);
 	});
 
-	$: if ($walletStore.connected && connection && $walletStore.publicKey) {
-		updateClaimEligibility();
-	}
+	$effect(() => {
+		if ($walletStore.connected && connection && $walletStore.publicKey) {
+			updateClaimEligibility();
+		}
+	});
 
 	async function updateClaimEligibility() {
 		if (!$walletStore.publicKey || !connection) return;
@@ -31,8 +33,8 @@
 			const result = await checkCanClaim(connection, publicKey);
 			canClaim = result.canClaim;
 
-			if (!result.canClaim) {
-				walletStore.setLastClaimTime(new Date(result.lastClaimTime! * 1000).toISOString());
+			if (!result.canClaim && result.lastClaimTime) {
+				walletStore.setLastClaimTime(new Date(result.lastClaimTime * 1000).toISOString());
 			}
 		} catch (err) {
 			console.error('Error checking claim eligibility:', err);
@@ -61,7 +63,7 @@
 		}
 	}
 
-	async function claimDailyTokens() {
+	async function handleClaim() {
 		if (!$walletStore.publicKey || !connection) {
 			error = 'Wallet not connected';
 			return;
@@ -77,13 +79,19 @@
 				return;
 			}
 
-			const publicKey = new PublicKey($walletStore.publicKey);
-			const result = await claimDailyTokens(connection, window.solana);
+			const walletAdapter = (window as any).walletAdapter;
+			if (!walletAdapter) {
+				error = 'Wallet not available';
+				return;
+			}
+
+			const result = await claimDailyTokensApi(connection, walletAdapter);
 
 			if (result.signature) {
 				await connection.confirmTransaction(result.signature, 'confirmed');
 				walletStore.setLastClaimTime(new Date().toISOString());
 
+				const publicKey = new PublicKey($walletStore.publicKey);
 				const newBalance = await getAmafBalance(connection, publicKey);
 				walletStore.setAmafBalance(newBalance);
 
@@ -148,7 +156,7 @@
 				<button
 					class="claim-button"
 					disabled={claiming || !$walletStore.connected}
-					onclick={claimDailyTokens}
+					onclick={handleClaim}
 				>
 					{#if claiming}
 						<span class="spinner"></span>
@@ -168,7 +176,7 @@
 	</div>
 
 	{#if success}
-		<div class="success-toast" on:click={dismissSuccess}>
+		<div class="success-toast" onclick={dismissSuccess}>
 			<div class="toast-content">
 				<span class="toast-icon">✓</span>
 				<span class="toast-message">{success}</span>
@@ -177,7 +185,7 @@
 	{/if}
 
 	{#if error}
-		<div class="error-toast" on:click={dismissError}>
+		<div class="error-toast" onclick={dismissError}>
 			<div class="toast-content">
 				<span class="toast-icon">✕</span>
 				<span class="toast-message">{error}</span>

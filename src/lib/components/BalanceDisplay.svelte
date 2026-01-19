@@ -7,9 +7,11 @@
 	let connection: Connection | null = $state(null);
 	let solPrice = $state(0);
 
-	$: if ($walletStore.connected && connection && $walletStore.publicKey) {
-		updateBalance();
-	}
+	$effect(() => {
+		if ($walletStore.connected && connection && $walletStore.publicKey) {
+			updateBalance();
+		}
+	});
 
 	async function updateBalance() {
 		if (!$walletStore.publicKey || !connection) return;
@@ -24,7 +26,7 @@
 	}
 
 	onMount(() => {
-		connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+		connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 	});
 </script>
 
@@ -33,7 +35,7 @@
 		<div class="balance-item">
 			<div class="balance-header">
 				<span class="balance-label">SOL Balance</span>
-				<span class="balance-network">Mainnet</span>
+				<span class="balance-network">Devnet</span>
 			</div>
 			<div class="balance-value">
 				<span class="balance-amount">
@@ -73,7 +75,7 @@
 
 	.balance-card {
 		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		grid-template-columns: 1fr 1px 1fr;
 		gap: 0;
 		background-color: rgba(26, 26, 26, 0.9);
 		border: 1px solid #2d2d2d;
