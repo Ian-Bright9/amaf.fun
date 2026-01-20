@@ -12,7 +12,7 @@ function generateRandomPrice(
 	max: number
 ): number {
 	const change = (Math.random() - 0.5) * volatility;
-	let newPrice = initialPrice + change;
+	const newPrice = initialPrice + change;
 	return Math.max(min, Math.min(max, newPrice));
 }
 
@@ -113,6 +113,7 @@ export function generateChartData(days: number = 7): ChartData {
 	const stats = calculateStats(priceHistory);
 
 	return {
+		title: 'Price History',
 		prices: priceHistory,
 		candlestick,
 		stats

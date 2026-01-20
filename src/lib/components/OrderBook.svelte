@@ -5,9 +5,11 @@
 	export let bets: Bet[];
 
 	// Sort bets by timestamp (newest first)
-	$: sortedBets = bets.sort(
-		(a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-	);
+	$: sortedBets = bets.sort((a, b) => {
+		const aTime = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+		const bTime = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+		return bTime - aTime;
+	});
 
 	// Calculate volume for each position
 	$: yesVolume = bets
@@ -58,7 +60,7 @@
 							<span class="user-label">User:</span>
 							<span class="user-address">{shortenAddress(bet.user)}</span>
 						</div>
-						<div class="bet-time">{formatDate(bet.timestamp)}</div>
+						<div class="bet-time">{bet.timestamp ? formatDate(bet.timestamp) : 'Unknown'}</div>
 					</div>
 					<div class="bet-odds">
 						Odds: {(1 / bet.odds).toFixed(2)}x

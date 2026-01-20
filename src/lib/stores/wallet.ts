@@ -7,7 +7,8 @@ const createWalletStore = () => {
 		connected: false,
 		balance: 0,
 		amafBalance: 0,
-		lastClaimTime: null
+		lastClaimTime: null,
+		lastClaim: null
 	});
 
 	return {
@@ -18,6 +19,7 @@ const createWalletStore = () => {
 		setAmafBalance: (amafBalance: number) => update((_state) => ({ ..._state, amafBalance })),
 		setLastClaimTime: (lastClaimTime: string | null) =>
 			update((_state) => ({ ..._state, lastClaimTime })),
+		setLastClaim: (lastClaim: number | null) => update((_state) => ({ ..._state, lastClaim })),
 		connect: () => update((_state) => ({ ..._state, connected: true })),
 		disconnect: () =>
 			update((_state) => ({
@@ -25,10 +27,18 @@ const createWalletStore = () => {
 				connected: false,
 				balance: 0,
 				amafBalance: 0,
-				lastClaimTime: null
+				lastClaimTime: null,
+				lastClaim: null
 			})),
 		reset: () =>
-			set({ publicKey: null, connected: false, balance: 0, amafBalance: 0, lastClaimTime: null })
+			set({
+				publicKey: null,
+				connected: false,
+				balance: 0,
+				amafBalance: 0,
+				lastClaimTime: null,
+				lastClaim: null
+			})
 	};
 };
 

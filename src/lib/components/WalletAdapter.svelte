@@ -48,6 +48,7 @@
 			walletStore.setConnected(false);
 			walletStore.setBalance(0);
 			walletStore.setAmafBalance(0);
+			walletStore.setLastClaimTime(null);
 		});
 
 		walletAdapter.on('error', (err) => {

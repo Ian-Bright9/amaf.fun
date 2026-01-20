@@ -19,9 +19,10 @@ export interface Market {
 	currentYesPrice: number;
 	currentNoPrice: number;
 	expirationTimestamp?: number;
+	betCount?: number;
 }
 
-export interface Contract extends Market {}
+export type Contract = Market;
 
 export interface Bet {
 	id: string;
@@ -88,9 +89,16 @@ export interface ChartStats {
 	volume: number;
 }
 
+export interface CandlestickDataPoint {
+	timestamp: number;
+	x: string;
+	y: [number, number, number, number];
+}
+
 export interface ChartData {
 	title: string;
 	prices: PriceDataPoint[];
+	candlestick?: CandlestickDataPoint[];
 	stats: ChartStats;
 }
 

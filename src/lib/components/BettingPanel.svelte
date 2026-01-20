@@ -96,7 +96,7 @@
 				<span>{maxBetAmount}</span>
 			</div>
 			<div class="quick-amounts">
-				{#each quickAmounts as value}
+				{#each quickAmounts as value (value)}
 					<button class="quick-amount-btn" onclick={() => quickSetAmount(value)}>
 						{value}
 					</button>

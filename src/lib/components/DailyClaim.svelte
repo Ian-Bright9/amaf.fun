@@ -101,10 +101,11 @@
 				return;
 			}
 
-			const result = await solanaClient.claimDailyTokens(window.solana);
+			const transaction = await solanaClient.claimDailyTokens(window.solana);
 
-			if (connection && result.signature) {
-				await connection.confirmTransaction(result.signature, 'confirmed');
+			if (connection && window.solana) {
+				const signature = await window.solana.signAndSendTransaction(transaction);
+				await connection.confirmTransaction(signature, 'confirmed');
 				walletStore.setLastClaimTime(new Date().toISOString());
 
 				const tokenMint = deriveTokenMintAddress();

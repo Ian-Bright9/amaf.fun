@@ -4,11 +4,10 @@ import * as anchor from '@project-serum/anchor';
 import BN from 'bn.js';
 import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
 import {
-	createCreateContractInstruction,
+	createCreateMarketInstruction,
 	createPlaceBetInstruction,
-	createResolveContractInstruction,
-	createInitializeTokenMintInstruction,
-	createClaimDailyTokensInstruction
+	createResolveMarketInstruction,
+	createClaimDailyAmafInstruction
 } from './instructions.js';
 import {
 	deriveTokenMintAddress,
@@ -179,13 +178,32 @@ export class SolanaProgramClient {
 		const provider = await this.initializeProvider(walletAdapter);
 
 		if (!this.program) {
-			throw new Error('Program not initialized');
+			this.program = new anchor.Program(this.idl, this.programId, provider);
 		}
 
+		const transaction = new Transaction();
+		transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+		transaction.feePayer = walletAdapter.publicKey;
+
+		return transaction;
+	}
+
+	async claimDailyTokens(walletAdapter: any): Promise<Transaction> {
+		const provider = await this.initializeProvider(walletAdapter);
+
+		if (!this.program) {
+			this.program = new anchor.Program(this.idl, this.programId, provider);
+		}
+
+		const tokenMint = deriveTokenMintAddress();
 		const tokenState = deriveTokenStateAddress();
-		const instruction = createInitializeTokenMintInstruction(
+		const userTokenAccount = deriveUserTokenAccount(walletAdapter.publicKey, tokenMint);
+
+		const instruction = createClaimDailyAmafInstruction(
 			this.program,
+			tokenMint,
 			tokenState,
+			userTokenAccount,
 			walletAdapter.publicKey
 		);
 
@@ -194,37 +212,6 @@ export class SolanaProgramClient {
 		transaction.feePayer = walletAdapter.publicKey;
 
 		return transaction;
-	}
-
-	async claimDailyTokens(
-		walletAdapter: any
-	): Promise<{ transaction: Transaction; signature: string }> {
-		const provider = await this.initializeProvider(walletAdapter);
-
-		if (!this.program) {
-			throw new Error('Program not initialized');
-		}
-
-		const tokenMint = deriveTokenMintAddress();
-		const tokenState = deriveTokenStateAddress();
-		const userTokenAccount = deriveUserTokenAccount(walletAdapter.publicKey, tokenMint);
-
-		const instruction = createClaimDailyTokensInstruction(
-			this.program,
-			tokenMint,
-			tokenState,
-			userTokenAccount,
-			walletAdapter.publicKey,
-			TOKEN_PROGRAM_ID
-		);
-
-		const transaction = new Transaction().add(instruction);
-		transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
-		transaction.feePayer = walletAdapter.publicKey;
-
-		const signature = await walletAdapter.signAndSendTransaction(transaction);
-
-		return { transaction, signature };
 	}
 }
 

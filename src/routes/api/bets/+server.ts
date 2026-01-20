@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const userPubkey = new PublicKey(user);
 		const betKeypair = Keypair.generate();
 		const tokenMint = deriveTokenMintAddress();
-		const escrowToken = deriveEscrowTokenAddress();
+		const escrowToken = deriveEscrowTokenAddress(marketPubkey);
 		const userToken = deriveUserTokenAccount(userPubkey, tokenMint);
 
 		const betSize = 8 + 32 + 32 + 8 + 1 + 1;

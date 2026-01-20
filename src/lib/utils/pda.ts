@@ -26,3 +26,8 @@ export function deriveUserTokenAccount(userPubkey: PublicKey, tokenMint: PublicK
 }
 
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+
+export function deriveEscrowTokenAddress(market: PublicKey): PublicKey {
+	const [escrowToken] = PublicKey.findProgramAddressSync([market.toBuffer()], PROGRAM_ID);
+	return escrowToken;
+}

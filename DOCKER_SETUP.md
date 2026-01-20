@@ -5,6 +5,7 @@ This project uses Docker to run Anchor commands, avoiding GLIBC compatibility is
 ## Prerequisites
 
 Install Docker on Ubuntu:
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y docker.io docker-compose
@@ -16,11 +17,13 @@ After adding user to docker group, log out and back in.
 ## Quick Start
 
 1. Start the Anchor container:
+
 ```bash
 docker compose up -d
 ```
 
 2. Run Anchor commands:
+
 ```bash
 # Build the program
 make build
@@ -47,6 +50,7 @@ make shell
 ## Manual Docker Commands
 
 Or use docker-compose directly:
+
 ```bash
 docker compose run --rm anchor anchor build
 docker compose run --rm anchor anchor test
@@ -55,6 +59,7 @@ docker compose run --rm anchor anchor test
 ## Solana Configuration
 
 The Anchor container uses default Solana config. Configure your network:
+
 ```bash
 # Set to devnet
 docker compose run --rm anchor solana config set --url devnet
@@ -68,6 +73,7 @@ docker compose run --rm anchor solana config set --url localhost
 The main program is in `programs/amafcoin/`.
 
 To build the program:
+
 ```bash
 make build
 ```

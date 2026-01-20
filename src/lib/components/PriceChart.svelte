@@ -71,11 +71,11 @@
 				</linearGradient>
 			</defs>
 
-			{#each [0, 20, 40, 60, 80] as y}
+			{#each [0, 20, 40, 60, 80] as y (y)}
 				<line x1="0" y1={y / 2} x2="100" y2={y / 2} class="grid-line" />
 			{/each}
 
-			{#each [20, 40, 60, 80, 100] as x}
+			{#each [20, 40, 60, 80, 100] as x (x)}
 				<line x1={x} y1="0" x2={x} y2="60" class="grid-line vertical" />
 			{/each}
 
@@ -139,7 +139,7 @@
 				class="chart-line no-line"
 			/>
 
-			{#each history as point, i}
+			{#each history as point, i (i)}
 				<g class="data-point-group">
 					<circle
 						cx={(i / (history.length - 1)) * 100}

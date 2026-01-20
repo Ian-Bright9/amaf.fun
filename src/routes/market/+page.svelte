@@ -65,7 +65,7 @@
 
 	{#if loading}
 		<div class="loading-grid">
-			{#each Array(6) as _}
+			{#each Array(6) as _, i (i)}
 				<div class="skeleton-card">
 					<div class="skeleton-header">
 						<div class="skeleton-badge"></div>

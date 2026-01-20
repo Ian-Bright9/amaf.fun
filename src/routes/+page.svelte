@@ -54,7 +54,7 @@
 
 			{#if loading}
 				<div class="skeleton-grid">
-					{#each Array(6) as _}
+					{#each Array(6) as _, i (i)}
 						<div class="skeleton-card">
 							<div class="skeleton-text skeleton-title"></div>
 							<div class="skeleton-stats">
