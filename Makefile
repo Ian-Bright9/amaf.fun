@@ -2,7 +2,7 @@
 
 # Run Anchor build in Docker
 build:
-	docker compose run --rm anchor anchor build
+	docker compose run --rm anchor
 
 # Run Anchor test in Docker
 test:

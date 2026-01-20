@@ -1,17 +1,18 @@
 [toolchain]
+anchor_version = "0.29.0"
 
 [features]
 seeds = false
 skip-lint = false
 
 [programs.localnet]
-amafcoin = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn"
+amafcoin = "FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE"
 
 [programs.devnet]
-amafcoin = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn"
+amafcoin = "FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE"
 
 [programs.mainnet]
-amafcoin = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn"
+amafcoin = "FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE"
 
 [registry]
 url = "https://api.apr.dev"

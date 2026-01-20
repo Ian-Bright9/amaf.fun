@@ -1,7 +1,11 @@
 services:
   anchor:
-    image: projectserum/build:v0.27.0
+    image: ubuntu:22.04
     volumes:
       - ./:/workdir
     working_dir: /workdir
-    command: /bin/sh -c "anchor build"
+    entrypoint: ['/bin/bash', '-c']
+    command:
+      [
+        "apt-get update && apt-get install -y curl git build-essential pkg-config libssl-dev libudev-dev && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.75.0 && export PATH=/root/.cargo/bin:$$PATH && cargo install --git https://github.com/coral-xyz/anchor --tag v0.29.0 anchor-cli --locked && anchor build"
+      ]
