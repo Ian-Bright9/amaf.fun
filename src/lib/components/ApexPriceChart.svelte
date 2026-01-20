@@ -32,35 +32,47 @@
 
 	const options = $derived<ApexCharts.ApexOptions>({
 		chart: {
-			background: '#111827',
-			foreColor: '#d1d5db'
+			background: 'transparent',
+			foreColor: '#d1d5db',
+			animations: {
+				enabled: true,
+				speed: 800
+			}
 		},
 		colors: ['#10b981', '#ef4444'],
 		stroke: {
-			curve: 'smooth',
+			curve: 'smooth' as const,
 			width: 2
 		},
 		fill: {
-			type: 'gradient',
+			type: 'gradient' as const,
 			gradient: {
 				shadeIntensity: 1,
 				opacityFrom: 0.7,
-				opacityTo: 0.2,
+				opacityTo: 0.1,
 				stops: [0, 100]
 			}
+		},
+		dataLabels: {
+			enabled: false
 		},
 		xaxis: {
 			categories: timestamps,
 			labels: {
 				style: {
-					colors: '#9ca3af'
-				}
+					colors: '#9ca3af',
+					fontSize: '12px'
+				},
+				rotate: -45
 			},
 			axisBorder: {
 				show: false
 			},
 			axisTicks: {
 				show: false
+			},
+			tooltip: {
+				enabled: true
 			}
 		},
 		yaxis: {
@@ -75,11 +87,12 @@
 		},
 		grid: {
 			borderColor: '#374151',
-			strokeDashArray: 4
+			strokeDashArray: 4,
+			position: 'back' as const
 		},
 		tooltip: {
 			enabled: true,
-			theme: 'dark',
+			theme: 'dark' as const,
 			style: {
 				fontSize: '12px'
 			},
@@ -87,13 +100,33 @@
 				show: true
 			},
 			y: {
-				formatter: (value: number) => `${(value * 100).toFixed(1)}%`
+				formatter: (value: number) => `${(value * 100).toFixed(2)}%`
+			},
+			marker: {
+				show: true
 			}
 		},
 		legend: {
 			position: 'top' as const,
-			horizontalAlign: 'left' as const
-		}
+			horizontalAlign: 'left' as const,
+			showForSingleSeries: true
+		},
+		responsive: [
+			{
+				breakpoint: 768,
+				options: {
+					chart: {
+						height: 300
+					},
+					xaxis: {
+						labels: {
+							rotate: -90,
+							fontSize: '10px'
+						}
+					}
+				}
+			}
+		]
 	});
 </script>
 
