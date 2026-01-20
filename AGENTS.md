@@ -18,13 +18,16 @@ Kalshi-like prediction market web app using Solana tokens for fun betting.
 ```bash
 npm run dev              # Start dev server
 npm run build            # Build for production
+npm run preview          # Preview production build
 npm run check            # svelte-check + lint
+npm run check:watch      # svelte-check in watch mode
 npm run lint             # ESLint
 npm run lint:fix         # Fix ESLint issues
 npm run format:fix       # Format with Prettier
 npm test                 # Run Vitest tests
-npm test <test-file>     # Run specific test file
+npm test <test-file>     # Run specific test file (e.g., npm test utils.test.ts)
 npm test -- --watch      # Watch mode
+npm run test:ui          # Vitest UI mode
 npm run test:coverage    # Coverage report
 ```
 
@@ -92,13 +95,16 @@ try {
 
 - useTabs: true, singleQuote: true, semi: true, trailingComma: none
 - printWidth: 100, arrowParens: always, tabWidth: 2
+- bracketSpacing: true, endOfLine: lf
+- Uses prettier-plugin-svelte for .svelte files
 - Uses tabs for all files (.ts, .svelte) with visual width of 2 spaces
 
 ### ESLint Rules
 
 - no-console: warn, no-debugger: warn, no-duplicate-imports: error
-- @typescript-eslint/no-unused-vars: warn (allow `_` prefix)
+- @typescript-eslint/no-unused-vars: off
 - @typescript-eslint/no-explicit-any: warn
+- svelte/no-navigation-without-resolve: off
 - Prettier integration enforced
 
 ## Solana Specifics
@@ -111,9 +117,9 @@ try {
 
 ## Cloudflare Deployment
 
-- Adapter: @sveltejs/adapter-cloudflare
+- Adapter: @sveltejs/adapter-cloudflare with API route exclusion
 - Build output: .svelte-kit/
-- Prefer Static Site Generation
+- Prefer Static Site Generation (excludes /api/\* routes)
 - Deploy via Git integration or `wrangler pages deploy`
 
 ## Project Structure
@@ -144,4 +150,5 @@ try {
 5. Use Svelte 5 runes (`$state`, `$derived`, `$effect`) over legacy APIs
 6. **Anchor commands must use Docker** - use `make build` not `anchor build`
 7. Run `make shell` for interactive Anchor development
-8. Program ID: `FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE`
+8. Test files: `src/**/*.{test,spec}.{js,ts}`, setup at `src/tests/setup.ts`
+9. Program ID: `FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE`
