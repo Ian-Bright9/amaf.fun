@@ -1,19 +1,18 @@
 import type { Program } from '@project-serum/anchor';
 import BN from 'bn.js';
-import { SystemProgram } from '@solana/web3.js';
-import type { PublicKey, TransactionInstruction } from '@solana/web3.js';
+import { SystemProgram, type PublicKey, type TransactionInstruction } from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
-export function createCreateContractInstruction(
+export function createCreateMarketInstruction(
 	program: Program,
-	contractKeypair: PublicKey,
+	marketKeypair: PublicKey,
 	authority: PublicKey,
 	question: string,
-	description: string,
-	expirationTimestamp: number
+	description: string
 ): TransactionInstruction {
-	return program.instruction.createContract(question, description, new BN(expirationTimestamp), {
+	return program.instruction.createMarket(question, description, {
 		accounts: {
-			contract: contractKeypair,
+			market: marketKeypair,
 			authority: authority,
 			systemProgram: SystemProgram.programId
 		}
@@ -22,64 +21,89 @@ export function createCreateContractInstruction(
 
 export function createPlaceBetInstruction(
 	program: Program,
-	contract: PublicKey,
+	market: PublicKey,
 	betKeypair: PublicKey,
-	bettor: PublicKey,
+	userToken: PublicKey,
+	escrowToken: PublicKey,
+	user: PublicKey,
 	betAmount: number,
-	betOnYes: boolean
+	sideYes: boolean
 ): TransactionInstruction {
-	return program.instruction.placeBet(new BN(betAmount), betOnYes, {
+	return program.instruction.placeBet(new BN(betAmount), sideYes, {
 		accounts: {
-			contract: contract,
+			market,
 			bet: betKeypair,
-			bettor: bettor,
+			userToken,
+			escrowToken,
+			user,
+			systemProgram: SystemProgram.programId,
+			tokenProgram: TOKEN_PROGRAM_ID
+		}
+	});
+}
+
+export function createResolveMarketInstruction(
+	program: Program,
+	market: PublicKey,
+	authority: PublicKey,
+	outcomeYes: boolean
+): TransactionInstruction {
+	return program.instruction.resolveMarket(outcomeYes, {
+		accounts: {
+			market,
+			authority: authority
+		}
+	});
+}
+
+export function createClaimDailyAmafInstruction(
+	program: Program,
+	mint: PublicKey,
+	claimState: PublicKey,
+	userToken: PublicKey,
+	user: PublicKey
+): TransactionInstruction {
+	return program.instruction.claimDailyAmaf({
+		accounts: {
+			mint,
+			claimState,
+			userToken,
+			user,
+			tokenProgram: TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId
 		}
 	});
 }
 
-export function createResolveContractInstruction(
+export function createCancelMarketInstruction(
 	program: Program,
-	contract: PublicKey,
-	authority: PublicKey,
-	outcome: boolean
-): TransactionInstruction {
-	return program.instruction.resolveContract(outcome, {
-		accounts: {
-			contract: contract,
-			authority: authority
-		}
-	});
-}
-
-export function createInitializeTokenMintInstruction(
-	program: Program,
-	tokenState: PublicKey,
+	market: PublicKey,
 	authority: PublicKey
 ): TransactionInstruction {
-	return program.instruction.initializeTokenMint({
+	return program.instruction.cancelMarket({
 		accounts: {
-			tokenState: tokenState,
+			market,
 			authority: authority
 		}
 	});
 }
 
-export function createClaimDailyTokensInstruction(
+export function createClaimPayoutInstruction(
 	program: Program,
-	tokenMint: PublicKey,
-	tokenState: PublicKey,
-	userTokenAccount: PublicKey,
-	authority: PublicKey,
-	tokenProgram: PublicKey
+	market: PublicKey,
+	bet: PublicKey,
+	escrowToken: PublicKey,
+	userToken: PublicKey,
+	user: PublicKey
 ): TransactionInstruction {
-	return program.instruction.claimDailyTokens({
+	return program.instruction.claimPayout({
 		accounts: {
-			tokenMint: tokenMint,
-			tokenState: tokenState,
-			userTokenAccount: userTokenAccount,
-			authority: authority,
-			tokenProgram: tokenProgram
+			market,
+			bet,
+			escrowToken,
+			userToken,
+			user,
+			tokenProgram: TOKEN_PROGRAM_ID
 		}
 	});
 }

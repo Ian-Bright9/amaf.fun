@@ -103,7 +103,7 @@ Remove complex SPL token integration and deploy basic program first, then add to
 // programs/amafcoin/src/lib.rs (simplified version)
 use anchor_lang::prelude::*;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn");
+declare_id!("FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE");
 
 #[program]
 pub mod amafcoin {

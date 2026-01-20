@@ -1,7 +1,14 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { Connection, PublicKey, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
-import { Program, AnchorProvider, BN } from '@project-serum/anchor';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import * as anchor from '@project-serum/anchor';
+import BN from 'bn.js';
 import { PROGRAM_ID, DEFAULT_NETWORK } from '$lib/utils/solana-constants.js';
+import {
+	deriveTokenMintAddress,
+	deriveEscrowTokenAddress,
+	deriveUserTokenAccount
+} from '$lib/utils/pda.js';
 import idl from '$lib/idl/amafcoin.json';
 
 const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
@@ -9,12 +16,12 @@ const connection = new Connection(DEFAULT_NETWORK, 'confirmed');
 export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const body = await request.json();
-		const { contractId, position, amount, bettor, authority } = body;
+		const { marketId, position, amount, user } = body;
 
-		if (!contractId || !position || !amount || !bettor) {
+		if (!marketId || !position || !amount || !user) {
 			return new Response(
 				JSON.stringify({
-					error: 'Missing required fields: contractId, position, amount, bettor'
+					error: 'Missing required fields: marketId, position, amount, user'
 				}),
 				{
 					headers: { 'Content-Type': 'application/json' },
@@ -23,18 +30,20 @@ export const POST: RequestHandler = async ({ request }) => {
 			);
 		}
 
-		const contractPubkey = new PublicKey(contractId);
-		const bettorPubkey = new PublicKey(bettor);
+		const marketPubkey = new PublicKey(marketId);
+		const userPubkey = new PublicKey(user);
 		const betKeypair = Keypair.generate();
-		const authorityPubkey = new PublicKey(authority || bettor);
+		const tokenMint = deriveTokenMintAddress();
+		const escrowToken = deriveEscrowTokenAddress();
+		const userToken = deriveUserTokenAccount(userPubkey, tokenMint);
 
-		const betSize = 8 + 32 + 32 + 8 + 1 + 8;
+		const betSize = 8 + 32 + 32 + 8 + 1 + 1;
 		const rent = await connection.getMinimumBalanceForRentExemption(betSize);
 
-		const provider = new AnchorProvider(
+		const provider = new anchor.AnchorProvider(
 			connection,
 			{
-				publicKey: bettorPubkey,
+				publicKey: userPubkey,
 				signTransaction: async (tx: any) => {
 					return tx;
 				},
@@ -45,15 +54,15 @@ export const POST: RequestHandler = async ({ request }) => {
 			{ commitment: 'confirmed' }
 		);
 
-		const program = new Program(idl as any, PROGRAM_ID, provider);
+		const program = new anchor.Program(idl as any, PROGRAM_ID, provider);
 
 		const transaction = new Transaction();
 		transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-		transaction.feePayer = bettorPubkey;
+		transaction.feePayer = userPubkey;
 
 		transaction.add(
 			SystemProgram.createAccount({
-				fromPubkey: bettorPubkey,
+				fromPubkey: userPubkey,
 				newAccountPubkey: betKeypair.publicKey,
 				lamports: rent,
 				space: betSize,
@@ -61,13 +70,18 @@ export const POST: RequestHandler = async ({ request }) => {
 			})
 		);
 
+		const sideYes = position === 'yes';
+
 		transaction.add(
-			program.instruction.placeBet(new BN(amount), position === 'yes', {
+			program.instruction.placeBet(new BN(amount), sideYes, {
 				accounts: {
-					contract: contractPubkey,
+					market: marketPubkey,
 					bet: betKeypair.publicKey,
-					bettor: bettorPubkey,
-					systemProgram: SystemProgram.programId
+					userToken,
+					escrowToken,
+					user: userPubkey,
+					systemProgram: SystemProgram.programId,
+					tokenProgram: TOKEN_PROGRAM_ID
 				}
 			})
 		);

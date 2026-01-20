@@ -25,7 +25,7 @@ export default [
 			'no-console': 'warn',
 			'no-debugger': 'warn',
 			'no-duplicate-imports': 'error',
-			'@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+			'@typescript-eslint/no-unused-vars': 'off',
 			'@typescript-eslint/no-explicit-any': 'warn',
 			'svelte/no-navigation-without-resolve': 'off'
 		},

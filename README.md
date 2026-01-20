@@ -260,7 +260,7 @@ make clean           # Clean build artifacts
 
 ## Solana Program ID
 
-**Program ID**: `Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn`
+**Program ID**: `FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE`
 
 ## Environment Variables
 
@@ -272,7 +272,7 @@ VITE_SOLANA_RPC_URL=https://api.devnet.solana.com
 VITE_SOLANA_WSS_URL=wss://api.devnet.solana.com
 
 # Program ID
-VITE_PROGRAM_ID=Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn
+VITE_PROGRAM_ID=FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE
 ```
 
 ## Contributing

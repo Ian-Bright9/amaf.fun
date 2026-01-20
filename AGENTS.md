@@ -41,29 +41,18 @@ make shell               # Open bash shell in Anchor container
 make clean               # Clean build artifacts
 ```
 
-**Docker setup (one-time):**
+**Docker setup (one-time):** `sudo apt-get install -y docker.io docker-compose && sudo usermod -aG docker $USER` (then log out/in)
 
-```bash
-sudo apt-get install -y docker.io docker-compose
-sudo usermod -aG docker $USER  # Log out and back in
-```
-
-**Run specific Anchor test:**
-
-```bash
-docker compose run --rm anchor anchor test --skip-local-validator --skip-build --test <test_name>
-```
+**Run specific Anchor test:** `docker compose run --rm anchor anchor test --skip-local-validator --skip-build --test <test_name>`
 
 ## Code Style
 
 ### TypeScript / SvelteKit
 
-- Use strict mode in tsconfig.json
-- Use Svelte stores for state, prefer `$derived` runes over derived stores
+- Use strict mode, Svelte stores, prefer `$derived` runes over derived stores
 - Use Server Load Functions (`+page.server.ts`) for data fetching
 - Use API routes (`+server.ts`) for backend logic
-- Define data shapes with interfaces/types
-- Use absolute imports: `$lib/...` not relative paths
+- Define data shapes with interfaces/types, absolute imports: `$lib/...`
 - Use `.js` extension for imports (ESM requirement)
 
 ### Imports
@@ -78,9 +67,9 @@ import type { Contract } from '$lib/types/index.js';
 
 ### Naming Conventions
 
-- TypeScript: camelCase for variables/functions, PascalCase for components/types
+- TypeScript: camelCase (vars/functions), PascalCase (components/types)
 - Svelte: PascalCase for components (.svelte files)
-- Rust: snake_case for variables/functions, PascalCase for structs/enums
+- Rust: snake_case (vars/functions), PascalCase (structs/enums)
 - Constants: UPPER_SNAKE_CASE
 - Files: PascalCase for components, lowercase for utilities
 
@@ -101,9 +90,9 @@ try {
 
 ### Formatting (Prettier)
 
-- useTabs: true, singleQuote: true, semi: true
-- printWidth: 100, arrowParens: always
-- Use tabs in Svelte files, 2 spaces for TypeScript
+- useTabs: true, singleQuote: true, semi: true, trailingComma: none
+- printWidth: 100, arrowParens: always, tabWidth: 2
+- Uses tabs for all files (.ts, .svelte) with visual width of 2 spaces
 
 ### ESLint Rules
 
@@ -149,12 +138,10 @@ try {
 ## Agent Guidelines
 
 1. Run `npm run check`, `npm run lint`, `npm test` after changes
-2. Test thoroughly before deploying smart contracts
-3. Follow Solana best practices for security and gas efficiency
-4. Use `$lib/` alias for imports from src/lib/
-5. Use `$app/stores` for SvelteKit built-in stores (page, navigation)
-6. Prefer server-side rendering for performance
-7. Use Svelte 5 runes (`$state`, `$derived`, `$effect`) over legacy APIs
-8. **Anchor commands must use Docker** - use `make build` not `anchor build`
-9. Run `make shell` for interactive Anchor development
-10. Program ID: `Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn`
+2. Test thoroughly before deploying smart contracts, follow Solana best practices
+3. Use `$lib/` alias for imports, `$app/stores` for SvelteKit built-ins
+4. Prefer server-side rendering for performance
+5. Use Svelte 5 runes (`$state`, `$derived`, `$effect`) over legacy APIs
+6. **Anchor commands must use Docker** - use `make build` not `anchor build`
+7. Run `make shell` for interactive Anchor development
+8. Program ID: `FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE`

@@ -6,7 +6,7 @@ describe('amafcoin', () => {
 	const provider = anchor.AnchorProvider.env();
 	const program = new Program(
 		Program,
-		new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLn'),
+		new PublicKey('FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE'),
 		provider
 	);
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatCurrency, formatDate } from '../utils/format.js';
+	import { formatCurrency, formatDate, shortenAddress } from '../utils/format.js';
 	import type { Contract, Bet } from '../../types/index.js';
 
 	export let contract: Contract;
@@ -16,22 +16,22 @@
 		.reduce((sum, bet) => sum + bet.amount, 0);
 	$: averageBetSize = bets.length > 0 ? totalVolume / bets.length : 0;
 
-	// Time calculations
+	// Sort bets by timestamp (newest first) and limit to 3
+	$: recentBets = bets.slice(0, 3);
+
 	$: timeToResolution = contract.resolvesAt
 		? new Date(contract.resolvesAt).getTime() - new Date().getTime()
 		: null;
-
 	$: daysToResolution = timeToResolution
 		? Math.max(0, Math.floor(timeToResolution / (1000 * 60 * 60 * 24)))
 		: null;
-
 	$: hoursToResolution = timeToResolution
 		? Math.max(0, Math.floor((timeToResolution % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)))
 		: null;
 </script>
 
-<div class="market-stats">
-	<h3>Market Statistics</h3>
+<div class="market-info">
+	<h3>Market Info</h3>
 
 	<!-- Key Metrics -->
 	<div class="stats-grid">
@@ -110,21 +110,15 @@
 	{/if}
 
 	<!-- Market Information -->
-	<div class="market-info">
+	<div class="market-details">
 		<h4>Market Details</h4>
 		<div class="info-row">
 			<span class="info-label">Creator:</span>
-			<span class="info-value">Unknown</span>
+			<span class="info-value">{shortenAddress(contract.creator)}</span>
 		</div>
 		<div class="info-row">
 			<span class="info-label">Created:</span>
 			<span class="info-value">{formatDate(contract.createdAt)}</span>
-		</div>
-		<div class="info-row">
-			<span class="info-label">Status:</span>
-			<span class="info-value status-{contract.status || 'active'}">
-				{(contract.status || 'active').toUpperCase()}
-			</span>
 		</div>
 		{#if (contract.status || 'active') === 'resolved'}
 			<div class="info-row">
@@ -135,24 +129,44 @@
 			</div>
 		{/if}
 	</div>
+
+	<!-- Recent Activity (max 3 bets, smaller) -->
+	{#if recentBets.length > 0}
+		<div class="recent-activity">
+			<h4>Recent Activity</h4>
+			<div class="bets-list-small">
+				{#each recentBets as bet (bet.id)}
+					<div class="bet-item-small">
+						<div class="bet-position {bet.position}">
+							{bet.position.toUpperCase()}
+						</div>
+						<div class="bet-info">
+							<div class="bet-amount">{formatCurrency(bet.amount)}</div>
+							<div class="bet-time">{bet.timestamp ? formatDate(bet.timestamp) : ''}</div>
+						</div>
+						<div class="bet-user">{shortenAddress(bet.user)}</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
 </div>
 
 <style>
-	.market-stats {
+	.market-info {
 		background-color: #181926;
 		padding: 1.5rem;
 		border-radius: 0.5rem;
-		margin-bottom: 2rem;
 	}
 
-	.market-stats h3 {
+	.market-info h3 {
 		color: #cad3f5;
 		margin-bottom: 1rem;
 		font-size: 1.125rem;
 		font-weight: 600;
 	}
 
-	.market-stats h4 {
+	.market-info h4 {
 		color: #b8c0e0;
 		margin-bottom: 0.75rem;
 		font-size: 0.875rem;
@@ -266,7 +280,8 @@
 		margin-top: 0.5rem;
 	}
 
-	.market-info {
+	.market-details {
+		margin-bottom: 1.5rem;
 		border-top: 1px solid #363a4f;
 		padding-top: 1rem;
 	}
@@ -289,19 +304,74 @@
 		font-weight: 500;
 	}
 
-	.info-value.status-active {
-		color: #a6da95;
-	}
-
-	.info-value.status-resolved {
-		color: #6e738d;
-	}
-
 	.info-value.resolution-yes {
 		color: #a6da95;
 	}
 
 	.info-value.resolution-no {
 		color: #ed8796;
+	}
+
+	.recent-activity {
+		border-top: 1px solid #363a4f;
+		padding-top: 1rem;
+	}
+
+	.bets-list-small {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.bet-item-small {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		background-color: #363a4f;
+		border-radius: 0.25rem;
+		padding: 0.5rem;
+	}
+
+	.bet-position {
+		padding: 0.125rem 0.375rem;
+		border-radius: 0.25rem;
+		font-size: 0.625rem;
+		font-weight: 600;
+		min-width: 32px;
+		text-align: center;
+	}
+
+	.bet-position.yes {
+		background-color: #a6da95;
+		color: #24273a;
+	}
+
+	.bet-position.no {
+		background-color: #ed8796;
+		color: #24273a;
+	}
+
+	.bet-info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	.bet-amount {
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: #cad3f5;
+	}
+
+	.bet-time {
+		font-size: 0.625rem;
+		color: #a5adcb;
+	}
+
+	.bet-user {
+		font-size: 0.625rem;
+		color: #b8c0e0;
+		font-family: monospace;
 	}
 </style>

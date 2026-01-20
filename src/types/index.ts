@@ -1,4 +1,4 @@
-export interface Contract {
+export interface Market {
 	id: string;
 	question: string;
 	description?: string;
@@ -8,28 +8,32 @@ export interface Contract {
 	status: 'active' | 'resolved' | 'cancelled';
 	createdAt: string;
 	resolvesAt: string;
-	expirationTimestamp: number;
 	resolved: boolean;
 	outcome?: boolean;
-	totalYesAmount: number;
-	totalNoAmount: number;
-	betCount: number;
+	totalYes: number;
+	totalNo: number;
 	// Calculated fields
 	totalVolume: number;
 	yesPrice: number;
 	noPrice: number;
 	currentYesPrice: number;
 	currentNoPrice: number;
+	expirationTimestamp?: number;
 }
+
+export interface Contract extends Market {}
 
 export interface Bet {
 	id: string;
 	contractId: string;
+	marketId: string;
 	user: string;
 	amount: number;
 	position: 'yes' | 'no';
-	timestamp: string;
+	sideYes: boolean;
 	odds: number;
+	claimed: boolean;
+	timestamp?: string;
 }
 
 export interface MarketData {
@@ -46,6 +50,7 @@ export interface WalletState {
 	balance: number;
 	amafBalance: number;
 	lastClaimTime: string | null;
+	lastClaim: number | null;
 }
 
 export type WalletAdapter = {
@@ -57,10 +62,9 @@ export type WalletAdapter = {
 	sendTransaction: (transaction: any) => Promise<string>;
 };
 
-export interface TokenState {
-	authority: string;
-	lastClaimTime: number;
-	totalClaimed: number;
+export interface DailyClaimState {
+	user: string;
+	lastClaim: number;
 }
 
 export interface AmafTokenBalance {
@@ -75,12 +79,6 @@ export interface PriceDataPoint {
 	noPrice: number;
 }
 
-export interface CandlestickDataPoint {
-	timestamp: number;
-	x: string;
-	y: [number, number, number, number];
-}
-
 export interface ChartStats {
 	currentYes: number;
 	currentNo: number;
@@ -91,8 +89,8 @@ export interface ChartStats {
 }
 
 export interface ChartData {
+	title: string;
 	prices: PriceDataPoint[];
-	candlestick: CandlestickDataPoint[];
 	stats: ChartStats;
 }
 
