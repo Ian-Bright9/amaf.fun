@@ -1,24 +1,17 @@
 [toolchain]
-anchor_version = "0.29.0"
 
 [features]
 seeds = false
 skip-lint = false
 
-[programs.localnet]
-amafcoin = "FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE"
-
 [programs.devnet]
-amafcoin = "FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE"
-
-[programs.mainnet]
 amafcoin = "FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "mainnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
