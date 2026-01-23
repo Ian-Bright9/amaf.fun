@@ -38,7 +38,7 @@ const main = async () => {
   console.log("Authority PDA:", authorityPda.toString());
 
   // Read the IDL
-  const idl = JSON.parse(readFileSync("./rust/idl.json", "utf8"));
+  const idl = JSON.parse(readFileSync("./src/lib/idl/amafcoin.json", "utf8"));
   
   // Create a BorshCoder instance
   const coder = new BorshCoder(idl);

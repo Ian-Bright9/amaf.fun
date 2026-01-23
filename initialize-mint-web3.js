@@ -38,8 +38,8 @@ const main = async () => {
   console.log("Authority PDA:", authorityPda.toString());
 
   // Read the IDL to get instruction layout
-  const idl = JSON.parse(readFileSync("./rust/idl.json", "utf8"));
-  
+  const idl = JSON.parse(readFileSync("./src/lib/idl/amafcoin.json", "utf8"));
+
   // Find the initializeMint instruction
   const initMintInstr = idl.instructions.find(i => i.name === 'initializeMint');
   console.log("Instruction accounts:", initMintInstr.accounts);
