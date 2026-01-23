@@ -1,10 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState } from 'react'
-import { Connection, clusterApiUrl, SystemProgram, PublicKey, Keypair } from '@solana/web3.js'
+import { Connection, clusterApiUrl, SystemProgram, PublicKey, Keypair, Transaction } from '@solana/web3.js'
 import { Link } from '@tanstack/react-router'
 
-import { getProgram, getMarketPDA, type Market } from '@/data/markets'
+import { getProgram, type Market } from '@/data/markets'
+import {
+  getMintPDA,
+  getOrCreateUserTokenAccount,
+  getEscrowTokenAccount
+} from '@/data/tokens'
 
 import './$id.css'
 
@@ -72,27 +77,58 @@ function MarketDetailPage() {
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,
-        signAllTransactions: async (txs) => Promise.all(txs.map(signTransaction)),
+        signAllTransactions: async (txs: any) => Promise.all(txs.map(signTransaction)),
       })
 
       const betKeypair = Keypair.generate()
-      const mintAddress = new PublicKey('7jFf6MvXzqjEzF9F5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5')
+      const [mintAddress] = getMintPDA()
+      const marketPublicKey = new PublicKey(id)
+      const escrowTokenAddress = getEscrowTokenAccount(marketPublicKey, mintAddress)
 
-      const tx = await program.methods
-        .placeBet(amount * 1000000, betSide === 'yes')
-        .accounts({
-          market: new PublicKey(id),
-          bet: betKeypair.publicKey,
-          userToken: await getUserTokenAccount(publicKey, mintAddress, connection),
-          escrowToken: await getEscrowTokenAccount(new PublicKey(id), connection),
-          user: publicKey,
-          mint: mintAddress,
-          tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-          associatedTokenProgram: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-          systemProgram: SystemProgram.programId,
-        })
-        .signers([betKeypair])
-        .rpc()
+      const userTokenResult = await getOrCreateUserTokenAccount(
+        publicKey,
+        mintAddress,
+        connection,
+        publicKey
+      )
+
+      let tx: string
+      if (userTokenResult.instruction) {
+        const placeBetIx = await program.methods
+          .placeBet(amount * 1000000, betSide === 'yes')
+          .accounts({
+            market: marketPublicKey,
+            bet: betKeypair.publicKey,
+            userToken: userTokenResult.address,
+            escrowToken: escrowTokenAddress,
+            user: publicKey,
+            mint: mintAddress,
+            tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+            associatedTokenProgram: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+            systemProgram: SystemProgram.programId,
+          })
+          .instruction()
+
+        const transaction = new Transaction().add(userTokenResult.instruction, placeBetIx)
+        const signedTx = await signTransaction!(transaction)
+        tx = await connection.sendRawTransaction(signedTx.serialize())
+      } else {
+        tx = await program.methods
+          .placeBet(amount * 1000000, betSide === 'yes')
+          .accounts({
+            market: marketPublicKey,
+            bet: betKeypair.publicKey,
+            userToken: userTokenResult.address,
+            escrowToken: escrowTokenAddress,
+            user: publicKey,
+            mint: mintAddress,
+            tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+            associatedTokenProgram: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([betKeypair])
+          .rpc()
+      }
 
       console.log('Bet placed with signature:', tx)
       setBetAmount('')
@@ -115,7 +151,7 @@ function MarketDetailPage() {
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,
-        signAllTransactions: async (txs) => Promise.all(txs.map(signTransaction)),
+        signAllTransactions: async (txs: any) => Promise.all(txs.map(signTransaction)),
       })
 
       const tx = await program.methods
@@ -281,16 +317,4 @@ function formatNumber(value: bigint): string {
     return `${(num / 1000).toFixed(2)}K`
   }
   return `${(num / 1000000).toFixed(2)}M`
-}
-
-async function getUserTokenAccount(
-  user: PublicKey,
-  mint: PublicKey,
-  connection: Connection
-): Promise<PublicKey> {
-  return new PublicKey('7jFf6MvXzqjEzF9F5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5')
-}
-
-async function getEscrowTokenAccount(market: PublicKey, connection: Connection): Promise<PublicKey> {
-  return new PublicKey('7jFf6MvXzqjEzF9F5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5')
 }

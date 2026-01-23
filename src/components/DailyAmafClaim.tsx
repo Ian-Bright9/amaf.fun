@@ -1,9 +1,9 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState, useEffect } from 'react'
-import { Connection, PublicKey, SystemProgram, Keypair } from '@solana/web3.js'
-import { Link } from '@tanstack/react-router'
+import { Connection, SystemProgram, Transaction } from '@solana/web3.js'
 
 import { getProgram } from '@/data/markets'
+import { getMintPDA, getProgramAuthorityPDA, getClaimStatePDA, getOrCreateUserTokenAccount } from '@/data/tokens'
 
 import './DailyAmafClaim.css'
 
@@ -33,10 +33,7 @@ export function DailyAmafClaim() {
   async function checkLastClaim() {
     try {
       const connection = new Connection('https://api.devnet.solana.com')
-      const [claimStatePda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('claim'), publicKey!.toBuffer()],
-        new PublicKey('BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn')
-      )
+      const [claimStatePda] = getClaimStatePDA(publicKey!)
 
       const accountInfo = await connection.getAccountInfo(claimStatePda)
       if (accountInfo) {
@@ -84,29 +81,58 @@ export function DailyAmafClaim() {
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,
-        signAllTransactions: async (txs) => Promise.all(txs.map(signTransaction)),
+        signAllTransactions: async (txs: any) => Promise.all(txs.map(signTransaction)),
       })
 
-      const [claimStatePda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('claim'), publicKey.toBuffer()],
-        new PublicKey('BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn')
+      const [claimStatePda] = getClaimStatePDA(publicKey)
+      const [mintAddress] = getMintPDA()
+      const [authorityPda] = getProgramAuthorityPDA()
+
+      const userTokenResult = await getOrCreateUserTokenAccount(
+        publicKey,
+        mintAddress,
+        connection,
+        publicKey
       )
 
-      const mintAddress = new PublicKey('7jFf6MvXzqjEzF9F5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5')
+      let tx: string
+      if (userTokenResult.instruction) {
+        const claimIx = await program.methods
+          .claimDailyAmaf()
+          .accounts({
+            mint: mintAddress,
+            programAuthority: authorityPda,
+            userToken: userTokenResult.address,
+            claimState: claimStatePda,
+            user: publicKey,
+            tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+            associatedTokenProgram: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+            systemProgram: SystemProgram.programId,
+          })
+          .instruction()
 
-      const tx = await program.methods
-        .claimDailyAmaf()
-        .accounts({
-          mint: mintAddress,
-          programAuthority: new PublicKey('BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn'),
-          userToken: await getUserTokenAccount(publicKey, mintAddress, connection),
-          claimState: claimStatePda,
-          user: publicKey,
-          tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-          associatedTokenProgram: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc()
+        const transaction = new Transaction().add(userTokenResult.instruction, claimIx)
+        if (signTransaction) {
+          const signedTx = await signTransaction(transaction)
+          tx = await connection.sendRawTransaction(signedTx.serialize())
+        } else {
+          throw new Error('Wallet does not support signing transactions')
+        }
+      } else {
+        tx = await program.methods
+          .claimDailyAmaf()
+          .accounts({
+            mint: mintAddress,
+            programAuthority: authorityPda,
+            userToken: userTokenResult.address,
+            claimState: claimStatePda,
+            user: publicKey,
+            tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+            associatedTokenProgram: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+            systemProgram: SystemProgram.programId,
+          })
+          .rpc()
+      }
 
       console.log('Claimed daily AMAF with signature:', tx)
       setNextClaimTime(new Date(Date.now() + 24 * 60 * 60 * 1000))
@@ -141,12 +167,4 @@ export function DailyAmafClaim() {
       </button>
     </div>
   )
-}
-
-async function getUserTokenAccount(
-  user: PublicKey,
-  mint: PublicKey,
-  connection: Connection
-): Promise<PublicKey> {
-  return new PublicKey('7jFf6MvXzqjEzF9F5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5')
 }

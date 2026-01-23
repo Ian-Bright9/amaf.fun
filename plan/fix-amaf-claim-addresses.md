@@ -488,21 +488,21 @@ These warnings can be ignored for now. If they become disruptive:
 5. ✅ Fix `src/routes/markets/$id.tsx`
 6. ✅ Create and run `src/data/verify-mint.ts` to check mint status
 7. ✅ Initialize mint if needed (using existing scripts)
-8. ✅ Test all functionality end-to-end
+8. ⚠️ Phase 8: Testing Plan (see below)
 
 ### Checklist
-- [ ] Create tokens utility module
-- [ ] Update markets data module
-- [ ] Fix DailyAmafClaim component
-- [ ] Fix Market Creation component
-- [ ] Fix Market Detail component
-- [ ] Verify mint status
-- [ ] Initialize mint (if needed)
-- [ ] Test daily claim
-- [ ] Test market creation
-- [ ] Test betting
-- [ ] Test market resolution
-- [ ] Test payout claims (if implemented)
+- [x] Create tokens utility module
+- [x] Update markets data module
+- [x] Fix DailyAmafClaim component
+- [x] Fix Market Creation component
+- [x] Fix Market Detail component
+- [x] Verify mint status
+- [ ] Initialize mint (if needed) - See Phase 8 testing results
+- [ ] Test daily claim - Blocked by mint initialization
+- [ ] Test market creation - Blocked by mint initialization
+- [ ] Test betting - Blocked by mint initialization
+- [ ] Test market resolution - Blocked by mint initialization
+- [ ] Test payout claims (if implemented) - Blocked by mint initialization
 
 ---
 
@@ -523,6 +523,165 @@ These warnings can be ignored for now. If they become disruptive:
 - ✅ Reusable functions across components
 - ✅ Proper error handling for missing accounts
 - ✅ Type safety maintained throughout
+
+---
+
+## Phase 8: Testing Results
+
+### Testing Summary
+
+Phase 8 testing encountered issues with mint initialization due to Anchor library/IDL compatibility. Below are the detailed results.
+
+### Test 1: Verify Mint Status
+- **Status**: ❌ Failed
+- **Result**: Mint PDA does not exist on devnet
+- **Details**:
+  - Mint PDA: `6SZG9fnQ3PUj8C41ootubxdzhdhb8hWv9zMRE97U1GWG`
+  - Account does not exist on chain
+  - Script: `check-mint.ts`
+
+### Test 2: Initialize Mint via Anchor Program
+
+#### Attempt 1: Manual Instruction Construction
+- **Script**: `init-mint-borsh.ts`
+- **Method**: Direct instruction construction with discriminator
+- **Discriminator**: `4e9c3ce44d6dc7d5` (sha256("global:initializeMint")[:8])
+- **Result**: ❌ Failed
+- **Error**: `InstructionFallbackNotFound` (error code 101)
+- **Logs**:
+  ```
+  "Program log: AnchorError occurred. Error Code: InstructionFallbackNotFound. Error Number: 101. Error Message: Fallback functions are not supported."
+  ```
+
+#### Attempt 2: Anchor Library with IDL
+- **Script**: `initialize-mint.ts`
+- **Method**: Using `@coral-xyz/anchor` Program API
+- **Result**: ❌ Failed
+- **Error**: `TypeError: Cannot read properties of undefined (reading 'encode')`
+- **Location**: Anchor library instruction encoding
+- **Root Cause**: IDL format compatibility issue with Anchor 0.31.1
+
+#### Attempt 3: Anchor Library (CommonJS)
+- **Script**: `init-mint-anchor.cjs`
+- **Method**: Using Anchor with CommonJS require
+- **Result**: ❌ Failed
+- **Error**: `TypeError: Cannot read properties of undefined (reading 'encode')`
+- **Root Cause**: Same IDL compatibility issue
+
+### Program Deployment Status
+
+Despite initialization failures, the program itself is deployed correctly:
+- **Program ID**: `BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn`
+- **Deployment**: ✅ Success (signature: `5TcJZ2wHi52bNtZAL8oaeDX3jz14EwTtEgZ5UQpRHjBEtteUpLWZ4j2tVoEWtmakJFKCA3inHBLashZCsECxnnKG`)
+- **Program Owner**: `BPFLoaderUpgradeab1e11111111111111111111111`
+- **Program Data Address**: `8ZmymakS1pCfj8CHBTnwsCxsb7qVchH1Ys2zZGPn81cX`
+- **Data Length**: 316,696 bytes
+- **Balance**: 2.205 SOL
+- **Last Deployed Slot**: 437189216
+
+### IDL Deployment
+- **IDL Account**: `6B3UeseiXXcDAddiWEkBvopjbZy3yDCGQigPW882bRMm`
+- **Status**: ✅ Successfully deployed to devnet
+- **Command**: `anchor idl init --filepath src/lib/idl/amafcoin.json ...`
+
+### Dev Server Status
+- **Status**: ✅ Running on port 3000
+- **Frontend**: Accessible and renders correctly
+- **Navigation**: All routes working (Home, Markets, Create Market)
+
+### Blocked Tests
+
+The following tests from Phase 8 cannot be completed without a functioning mint:
+- ❌ Test Daily Claim functionality
+- ❌ Test Market Creation
+- ❌ Test Betting functionality
+- ❌ Test Market Resolution
+- ❌ Test Payout Claims
+
+### Issues Identified
+
+1. **Anchor IDL Compatibility**
+   - Anchor 0.31.1 library expects specific IDL format
+   - Deployed IDL may not match library expectations
+   - Error occurs at instruction encoding stage
+
+2. **Instruction Selector Mismatch**
+   - Manual instruction construction fails with "InstructionFallbackNotFound"
+   - Suggests discriminator or account order mismatch
+   - Discriminator computed correctly: `sha256("global:initializeMint")[:8]`
+
+3. **Mint Account Requirements**
+   - Program expects mint at PDA: `6SZG9fnQ3PUj8C41ootubxdzhdhb8hWv9zMRE97U1GWG`
+   - Account must be initialized by program's `initialize_mint` instruction
+   - Cannot use `spl-token` CLI to create at specific address
+
+### Test Artifacts Created
+
+| File | Purpose |
+|------|---------|
+| `check-mint.ts` | Verify mint PDA existence on devnet |
+| `init-mint-borsh.ts` | Manual instruction construction with discriminator |
+| `init-mint-anchor.cjs` | Anchor library approach (CommonJS) |
+| `test-program-info.ts` | Program information checker |
+| `test-program-data.ts` | Program data analyzer |
+| `phase-8-testing-summary.md` | Complete testing summary |
+
+### Recommendations
+
+#### Immediate Actions Required
+
+1. **Fix IDL Compatibility**
+   - Investigate Anchor 0.31.1 IDL schema requirements
+   - Consider using different Anchor library version
+   - Check if IDL needs additional fields (types, metadata format)
+
+2. **Debug Instruction Error**
+   - Add verbose logging to understand "encode" error
+   - Verify account order matches IDL exactly
+   - Check if `programAuthority` account type is correct
+
+3. **Alternative Approaches**
+   - Try using `anchor-cli test` with local test
+   - Create integration test using Anchor's test framework
+   - Consider using raw Solana Web3.js with correct instruction encoding
+
+#### Workaround Options
+
+1. **Manual Transaction Construction**
+   - Study Anchor's instruction encoding format
+   - Use borsh-js to serialize instruction data
+   - Ensure account keys are in correct order
+
+2. **Downgrade Anchor Library**
+   - Test with Anchor 0.30.x versions
+   - Ensure compatibility with deployed program
+
+3. **Create Test Mint**
+   - Modify program to accept pre-created mint (not PDA)
+   - Update IDL and redeploy
+   - Use for testing purposes only
+
+### Testing Environment Information
+
+- **Network**: devnet
+- **Program ID**: `BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn`
+- **Payer Wallet**: `HAvuKp2tM1XLdTEFetjB7RwMfeFdR5iYmJkJ1qTnMZGs`
+- **Anchor Version**: 0.31.1 (cli), 0.31.1 (library)
+- **Rust Toolchain**: nightly
+- **Node.js**: v25.4.0
+
+### Next Steps
+
+1. Resolve IDL compatibility issue with Anchor 0.31.1
+2. Successfully initialize mint PDA on devnet
+3. Complete Phase 8 testing checklist:
+   - [ ] Test Daily Claim
+   - [ ] Test Market Creation
+   - [ ] Test Betting
+   - [ ] Test Market Resolution
+   - [ ] Test Payout Claims
+4. Proceed to Phase 9 (Address Warnings) - optional
+5. Move forward with production deployment planning
 
 ---
 

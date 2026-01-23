@@ -1,10 +1,11 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState } from 'react'
-import { Connection, PublicKey, Keypair, SystemProgram } from '@solana/web3.js'
+import { Connection, SystemProgram } from '@solana/web3.js'
 import { Link } from '@tanstack/react-router'
 
 import { getProgram, getMarketPDA } from '@/data/markets'
+import { getMintPDA } from '@/data/tokens'
 
 import './create.css'
 
@@ -53,12 +54,11 @@ function CreateMarketPage() {
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,
-        signAllTransactions: async (txs) => Promise.all(txs.map(signTransaction)),
+        signAllTransactions: async (txs: any) => Promise.all(txs.map(signTransaction)),
       })
 
       const [marketPda] = getMarketPDA(publicKey)
-
-      const mintAddress = new PublicKey('7jFf6MvXzqjEzF9F5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5')
+      const [mintAddress] = getMintPDA()
 
       const tx = await program.methods
         .createMarket(question, description)

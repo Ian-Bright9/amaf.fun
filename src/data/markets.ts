@@ -2,7 +2,7 @@ import { Connection, PublicKey } from '@solana/web3.js'
 import { Program, AnchorProvider } from '@coral-xyz/anchor'
 import idl from '@/lib/idl/amafcoin.json'
 
-const PROGRAM_ID = new PublicKey(idl.address)
+export const PROGRAM_ID = new PublicKey(idl.address)
 
 export interface Market {
   publicKey: PublicKey
@@ -59,5 +59,19 @@ export function getMarketPDA(
   return PublicKey.findProgramAddressSync(
     [Buffer.from('market'), authority.toBuffer()],
     programId
+  )
+}
+
+export function getProgramAuthorityPDA(): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from('authority')],
+    PROGRAM_ID
+  )
+}
+
+export function getMintPDA(): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from('mint')],
+    PROGRAM_ID
   )
 }
