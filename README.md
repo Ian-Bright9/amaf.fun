@@ -1,300 +1,280 @@
-# amaf.fun
+This application is a Solana based prediciton market web application that allows users to enter in to polymarket style contracts with valueless tokens (AMAF.COIN) on devnet. It will be hosted on cloudflare using the amaf.fun domain.
 
-A Kalshi-like prediction market web application built on Solana blockchain, allowing users to create prediction contracts and place bets using AMAF tokens. This is a fun betting platform with no real money involved.
+# Getting Started
 
-## Features
-
-- **User-Created Prediction Markets**: Create yes/no prediction contracts with questions and expiration dates
-- **Betting System**: Place bets on "Yes" or "No" outcomes with dynamic pricing
-- **Daily Token Faucet**: Claim 100 AMAF tokens every 24 hours for testing
-- **Wallet Integration**: Connect Phantom wallet for seamless Solana interaction
-- **Real-Time Market Data**: View market prices, volume, and betting history
-- **Dark Mode UI**: Modern, dark-themed interface inspired by Kalshi
-
-## Tech Stack
-
-### Frontend
-
-- **SvelteKit 2** - Full-stack web framework with TypeScript
-- **Svelte 5** - UI framework with runes for reactivity
-- **Solana Web3.js** - Solana blockchain integration
-- **Solana Wallet Adapter** - Phantom wallet support
-
-### Backend
-
-- **Anchor Framework** - Solana smart contracts framework
-- **Rust** - Smart contract programming language
-
-### Deployment
-
-- **Cloudflare Pages** - Static site hosting
-- **Docker** - Anchor development environment (required for GLIBC compatibility)
-
-## Prerequisites
-
-### Required Software
-
-1. **Node.js 18+** and npm/yarn
-2. **Docker** and Docker Compose (for Anchor development)
-3. **Git**
-
-### Docker Setup (One-Time)
-
-Docker is required for Anchor commands due to GLIBC compatibility:
+To run this application:
 
 ```bash
-# Install Docker and Docker Compose
-sudo apt-get install -y docker.io docker-compose
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-
-# Log out and back in for changes to take effect
-```
-
-### Solana Wallet
-
-Install [Phantom Wallet](https://phantom.app/) for browser wallet integration.
-
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Ian-Bright9/amaf.fun.git
-cd amaf.fun
-
-# Install frontend dependencies
 npm install
-```
-
-## Development
-
-### Frontend Development
-
-```bash
-# Start SvelteKit development server
 npm run dev
-
-# Open in browser
-npm run dev -- --open
 ```
 
-### Solana Smart Contract Development
+# Building For Production
 
-**All Anchor commands must use Docker:**
-
-```bash
-# Build Solana program
-make build
-
-# Run tests
-make test
-
-# Deploy to configured network
-make deploy
-
-# Verify program on explorer
-make verify
-
-# Open shell in Anchor container
-make shell
-
-# Clean build artifacts
-make clean
-```
-
-**Or use docker-compose directly:**
+To build this application for production:
 
 ```bash
-docker compose run --rm anchor anchor build
-docker compose run --rm anchor anchor test
-docker compose run --rm anchor anchor deploy
-```
-
-### Local Solana Development
-
-```bash
-# Start local validator
-solana-test-validator
-
-# Configure network
-solana config set --url localhost
-
-# Check configuration
-solana config get
-```
-
-## Build & Deploy
-
-### Frontend
-
-```bash
-# Build for production (Cloudflare Pages)
 npm run build
-
-# Preview production build
-npm run preview
 ```
-
-### Deployment to Cloudflare Pages
-
-1. Push code to GitHub repository
-2. Connect repository to Cloudflare Pages
-3. Configure build command: `npm run build`
-4. Set output directory: `.svelte-kit/output`
-5. Deploy automatically on push to main branch
 
 ## Testing
 
-### Frontend Tests (Vitest)
+This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests with UI
-npm run test:ui
-
-# Run tests with coverage
-npm run test:coverage
-
-# Watch mode
-npm test -- --watch
+npm run test
 ```
 
-### Solana Tests
+## Styling
+
+For styling this project uses tailwind
+
+## Routing
+This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+
+### Adding A Route
+
+To add a new route to your application just add another a new file in the `./src/routes` directory.
+
+TanStack will automatically generate the content of the route file for you.
+
+Now that you have two routes you can use a `Link` component to navigate between them.
+
+### Adding Links
+
+To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+
+```tsx
+import { Link } from "@tanstack/react-router";
+```
+
+Then anywhere in your JSX you can use it like so:
+
+```tsx
+<Link to="/about">About</Link>
+```
+
+This will create a link that will navigate to the `/about` route.
+
+More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+
+### Using A Layout
+
+In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
+
+Here is an example layout that includes a header:
+
+```tsx
+import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+
+import { Link } from "@tanstack/react-router";
+
+export const Route = createRootRoute({
+  component: () => (
+    <>
+      <header>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/about">About</Link>
+        </nav>
+      </header>
+      <Outlet />
+      <TanStackRouterDevtools />
+    </>
+  ),
+})
+```
+
+The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
+
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+
+
+## Data Fetching
+
+There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+
+For example:
+
+```tsx
+const peopleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/people",
+  loader: async () => {
+    const response = await fetch("https://swapi.dev/api/people");
+    return response.json() as Promise<{
+      results: {
+        name: string;
+      }[];
+    }>;
+  },
+  component: () => {
+    const data = peopleRoute.useLoaderData();
+    return (
+      <ul>
+        {data.results.map((person) => (
+          <li key={person.name}>{person.name}</li>
+        ))}
+      </ul>
+    );
+  },
+});
+```
+
+Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+
+### React-Query
+
+React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
+
+First add your dependencies:
 
 ```bash
-# Run all tests via Docker
-make test
-
-# Skip local validator
-anchor test --skip-local-validator
-
-# Run specific test
-anchor test --skip-local-validator --skip-build --test create_contract
+npm install @tanstack/react-query @tanstack/react-query-devtools
 ```
 
-## Project Structure
+Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
 
-```
-├── programs/
-│   └── amafcoin/                 # Solana smart contract
-│       ├── src/
-│       │   └── lib.rs           # Main program logic
-│       └── Cargo.toml
-├── src/
-│   ├── lib/
-│   │   ├── components/          # Svelte components
-│   │   ├── stores/              # Svelte stores (wallet, markets)
-│   │   ├── api/                 # API client functions
-│   │   └── utils/               # Helper functions
-│   ├── routes/                  # SvelteKit file-based routing
-│   │   ├── (market)/           # Market routes
-│   │   ├── api/                # API routes
-│   │   └── wallet/             # Wallet routes
-│   ├── tests/                   # Test setup
-│   └── types/                   # TypeScript definitions
-├── tests/                       # Anchor tests
-├── static/                      # Static assets
-├── Anchor.toml                  # Anchor configuration
-├── docker-compose.yml           # Docker configuration for Anchor
-├── Makefile                    # Build commands
-├── svelte.config.js            # SvelteKit configuration
-├── vitest.config.ts            # Vitest configuration
-└── package.json                # Frontend dependencies
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// ...
+
+const queryClient = new QueryClient();
+
+// ...
+
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+
+  root.render(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
+}
 ```
 
-## Key Commands
+You can also add TanStack Query Devtools to the root route (optional).
 
-### Frontend
+```tsx
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const rootRoute = createRootRoute({
+  component: () => (
+    <>
+      <Outlet />
+      <ReactQueryDevtools buttonPosition="top-right" />
+      <TanStackRouterDevtools />
+    </>
+  ),
+});
+```
+
+Now you can use `useQuery` to fetch your data.
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+
+import "./App.css";
+
+function App() {
+  const { data } = useQuery({
+    queryKey: ["people"],
+    queryFn: () =>
+      fetch("https://swapi.dev/api/people")
+        .then((res) => res.json())
+        .then((data) => data.results as { name: string }[]),
+    initialData: [],
+  });
+
+  return (
+    <div>
+      <ul>
+        {data.map((person) => (
+          <li key={person.name}>{person.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+
+## State Management
+
+Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+
+First you need to add TanStack Store as a dependency:
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run check        # Run svelte-check + lint
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint issues
-npm run format       # Check code formatting
-npm run format:fix   # Format code with Prettier
-npm test             # Run Vitest tests
-npm run test:ui      # Run Vitest with UI
-npm run test:coverage # Run tests with coverage
+npm install @tanstack/store
 ```
 
-### Solana (via Docker)
+Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
 
-```bash
-make build           # Build Solana program
-make test            # Run tests
-make deploy          # Deploy to network
-make verify          # Verify on explorer
-make shell           # Open Anchor shell
-make clean           # Clean build artifacts
+```tsx
+import { useStore } from "@tanstack/react-store";
+import { Store } from "@tanstack/store";
+import "./App.css";
+
+const countStore = new Store(0);
+
+function App() {
+  const count = useStore(countStore);
+  return (
+    <div>
+      <button onClick={() => countStore.setState((n) => n + 1)}>
+        Increment - {count}
+      </button>
+    </div>
+  );
+}
+
+export default App;
 ```
 
-## Code Style
+One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
 
-- **TypeScript**: Strict mode with ESLint v9 and Prettier
-- **Svelte 5**: Uses runes (`$state`, `$derived`, `$effect`) for reactivity
-- **Rust**: Anchor framework with 2021 edition
-- **Max line length**: 100 characters
-- **Imports**: Use absolute imports with `$lib/` alias
+Let's check this out by doubling the count using derived state.
 
-## Smart Contract Instructions
+```tsx
+import { useStore } from "@tanstack/react-store";
+import { Store, Derived } from "@tanstack/store";
+import "./App.css";
 
-### Prediction Market Functions
+const countStore = new Store(0);
 
-- `create_contract`: Create a new prediction market with question and expiration
-- `place_bet`: Place a bet on Yes or No with specified amount
-- `resolve_contract`: Resolve contract with outcome (after expiration)
-- `initialize_token_mint`: Initialize the token mint authority
-- `claim_daily_tokens`: Claim 100 AMAF tokens every 24 hours
+const doubledStore = new Derived({
+  fn: () => countStore.state * 2,
+  deps: [countStore],
+});
+doubledStore.mount();
 
-### Contract Types
+function App() {
+  const count = useStore(countStore);
+  const doubledCount = useStore(doubledStore);
 
-- `PredictionContract`: Stores market data and betting statistics
-- `Bet`: Stores individual bet information
-- `TokenState`: Tracks token minting state and claims
+  return (
+    <div>
+      <button onClick={() => countStore.setState((n) => n + 1)}>
+        Increment - {count}
+      </button>
+      <div>Doubled - {doubledCount}</div>
+    </div>
+  );
+}
 
-## Solana Program ID
-
-**Program ID**: `FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE`
-
-## Environment Variables
-
-Configure in Cloudflare Pages dashboard:
-
-```bash
-# Solana RPC endpoints
-VITE_SOLANA_RPC_URL=https://api.devnet.solana.com
-VITE_SOLANA_WSS_URL=wss://api.devnet.solana.com
-
-# Program ID
-VITE_PROGRAM_ID=FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE
+export default App;
 ```
 
-## Contributing
+We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests: `npm test` and `make test`
-5. Run linting: `npm run check` and `npm run lint`
-6. Commit your changes
-7. Push to branch and create a Pull Request
+Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
 
-## License
+You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
 
-This project is open source and available under the MIT License.
-
-## Support
-
-For issues and questions, please open an issue on GitHub.
-
-## Acknowledgments
-
-- Inspired by [Kalshi](https://kalshi.com/) prediction markets
-- Built with [SvelteKit](https://kit.svelte.dev/)
-- Powered by [Solana](https://solana.com/) blockchain

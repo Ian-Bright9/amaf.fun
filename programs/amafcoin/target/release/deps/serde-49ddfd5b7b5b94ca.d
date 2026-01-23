@@ -1,0 +1,14 @@
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/libserde-49ddfd5b7b5b94ca.rmeta: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/integer128.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/mod.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/de.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/ser.rs /home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/build/serde-7b503291191e9703/out/private.rs
+
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/libserde-49ddfd5b7b5b94ca.rlib: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/integer128.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/mod.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/de.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/ser.rs /home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/build/serde-7b503291191e9703/out/private.rs
+
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/serde-49ddfd5b7b5b94ca.d: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/integer128.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/mod.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/de.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/ser.rs /home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/build/serde-7b503291191e9703/out/private.rs
+
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/lib.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/integer128.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/mod.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/de.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.228/src/private/ser.rs:
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/build/serde-7b503291191e9703/out/private.rs:
+
+# env-dep:OUT_DIR=/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/build/serde-7b503291191e9703/out

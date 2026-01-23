@@ -1,154 +1,174 @@
 # AGENTS.md
 
-Guidelines for agentic coding assistants working on this repository.
+This document provides guidelines for agentic coding assistants working on this codebase.
 
-## Project Overview
-
-Kalshi-like prediction market web app using Solana tokens for fun betting.
-
-- **Frontend**: SvelteKit 5 with TypeScript, dark mode UI
-- **Backend**: Solana smart contracts using Anchor Framework
-- **Hosting**: Cloudflare Pages at amaf.holydoor.dev
-- **Features**: User-created contracts, yes/no resolution, betting, market pricing
-
-## Commands
-
-### Frontend
+## Build/Test Commands
 
 ```bash
-npm run dev              # Start dev server
-npm run build            # Build for production
-npm run preview          # Preview production build
-npm run check            # svelte-check + lint
-npm run check:watch      # svelte-check in watch mode
-npm run lint             # ESLint
-npm run lint:fix         # Fix ESLint issues
-npm run format:fix       # Format with Prettier
-npm test                 # Run Vitest tests
-npm test <test-file>     # Run specific test file (e.g., npm test utils.test.ts)
-npm test -- --watch      # Watch mode
-npm run test:ui          # Vitest UI mode
-npm run test:coverage    # Coverage report
+# Development
+npm run dev                    # Start dev server on port 3000
+npm run build                  # Build for production
+npm run preview                # Preview production build
+
+# Testing
+npm run test                   # Run all tests with vitest
+npx vitest run <test-file>     # Run specific test file
+npx vitest run <test-file> -t <test-name>  # Run specific test by name
+npx vitest watch                # Watch mode for development
 ```
-
-### Solana (Anchor via Docker - REQUIRED)
-
-**All Anchor commands must use Docker due to GLIBC compatibility:**
-
-```bash
-make build               # Build Solana program
-make test                # Run Anchor tests
-make deploy              # Deploy to configured network
-make verify              # Verify on explorer
-make shell               # Open bash shell in Anchor container
-make clean               # Clean build artifacts
-```
-
-**Docker setup (one-time):** `sudo apt-get install -y docker.io docker-compose && sudo usermod -aG docker $USER` (then log out/in)
-
-**Run specific Anchor test:** `docker compose run --rm anchor anchor test --skip-local-validator --skip-build --test <test_name>`
-
-## Code Style
-
-### TypeScript / SvelteKit
-
-- Use strict mode, Svelte stores, prefer `$derived` runes over derived stores
-- Use Server Load Functions (`+page.server.ts`) for data fetching
-- Use API routes (`+server.ts`) for backend logic
-- Define data shapes with interfaces/types, absolute imports: `$lib/...`
-- Use `.js` extension for imports (ESM requirement)
-
-### Imports
-
-```typescript
-// Group and sort: external -> internal -> types
-import { writable } from 'svelte/store';
-import { createContract } from '$lib/api/contracts.js';
-import { formatCurrency } from '$lib/utils/format.js';
-import type { Contract } from '$lib/types/index.js';
-```
-
-### Naming Conventions
-
-- TypeScript: camelCase (vars/functions), PascalCase (components/types)
-- Svelte: PascalCase for components (.svelte files)
-- Rust: snake_case (vars/functions), PascalCase (structs/enums)
-- Constants: UPPER_SNAKE_CASE
-- Files: PascalCase for components, lowercase for utilities
-
-### Error Handling
-
-```typescript
-try {
-	const contract = await createContract(params);
-	marketsStore.addMarket({ contract, yesPrice: 0.5, noPrice: 0.5, volume: 0, bets: [] });
-} catch (error) {
-	if (error instanceof Error) {
-		marketsStore.setError(error.message);
-	} else {
-		marketsStore.setError('Unknown error');
-	}
-}
-```
-
-### Formatting (Prettier)
-
-- useTabs: true, singleQuote: true, semi: true, trailingComma: none
-- printWidth: 100, arrowParens: always, tabWidth: 2
-- bracketSpacing: true, endOfLine: lf
-- Uses prettier-plugin-svelte for .svelte files
-- Uses tabs for all files (.ts, .svelte) with visual width of 2 spaces
-
-### ESLint Rules
-
-- no-console: warn, no-debugger: warn, no-duplicate-imports: error
-- @typescript-eslint/no-unused-vars: off
-- @typescript-eslint/no-explicit-any: warn
-- svelte/no-navigation-without-resolve: off
-- Prettier integration enforced
-
-## Solana Specifics
-
-- Program ID defined in Anchor.toml
-- Anchor IDL auto-generated in target/idl/
-- Use @solana/wallet-adapter-react, wrap in Svelte stores
-- Support Phantom wallet, handle connect/disconnect gracefully
-- Local dev: `solana-test-validator`, `solana config set`
-
-## Cloudflare Deployment
-
-- Adapter: @sveltejs/adapter-cloudflare with API route exclusion
-- Build output: .svelte-kit/
-- Prefer Static Site Generation (excludes /api/\* routes)
-- Deploy via Git integration or `wrangler pages deploy`
 
 ## Project Structure
 
+This is a React 19 + TypeScript + TanStack Start application for a Solana-based prediction market.
+
 ```
-├── programs/amafcoin/    # Anchor program
-├── src/
-│   ├── routes/           # SvelteKit file-based routing
-│   │   ├── (market)/     # Market routes group
-│   │   ├── (user)/       # User routes group
-│   │   └── api/          # API routes
-│   ├── lib/
-│   │   ├── components/   # Svelte components
-│   │   ├── stores/       # Svelte stores (wallet, markets)
-│   │   ├── api/          # API client functions
-│   │   └── utils/        # Helpers
-│   └── tests/            # Vitest setup
-├── static/               # Static assets
-└── tests/                # Test files
+src/
+├── components/      # Reusable React components
+├── data/           # Server functions and data utilities
+├── lib/            # Library code (Solana/Rust bindings)
+│   ├── lib.rs      # Anchor smart contract program
+│   └── idl/        # Anchor Interface Definition Language
+├── routes/         # File-based routes (TanStack Router)
+└── router.tsx      # Router configuration
+
+programs/
+└── amafcoin/       # Anchor program directory (for building contracts)
 ```
 
-## Agent Guidelines
+## Code Style Guidelines
 
-1. Run `npm run check`, `npm run lint`, `npm test` after changes
-2. Test thoroughly before deploying smart contracts, follow Solana best practices
-3. Use `$lib/` alias for imports, `$app/stores` for SvelteKit built-ins
-4. Prefer server-side rendering for performance
-5. Use Svelte 5 runes (`$state`, `$derived`, `$effect`) over legacy APIs
-6. **Anchor commands must use Docker** - use `make build` not `anchor build`
-7. Run `make shell` for interactive Anchor development
-8. Test files: `src/**/*.{test,spec}.{js,ts}`, setup at `src/tests/setup.ts`
-9. Program ID: `FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE`
+### Imports
+Order imports as:
+1. External dependencies from node_modules
+2. Local imports with `@/` alias (maps to `./src/`)
+3. Relative imports
+4. CSS imports (last)
+
+Use double quotes for all imports.
+
+```tsx
+import { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { getPunkSongs } from '@/data/demo.punk-songs'
+import './App.css'
+```
+
+### Component Structure
+- Export Route objects using `export const Route = createFileRoute('...')({...})`
+- Define component functions separately after Route export
+- Use functional components with hooks
+- Props interfaces defined inline when simple
+
+```tsx
+export const Route = createFileRoute('/')({ component: App })
+
+function App() {
+  return <div>Hello</div>
+}
+```
+
+### Routing
+- Use file-based routing with `createFileRoute`
+- Use loaders for data fetching: `loader: async () => await getData()`
+- Access loader data: `Route.useLoaderData()`
+- Server functions use `createServerFn` from `@tanstack/react-start`
+
+```tsx
+export const Route = createFileRoute('/todos')({
+  component: Todos,
+  loader: async () => await getTodos(),
+})
+
+function Todos() {
+  const todos = Route.useLoaderData()
+  return <ul>{todos.map(t => <li key={t.id}>{t.name}</li>)}</ul>
+}
+```
+
+### Server Functions
+- Define in `src/data/` directory
+- Use `createServerFn` with method specification
+- Input validation with `.inputValidator()`
+- Handle errors appropriately
+
+```tsx
+export const getTodos = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  return await readTodos()
+})
+```
+
+### TypeScript Configuration
+- Strict mode enabled
+- Path alias `@/*` maps to `./src/*`
+- Target: ES2022, Module: ESNext
+- No unused locals/parameters allowed (enforced by tsconfig)
+
+### Styling
+- Primary styling with Tailwind CSS v4
+- Component-specific CSS files in component directories
+- Import CSS files: `import './Component.css'`
+- Use Tailwind utility classes: `className="flex flex-col gap-2"`
+
+### Naming Conventions
+- Components: PascalCase (`Header`, `TodoList`)
+- Functions/variables: camelCase (`getTodos`, `userName`)
+- Route exports: `export const Route = ...`
+- Server functions: descriptive names (`getPunkSongs`, `addTodo`)
+- Type definitions: PascalCase for interfaces/types
+
+### Error Handling
+- Use async/await with try/catch where appropriate
+- Server functions should validate inputs
+- Use type assertions for API responses: `as Promise<Type>`
+- Provide fallback values for optional data
+
+### Special Files
+- `src/routes/__root.tsx`: Root layout with `<Outlet />` for nested routes
+- `src/router.tsx`: Router configuration (read-only routeTree.gen.ts)
+- `routeTree.gen.ts`: Auto-generated (do not edit)
+- CSS files: Component-specific CSS alongside component files
+
+### Testing
+- Use Vitest with React Testing Library
+- Test files: `*.test.ts` or `*.test.tsx`
+- No lint/typecheck commands currently configured in package.json
+
+## Solana & Anchor Development
+
+### Smart Contracts
+- Anchor smart contracts in `src/lib/lib.rs`
+- Program ID: `FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE`
+- Features: Create/resolve markets, place bets, claim payouts, daily AMAF claims
+- IDL generated to `src/lib/idl/amafcoin.json`
+
+### Wallet Integration
+- Use Phantom wallet for Solana wallet connection
+- Install: `@solana/web3.js`, `@solana/wallet-adapter-react`, `@solana/wallet-adapter-wallets`
+- Wrap app in WalletProvider for wallet context
+- Use `useWallet` hook for wallet state and connection
+
+### Solana Client Usage
+```tsx
+import { useWallet } from '@solana/wallet-adapter-react'
+import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+
+function Component() {
+  const { publicKey, signTransaction, connected } = useWallet()
+  const connection = new Connection('https://api.devnet.solana.com')
+  // ... interaction logic
+}
+```
+
+## Tech Stack
+- React 19
+- TypeScript 5.7
+- TanStack Router (file-based routing)
+- TanStack Start (SSR framework)
+- Vite (build tool)
+- Tailwind CSS v4
+- Vitest (testing)
+- Solana Web3.js
+- Anchor Framework (smart contracts)
+- Phantom Wallet (wallet integration)

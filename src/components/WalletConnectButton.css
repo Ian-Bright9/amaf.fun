@@ -1,0 +1,26 @@
+.wallet-connect {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wallet-address {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #ffffff;
+}
+
+.wallet-button {
+  background: linear-gradient(135deg, #9945ff 0%, #14f195 100%);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.wallet-button:hover {
+  opacity: 0.9;
+}

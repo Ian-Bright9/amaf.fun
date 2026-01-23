@@ -1,0 +1,288 @@
+.market-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #a0a0a0;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #14f195;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.market-status {
+  display: inline-flex;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background: rgba(20, 241, 149, 0.2);
+  color: #14f195;
+}
+
+.status-resolved {
+  background: rgba(153, 69, 255, 0.2);
+  color: #9945ff;
+}
+
+.market-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+}
+
+.market-info {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.description {
+  color: #a0a0a0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.pools {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pool {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.pool h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #a0a0a0;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem 0;
+}
+
+.pool-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pool-yes .pool-value {
+  color: #14f195;
+}
+
+.pool-no .pool-value {
+  color: #ff6b6b;
+}
+
+.bet-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.bet-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+}
+
+.bet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #ffffff;
+}
+
+.form-group input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #9945ff;
+}
+
+.bet-toggle {
+  display: flex;
+  gap: 1rem;
+}
+
+.bet-side {
+  flex: 1;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bet-side:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bet-side.active {
+  border-color: #9945ff;
+  background: rgba(153, 69, 255, 0.1);
+}
+
+.bet-side:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.button-primary {
+  background: linear-gradient(135deg, #9945ff 0%, #14f195 100%);
+  color: white;
+}
+
+.button-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(153, 69, 255, 0.4);
+}
+
+.button-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #ff6b6b;
+  font-size: 0.875rem;
+}
+
+.authority-controls {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.authority-controls h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.authority-controls p {
+  color: #a0a0a0;
+  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
+}
+
+.resolve-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.button-yes {
+  flex: 1;
+  background: linear-gradient(135deg, #14f195 0%, #0da87a 100%);
+  color: white;
+}
+
+.button-no {
+  flex: 1;
+  background: linear-gradient(135deg, #ff6b6b 0%, #e55555 100%);
+  color: white;
+}
+
+.market-resolved {
+  background: rgba(153, 69, 255, 0.1);
+  border: 1px solid rgba(153, 69, 255, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.market-resolved p {
+  color: #a0a0a0;
+  margin-bottom: 0.5rem;
+}
+
+.winner {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #a0a0a0;
+}
+
+@media (max-width: 768px) {
+  .market-content {
+    grid-template-columns: 1fr;
+  }
+
+  .pools {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,11 @@
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/libtoml_write-c963b37e0f62b23f.rmeta: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/key.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/string.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/value.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/write.rs
+
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/libtoml_write-c963b37e0f62b23f.rlib: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/key.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/string.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/value.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/write.rs
+
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/toml_write-c963b37e0f62b23f.d: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/key.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/string.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/value.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/write.rs
+
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/lib.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/key.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/string.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/value.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_write-0.1.2/src/write.rs:

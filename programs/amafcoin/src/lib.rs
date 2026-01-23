@@ -1,26 +1,34 @@
 use anchor_lang::prelude::*;
-use anchor_spl::associated_token::{self, AssociatedToken, AssociatedTokenAccount, Create};
+use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
 
-declare_id!("FmnA9zcz5YAwn378ZHXU4t31t9nDgoiNqkFa93eN1myE");
+const MAX_QUESTION_LENGTH: usize = 200;
+const MAX_DESCRIPTION_LENGTH: usize = 500;
+
+declare_id!("BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn");
 
 #[program]
 pub mod amafcoin {
     use super::*;
 
-    /* ───────────── INITIALIZE MINT ───────────── */
-
-    pub fn initialize_mint(ctx: Context<InitializeMint>) -> Result<()> {
+    pub fn initialize_mint(_ctx: Context<InitializeMint>) -> Result<()> {
         Ok(())
     }
-
-    /* ───────────── MARKET ───────────── */
 
     pub fn create_market(
         ctx: Context<CreateMarket>,
         question: String,
         description: String,
     ) -> Result<()> {
+        require!(
+            question.len() <= MAX_QUESTION_LENGTH,
+            CustomError::QuestionTooLong
+        );
+        require!(
+            description.len() <= MAX_DESCRIPTION_LENGTH,
+            CustomError::DescriptionTooLong
+        );
+
         let market = &mut ctx.accounts.market;
         market.authority = ctx.accounts.authority.key();
         market.bump = ctx.bumps.market;
@@ -81,7 +89,7 @@ pub mod amafcoin {
         require!(!bet.claimed, CustomError::AlreadyClaimed);
 
         let payout = match market.outcome {
-            None => bet.amount, // cancelled
+            None => bet.amount,
             Some(outcome_yes) => {
                 if bet.side_yes != outcome_yes {
                     return err!(CustomError::NotWinner);
@@ -105,8 +113,6 @@ pub mod amafcoin {
         Ok(())
     }
 
-    /* ───────────── DAILY CLAIM ───────────── */
-
     pub fn claim_daily_amaf(ctx: Context<ClaimDaily>) -> Result<()> {
         let state = &mut ctx.accounts.claim_state;
         let now = Clock::get()?.unix_timestamp;
@@ -115,16 +121,11 @@ pub mod amafcoin {
 
         state.last_claim = now;
 
-        token::mint_to(
-            ctx.accounts.mint_ctx(),
-            100_000_000_000, // 100 AMAF
-        )?;
+        token::mint_to(ctx.accounts.mint_ctx(), 100_000_000_000)?;
 
         Ok(())
     }
 }
-
-/* ───────────── ACCOUNTS ───────────── */
 
 #[account]
 pub struct Market {
@@ -153,8 +154,6 @@ pub struct DailyClaimState {
     pub last_claim: i64,
 }
 
-/* ───────────── CONTEXTS ───────────── */
-
 #[derive(Accounts)]
 pub struct InitializeMint<'info> {
     #[account(
@@ -169,7 +168,7 @@ pub struct InitializeMint<'info> {
     pub mint: Account<'info, Mint>,
 
     #[account(
-        seeds = [b"authority"],
+        seeds = [&b"authority"[..]],
         bump
     )]
     pub program_authority: UncheckedAccount<'info>,
@@ -187,14 +186,17 @@ pub struct CreateMarket<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 1 + 4 + question.len() + 4 + description.len() + 1 + 1 + 8 + 8,
-        seeds = [b"market", authority.key().as_ref()],
+        space = 8 + 32 + 1 + 4 + MAX_QUESTION_LENGTH + 4 + MAX_DESCRIPTION_LENGTH + 1 + 1 + 8 + 8,
+        seeds = [&b"market"[..], authority.key().as_ref()],
         bump
     )]
     pub market: Account<'info, Market>,
+
     #[account(mut)]
     pub authority: Signer<'info>,
+
     pub mint: Account<'info, Mint>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -202,6 +204,7 @@ pub struct CreateMarket<'info> {
 pub struct PlaceBet<'info> {
     #[account(mut)]
     pub market: Account<'info, Market>,
+
     #[account(
         init,
         payer = user,
@@ -212,26 +215,24 @@ pub struct PlaceBet<'info> {
     pub bet: Account<'info, Bet>,
 
     #[account(
-        init_if_needed,
-        payer = user,
-        associated_token::mint = mint,
-        associated_token::authority = user,
+        mut,
+        constraint = user_token.mint == mint.key() @ CustomError::InvalidMint,
+        constraint = user_token.owner == user.key() @ CustomError::InvalidOwner
     )]
     pub user_token: Account<'info, TokenAccount>,
 
     #[account(
-        init_if_needed,
-        payer = user,
-        token::mint = mint,
-        token::authority = market,
-        seeds = [b"escrow", market.key().as_ref()],
-        bump
+        mut,
+        constraint = escrow_token.mint == mint.key() @ CustomError::InvalidMint,
+        constraint = escrow_token.owner == market.key() @ CustomError::InvalidOwner
     )]
     pub escrow_token: Account<'info, TokenAccount>,
 
     #[account(mut)]
     pub user: Signer<'info>,
+
     pub mint: Account<'info, Mint>,
+
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
@@ -241,6 +242,7 @@ pub struct PlaceBet<'info> {
 pub struct ResolveMarket<'info> {
     #[account(mut, has_one = authority)]
     pub market: Account<'info, Market>,
+
     pub authority: Signer<'info>,
 }
 
@@ -248,29 +250,29 @@ pub struct ResolveMarket<'info> {
 pub struct ClaimPayout<'info> {
     #[account(mut)]
     pub market: Account<'info, Market>,
+
     #[account(mut, has_one = user)]
     pub bet: Account<'info, Bet>,
 
     #[account(
-        init_if_needed,
-        payer = user,
-        associated_token::mint = mint,
-        associated_token::authority = user,
+        mut,
+        constraint = user_token.mint == mint.key() @ CustomError::InvalidMint,
+        constraint = user_token.owner == user.key() @ CustomError::InvalidOwner
     )]
     pub user_token: Account<'info, TokenAccount>,
 
     #[account(
         mut,
-        token::mint = mint,
-        token::authority = market,
-        seeds = [b"escrow", market.key().as_ref()],
-        bump
+        constraint = escrow_token.mint == mint.key() @ CustomError::InvalidMint,
+        constraint = escrow_token.owner == market.key() @ CustomError::InvalidOwner
     )]
     pub escrow_token: Account<'info, TokenAccount>,
 
     #[account(mut)]
     pub user: Signer<'info>,
+
     pub mint: Account<'info, Mint>,
+
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
@@ -286,21 +288,20 @@ pub struct ClaimDaily<'info> {
     pub mint: Account<'info, Mint>,
 
     #[account(
-        seeds = [b"authority"],
+        seeds = [&b"authority"[..]],
         bump
     )]
     pub program_authority: UncheckedAccount<'info>,
 
     #[account(
-        init_if_needed,
-        payer = user,
-        associated_token::mint = mint,
-        associated_token::authority = user,
+        mut,
+        constraint = user_token.mint == mint.key() @ CustomError::InvalidMint,
+        constraint = user_token.owner == user.key() @ CustomError::InvalidOwner
     )]
     pub user_token: Account<'info, TokenAccount>,
 
     #[account(
-        init_if_needed,
+        init,
         payer = user,
         space = 8 + 40,
         seeds = [b"claim", user.key().as_ref()],
@@ -310,12 +311,11 @@ pub struct ClaimDaily<'info> {
 
     #[account(mut)]
     pub user: Signer<'info>,
+
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
-
-/* ───────────── HELPERS ───────────── */
 
 impl<'info> PlaceBet<'info> {
     pub fn transfer_to_escrow(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
@@ -325,14 +325,7 @@ impl<'info> PlaceBet<'info> {
             authority: self.user.to_account_info(),
         };
         let cpi_program = self.token_program.to_account_info();
-        let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-
-        let seeds = &[
-            b"market",
-            self.market.authority.as_ref(),
-            &[self.market.bump],
-        ];
-        cpi_context.with_signer(&[seeds])
+        CpiContext::new(cpi_program, cpi_accounts)
     }
 }
 
@@ -341,17 +334,10 @@ impl<'info> ClaimPayout<'info> {
         let cpi_accounts = Transfer {
             from: self.escrow_token.to_account_info(),
             to: self.user_token.to_account_info(),
-            authority: self.market.to_account_info(),
+            authority: self.user.to_account_info(),
         };
         let cpi_program = self.token_program.to_account_info();
-        let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-
-        let seeds = &[
-            b"market",
-            self.market.authority.as_ref(),
-            &[self.market.bump],
-        ];
-        cpi_context.with_signer(&[seeds])
+        CpiContext::new(cpi_program, cpi_accounts)
     }
 }
 
@@ -363,14 +349,9 @@ impl<'info> ClaimDaily<'info> {
             authority: self.program_authority.to_account_info(),
         };
         let cpi_program = self.token_program.to_account_info();
-        let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-
-        let seeds = &[b"authority", &[self.bumps.program_authority]];
-        cpi_context.with_signer(&[seeds])
+        CpiContext::new(cpi_program, cpi_accounts)
     }
 }
-
-/* ───────────── ERRORS ───────────── */
 
 #[error_code]
 pub enum CustomError {
@@ -384,4 +365,12 @@ pub enum CustomError {
     NotWinner,
     #[msg("Claim too soon")]
     ClaimTooSoon,
+    #[msg("Question too long")]
+    QuestionTooLong,
+    #[msg("Description too long")]
+    DescriptionTooLong,
+    #[msg("Invalid mint")]
+    InvalidMint,
+    #[msg("Invalid owner")]
+    InvalidOwner,
 }

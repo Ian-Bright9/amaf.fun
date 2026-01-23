@@ -1,0 +1,9 @@
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/libnum_enum_derive-7ab35d01c44572e0.so: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/enum_attributes.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/parsing.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/utils.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/variant_attributes.rs
+
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/release/deps/num_enum_derive-7ab35d01c44572e0.d: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/enum_attributes.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/parsing.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/utils.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/variant_attributes.rs
+
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/lib.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/enum_attributes.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/parsing.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/utils.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num_enum_derive-0.7.5/src/variant_attributes.rs:

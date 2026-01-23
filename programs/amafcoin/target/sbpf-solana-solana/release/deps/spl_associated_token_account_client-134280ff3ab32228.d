@@ -1,0 +1,9 @@
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/sbpf-solana-solana/release/deps/libspl_associated_token_account_client-134280ff3ab32228.rmeta: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/address.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/instruction.rs
+
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/sbpf-solana-solana/release/deps/libspl_associated_token_account_client-134280ff3ab32228.rlib: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/address.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/instruction.rs
+
+/home/popebenny/amaf/amaf.fun/programs/amafcoin/target/sbpf-solana-solana/release/deps/spl_associated_token_account_client-134280ff3ab32228.d: /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/lib.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/address.rs /home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/instruction.rs
+
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/lib.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/address.rs:
+/home/popebenny/.cargo/registry/src/index.crates.io-6f17d22bba15001f/spl-associated-token-account-client-2.0.0/src/instruction.rs:
