@@ -68,10 +68,3 @@ export function getProgramAuthorityPDA(): [PublicKey, number] {
     PROGRAM_ID
   )
 }
-
-export function getMintPDA(): [PublicKey, number] {
-  return PublicKey.findProgramAddressSync(
-    [Buffer.from('mint')],
-    PROGRAM_ID
-  )
-}

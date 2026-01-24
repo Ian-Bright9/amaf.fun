@@ -163,7 +163,7 @@ export function DailyAmafClaim() {
         onClick={handleClaim}
         disabled={loading || !!timeRemaining}
       >
-        {loading ? 'Claiming...' : timeRemaining ? 'Claimed' : 'Claim 100 AMAF'}
+        {loading ? 'Claiming...' : timeRemaining ? 'Claimed' : 'Claim ¤100'}
       </button>
     </div>
   )

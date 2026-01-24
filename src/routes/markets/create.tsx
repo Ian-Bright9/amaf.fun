@@ -33,6 +33,11 @@ function CreateMarketPage() {
     e.preventDefault()
     setError('')
 
+    if (!publicKey) {
+      setError('Please connect your wallet')
+      return
+    }
+
     if (!question.trim() || !description.trim()) {
       setError('Please fill in all fields')
       return

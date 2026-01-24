@@ -218,11 +218,11 @@ function MarketDetailPage() {
           <div className="pools">
             <div className="pool pool-yes">
               <h3>YES Pool</h3>
-              <div className="pool-value">{formatNumber(market.totalYes)} AMAF</div>
+              <div className="pool-value">¤{formatNumber(market.totalYes)}</div>
             </div>
             <div className="pool pool-no">
               <h3>NO Pool</h3>
-              <div className="pool-value">{formatNumber(market.totalNo)} AMAF</div>
+              <div className="pool-value">¤{formatNumber(market.totalNo)}</div>
             </div>
           </div>
         </div>
