@@ -167,6 +167,7 @@ pub struct InitializeMint<'info> {
     )]
     pub mint: Account<'info, Mint>,
 
+    /// CHECK: Program authority PDA, no checks needed
     #[account(
         seeds = [&b"authority"[..]],
         bump
@@ -287,6 +288,7 @@ pub struct ClaimDaily<'info> {
     )]
     pub mint: Account<'info, Mint>,
 
+    /// CHECK: Program authority PDA, no checks needed
     #[account(
         seeds = [&b"authority"[..]],
         bump
