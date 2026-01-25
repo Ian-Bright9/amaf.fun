@@ -8,7 +8,7 @@
   },
   "instructions": [
     {
-      "name": "cancel_market",
+      "name": "cancelMarket",
       "discriminator": [
         205,
         121,
@@ -22,20 +22,22 @@
       "accounts": [
         {
           "name": "market",
-          "writable": true
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "authority",
-          "signer": true,
           "relations": [
             "market"
-          ]
+          ],
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": []
     },
     {
-      "name": "claim_daily_amaf",
+      "name": "claimDailyAmaf",
       "discriminator": [
         181,
         96,
@@ -49,7 +51,6 @@
       "accounts": [
         {
           "name": "mint",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -62,18 +63,22 @@
                 ]
               }
             ]
-          }
+          },
+          "isMut": true,
+          "isSigner": false
         },
         {
-          "name": "program_authority"
+          "name": "programAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "user_token",
-          "writable": true
+          "name": "userToken",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          "name": "claim_state",
-          "writable": true,
+          "name": "claimState",
           "pda": {
             "seeds": [
               {
@@ -91,30 +96,38 @@
                 "path": "user"
               }
             ]
-          }
+          },
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "user",
-          "writable": true,
-          "signer": true
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "associated_token_program",
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
     },
     {
-      "name": "claim_payout",
+      "name": "claimPayout",
       "discriminator": [
         127,
         240,
@@ -128,48 +141,60 @@
       "accounts": [
         {
           "name": "market",
-          "writable": true
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "bet",
-          "writable": true
+          "isMut": true,
+          "isSigner": false
         },
         {
-          "name": "user_token",
-          "writable": true
+          "name": "userToken",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          "name": "escrow_token",
-          "writable": true
+          "name": "escrowToken",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "user",
-          "writable": true,
-          "signer": true,
           "relations": [
             "bet"
-          ]
+          ],
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "mint"
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "associated_token_program",
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
     },
     {
-      "name": "create_market",
+      "name": "createMarket",
       "discriminator": [
         103,
         226,
@@ -183,19 +208,24 @@
       "accounts": [
         {
           "name": "market",
-          "writable": true
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "authority",
-          "writable": true,
-          "signer": true
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "mint"
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -210,7 +240,7 @@
       ]
     },
     {
-      "name": "initialize_mint",
+      "name": "initializeMint",
       "discriminator": [
         209,
         42,
@@ -224,7 +254,6 @@
       "accounts": [
         {
           "name": "mint",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -237,33 +266,43 @@
                 ]
               }
             ]
-          }
+          },
+          "isMut": true,
+          "isSigner": false
         },
         {
-          "name": "program_authority"
+          "name": "programAuthority",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "payer",
-          "writable": true,
-          "signer": true
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
+          "address": "SysvarRent111111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
     },
     {
-      "name": "place_bet",
+      "name": "placeBet",
       "discriminator": [
         222,
         62,
@@ -277,11 +316,11 @@
       "accounts": [
         {
           "name": "market",
-          "writable": true
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "bet",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -301,35 +340,47 @@
                 "path": "user"
               }
             ]
-          }
+          },
+          "isMut": true,
+          "isSigner": false
         },
         {
-          "name": "user_token",
-          "writable": true
+          "name": "userToken",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          "name": "escrow_token",
-          "writable": true
+          "name": "escrowToken",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "user",
-          "writable": true,
-          "signer": true
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "mint"
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "associated_token_program",
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -338,13 +389,13 @@
           "type": "u64"
         },
         {
-          "name": "side_yes",
+          "name": "sideYes",
           "type": "bool"
         }
       ]
     },
     {
-      "name": "resolve_market",
+      "name": "resolveMarket",
       "discriminator": [
         155,
         23,
@@ -358,19 +409,21 @@
       "accounts": [
         {
           "name": "market",
-          "writable": true
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "authority",
-          "signer": true,
           "relations": [
             "market"
-          ]
+          ],
+          "isMut": false,
+          "isSigner": true
         }
       ],
       "args": [
         {
-          "name": "outcome_yes",
+          "name": "outcomeYes",
           "type": "bool"
         }
       ]
@@ -483,7 +536,7 @@
             "type": "u64"
           },
           {
-            "name": "side_yes",
+            "name": "sideYes",
             "type": "bool"
           },
           {
@@ -503,7 +556,7 @@
             "type": "pubkey"
           },
           {
-            "name": "last_claim",
+            "name": "lastClaim",
             "type": "i64"
           }
         ]
@@ -541,15 +594,17 @@
             }
           },
           {
-            "name": "total_yes",
+            "name": "totalYes",
             "type": "u64"
           },
           {
-            "name": "total_no",
+            "name": "totalNo",
             "type": "u64"
           }
         ]
       }
     }
-  ]
+  ],
+  "version": "0.1.0",
+  "name": "amafcoin"
 }

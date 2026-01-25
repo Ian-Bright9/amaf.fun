@@ -1,13 +1,71 @@
 {
-  "version": "0.1.0",
-  "name": "amafcoin",
   "address": "BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn",
+  "metadata": {
+    "name": "amafcoin",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "name": "amafcoin",
+  "version": "0.1.0",
   "instructions": [
     {
-      "name": "initializeMint",
+      "name": "cancelMarket",
+      "discriminator": [
+        205,
+        121,
+        84,
+        210,
+        222,
+        71,
+        150,
+        11
+      ],
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "relations": [
+            "market"
+          ],
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claimDailyAmaf",
+      "discriminator": [
+        181,
+        96,
+        251,
+        136,
+        250,
+        244,
+        126,
+        198
+      ],
       "accounts": [
         {
           "name": "mint",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          },
           "isMut": true,
           "isSigner": false
         },
@@ -17,22 +75,120 @@
           "isSigner": false
         },
         {
-          "name": "payer",
+          "name": "userToken",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "claimState",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  108,
+                  97,
+                  105,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          },
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
           "isMut": true,
           "isSigner": true
         },
         {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claimPayout",
+      "discriminator": [
+        127,
+        240,
+        132,
+        62,
+        227,
+        198,
+        146,
+        133
+      ],
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userToken",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "escrowToken",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "relations": [
+            "bet"
+          ],
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "mint",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "rent",
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
           "isMut": false,
           "isSigner": false
         }
@@ -41,6 +197,16 @@
     },
     {
       "name": "createMarket",
+      "discriminator": [
+        103,
+        226,
+        97,
+        235,
+        200,
+        188,
+        251,
+        254
+      ],
       "accounts": [
         {
           "name": "market",
@@ -59,6 +225,7 @@
         },
         {
           "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
           "isMut": false,
           "isSigner": false
         }
@@ -75,7 +242,79 @@
       ]
     },
     {
+      "name": "initializeMint",
+      "discriminator": [
+        209,
+        42,
+        195,
+        4,
+        129,
+        85,
+        209,
+        44
+      ],
+      "accounts": [
+        {
+          "name": "mint",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          },
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "programAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "placeBet",
+      "discriminator": [
+        222,
+        62,
+        67,
+        220,
+        63,
+        166,
+        126,
+        33
+      ],
       "accounts": [
         {
           "name": "market",
@@ -84,6 +323,26 @@
         },
         {
           "name": "bet",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          },
           "isMut": true,
           "isSigner": false
         },
@@ -109,16 +368,19 @@
         },
         {
           "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "systemProgram",
+          "address": "11111111111111111111111111111111",
           "isMut": false,
           "isSigner": false
         }
@@ -136,6 +398,16 @@
     },
     {
       "name": "resolveMarket",
+      "discriminator": [
+        155,
+        23,
+        80,
+        173,
+        46,
+        74,
+        23,
+        239
+      ],
       "accounts": [
         {
           "name": "market",
@@ -144,7 +416,10 @@
         },
         {
           "name": "authority",
-          "isMut": true,
+          "relations": [
+            "market"
+          ],
+          "isMut": false,
           "isSigner": true
         }
       ],
@@ -154,119 +429,47 @@
           "type": "bool"
         }
       ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Bet",
+      "discriminator": [
+        147,
+        23,
+        35,
+        59,
+        15,
+        75,
+        155,
+        32
+      ]
     },
     {
-      "name": "cancelMarket",
-      "accounts": [
-        {
-          "name": "market",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        }
-      ],
-      "args": []
+      "name": "DailyClaimState",
+      "discriminator": [
+        21,
+        23,
+        128,
+        212,
+        184,
+        136,
+        180,
+        172
+      ]
     },
     {
-      "name": "claimPayout",
-      "accounts": [
-        {
-          "name": "market",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "bet",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userToken",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "escrowToken",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "claimDailyAmaf",
-      "accounts": [
-        {
-          "name": "mint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "programAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "userToken",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "claimState",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
+      "name": "Market",
+      "discriminator": [
+        219,
+        190,
+        213,
+        55,
+        0,
+        227,
+        198,
+        154
+      ]
     }
   ],
   "errors": [
@@ -316,50 +519,7 @@
       "msg": "Invalid owner"
     }
   ],
-  "metadata": {
-    "address": "BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn"
-  },
   "types": [
-    {
-      "name": "Market",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "question",
-            "type": "string"
-          },
-          {
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "name": "resolved",
-            "type": "bool"
-          },
-          {
-            "name": "outcome",
-            "type": "bool"
-          },
-          {
-            "name": "totalYes",
-            "type": "u64"
-          },
-          {
-            "name": "totalNo",
-            "type": "u64"
-          }
-        ]
-      }
-    },
     {
       "name": "Bet",
       "type": {
@@ -367,11 +527,11 @@
         "fields": [
           {
             "name": "market",
-            "type": "publicKey"
+            "type": "pubkey"
           },
           {
             "name": "user",
-            "type": "publicKey"
+            "type": "pubkey"
           },
           {
             "name": "amount",
@@ -395,11 +555,53 @@
         "fields": [
           {
             "name": "user",
-            "type": "publicKey"
+            "type": "pubkey"
           },
           {
             "name": "lastClaim",
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Market",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "question",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "resolved",
+            "type": "bool"
+          },
+          {
+            "name": "outcome",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "totalYes",
+            "type": "u64"
+          },
+          {
+            "name": "totalNo",
+            "type": "u64"
           }
         ]
       }
