@@ -43,6 +43,117 @@ Two initialization approaches have failed:
 
 ---
 
+### 2. Critical IDL Field Naming Mismatch (Complete Application Blocker)
+
+**Files Affected:** `src/lib/idl/amafcoin.json`, `rust/idl.json`
+
+**Problem:** Error `TypeError: this._coder.accounts is undefined` occurs when attempting to create Program or interact with any program account. All Anchor program functionality is completely blocked.
+
+**Root Cause - IDL Conversion Script Bug**
+
+The IDL conversion script incorrectly converted ALL names to camelCase, including struct field names in the `types` array. Anchor 0.31.1's BorshCoder expects these field names to match the Rust struct definitions (snake_case).
+
+**Field Name Mismatches Found:**
+
+| Type Field | Current (Incorrect) | Expected (Rust) |
+|-----------|---------------------|-------------------|
+| `Bet.sideYes` | `sideYes` | `side_yes` |
+| `DailyClaimState.lastClaim` | `lastClaim` | `last_claim` |
+| `Market.totalYes` | `totalYes` | `total_yes` |
+| `Market.totalNo` | `totalNo` | `total_no` |
+
+**Error Stack Trace:**
+```
+Error claiming daily AMAF: TypeError: this._coder.accounts is undefined
+    AccountClient account.ts:121
+    build account.ts:28
+    build account.ts:27
+    build index.ts:56
+    _Program index.ts:299
+    getProgram markets.ts:28
+    handleClaim DailyAmafClaim.tsx:81
+```
+
+**Why This Fails:**
+
+1. Anchor 0.31.1 BorshCoder tries to initialize account coders from `idl.types`
+2. It attempts to read field names from type definitions
+3. Field names don't match what the Rust program uses
+4. Coder initialization fails, making `this._coder.accounts` undefined
+5. Any program.account operation (fetch, decode, etc.) throws undefined error
+
+**What Should Be Converted vs What Shouldn't:**
+
+**✓ Convert to camelCase:**
+- Instruction names: `claim_daily_amaf` → `claimDailyAmaf`
+- Account type names: `DailyClaimState` → `DailyClaimState` (already correct)
+- Instruction argument names: `side_yes` → `sideYes`
+- Instruction account names: `user_token` → `userToken`
+
+**✗ Keep as snake_case:**
+- Struct field names in `types` array: `sideYes` → `side_yes`
+
+**Impact:** Complete application failure. All program interactions blocked:
+- Cannot create Program instances
+- Cannot fetch account data (markets, bets, claim states)
+- Cannot decode account data
+- Cannot execute any instructions
+
+**Required Fix:**
+
+1. Update IDL conversion script to preserve snake_case for struct field names:
+```javascript
+function convertIdl(idl) {
+  const converted = JSON.parse(JSON.stringify(idl))
+  
+  if (converted.instructions) {
+    converted.instructions = converted.instructions.map(instr => ({
+      ...instr,
+      name: toCamelCase(instr.name),  // ✓ Convert
+      accounts: instr.accounts.map(acc => ({
+        ...acc,
+        name: toCamelCase(acc.name)  // ✓ Convert
+      })),
+      args: (instr.args || []).map(arg => ({
+        ...arg,
+        name: toCamelCase(arg.name)  // ✓ Convert
+      }))
+    }))
+  }
+  
+  if (converted.types) {
+    converted.types = converted.types.map(type => ({
+      ...type,
+      name: toCamelCase(type.name),  // ✓ Convert
+      type: {
+        ...type.type,
+        fields: type.type.fields.map(field => ({
+          ...field,
+          name: field.name  // ✗ DO NOT CONVERT - keep snake_case
+        }))
+      }
+    }))
+  }
+  
+  return converted
+}
+```
+
+2. Regenerate both IDL files with corrected script:
+```bash
+node scripts/convert-idl.js > src/lib/idl/amafcoin.json
+node scripts/convert-idl.js > rust/idl.json
+```
+
+3. Verify Program can be instantiated:
+```javascript
+const program = new Program(idl, PROGRAM_ID, provider)
+console.log('✓ Program coder initialized:', !!program.coder)
+console.log('✓ Account coder initialized:', !!program.coder?.accounts)
+```
+
+---
+
 ## MEDIUM PRIORITY ISSUES
 
 ### 2. Anchor Version Mismatch
