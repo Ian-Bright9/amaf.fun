@@ -4,13 +4,15 @@ import { Connection, SystemProgram, Transaction } from '@solana/web3.js'
 
 import { getProgram } from '@/data/markets'
 import { getMintPDA, getProgramAuthorityPDA, getClaimStatePDA, getOrCreateUserTokenAccount } from '@/data/tokens'
+import { parseError, type ParsedError } from '@/lib/errors'
 
 import './DailyAmafClaim.css'
 
 export function DailyAmafClaim() {
   const { publicKey, connected, signTransaction } = useWallet()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<ParsedError | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
   const [nextClaimTime, setNextClaimTime] = useState<Date | null>(null)
   const [timeRemaining, setTimeRemaining] = useState('')
 
@@ -69,12 +71,12 @@ export function DailyAmafClaim() {
 
   async function handleClaim() {
     if (!connected || !publicKey) {
-      setError('Please connect your wallet')
+      setError({ userMessage: 'Please connect your wallet', technicalDetails: null, errorCode: null })
       return
     }
 
     setLoading(true)
-    setError('')
+    setError(null)
 
     try {
       const connection = new Connection('https://api.devnet.solana.com')
@@ -138,7 +140,7 @@ export function DailyAmafClaim() {
       setNextClaimTime(new Date(Date.now() + 24 * 60 * 60 * 1000))
     } catch (err) {
       console.error('Error claiming daily AMAF:', err)
-      setError('Failed to claim. Please try again.')
+      setError(parseError(err))
     } finally {
       setLoading(false)
     }
@@ -157,7 +159,27 @@ export function DailyAmafClaim() {
       <p className="claim-description">
         Claim your free AMAF tokens every 24 hours
       </p>
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          <div className="error-content">
+            {error.userMessage}
+            {error.technicalDetails && (
+              <button
+                className="error-details-toggle"
+                onClick={() => setShowDetails(!showDetails)}
+                type="button"
+              >
+                {showDetails ? 'Hide' : 'Show'} Details
+              </button>
+            )}
+          </div>
+          {showDetails && error.technicalDetails && (
+            <div className="error-technical">
+              <pre>{error.technicalDetails}</pre>
+            </div>
+          )}
+        </div>
+      )}
       <button
         className="button button-primary"
         onClick={handleClaim}

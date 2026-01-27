@@ -40,6 +40,43 @@
   margin-bottom: 1rem;
 }
 
+.error-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.error-details-toggle {
+  background: transparent;
+  border: 1px solid rgba(255, 107, 107, 0.5);
+  color: #ff6b6b;
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.error-details-toggle:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.error-technical {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 107, 107, 0.3);
+  font-size: 0.75rem;
+  color: #ff9999;
+}
+
+.error-technical pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
 .button {
   width: 100%;
   padding: 0.75rem 1.5rem;
