@@ -109,7 +109,11 @@ function MarketDetailPage() {
           })
           .instruction()
 
-        const transaction = new Transaction().add(userTokenResult.instruction, placeBetIx)
+        const { blockhash } = await connection.getLatestBlockhash()
+        const transaction = new Transaction({
+          recentBlockhash: blockhash,
+          feePayer: publicKey,
+        }).add(userTokenResult.instruction, placeBetIx)
         const signedTx = await signTransaction!(transaction)
         tx = await connection.sendRawTransaction(signedTx.serialize())
       } else {

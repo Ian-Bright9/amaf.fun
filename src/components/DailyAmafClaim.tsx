@@ -113,7 +113,11 @@ export function DailyAmafClaim() {
           })
           .instruction()
 
-        const transaction = new Transaction().add(userTokenResult.instruction, claimIx)
+        const { blockhash } = await connection.getLatestBlockhash()
+        const transaction = new Transaction({
+          recentBlockhash: blockhash,
+          feePayer: publicKey,
+        }).add(userTokenResult.instruction, claimIx)
         if (signTransaction) {
           const signedTx = await signTransaction(transaction)
           tx = await connection.sendRawTransaction(signedTx.serialize())
