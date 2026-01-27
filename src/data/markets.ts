@@ -25,7 +25,7 @@ export async function getProgram(
     { publicKey: wallet.publicKey, signTransaction: wallet.signTransaction, signAllTransactions: wallet.signAllTransactions },
     AnchorProvider.defaultOptions()
   )
-  return new Program(idl as any, PROGRAM_ID, provider)
+  return new Program(idl as any, provider)
 }
 
 export async function getMarkets(
