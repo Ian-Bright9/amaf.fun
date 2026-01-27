@@ -7,8 +7,8 @@ const main = async () => {
 
   const idl = JSON.parse(readFileSync("./rust/idl.json", "utf8"));
 
-  console.log("Program ID from IDL:", idl.metadata.address);
-  console.log("Program ID type:", typeof idl.metadata.address);
+  console.log("Program ID from IDL:", idl.address);
+  console.log("Program ID type:", typeof idl.address);
   console.log("IDL metadata keys:", Object.keys(idl.metadata));
   console.log("Expected Program ID: BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn");
 

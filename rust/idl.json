@@ -536,7 +536,7 @@
             "type": "u64"
           },
           {
-            "name": "sideYes",
+            "name": "side_yes",
             "type": "bool"
           },
           {
@@ -556,7 +556,7 @@
             "type": "pubkey"
           },
           {
-            "name": "lastClaim",
+            "name": "last_claim",
             "type": "i64"
           }
         ]
@@ -594,11 +594,11 @@
             }
           },
           {
-            "name": "totalYes",
+            "name": "total_yes",
             "type": "u64"
           },
           {
-            "name": "totalNo",
+            "name": "total_no",
             "type": "u64"
           }
         ]

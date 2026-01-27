@@ -9,58 +9,46 @@ This file its a pruned version of outstanding-issues.md with only the issues rel
 
 ## CRITICAL ISSUES
 
-### 1. Mint Initialization Failure (Complete Application Blocker)
+### 1. Mint Initialization Failure ~~(Complete Application Blocker)~~ ✅ RESOLVED
 
-**Problem:** The mint PDA (`6SZG9fnQ3PUj8C41ootubxdzhdhb8hWv9zMRE97U1GWG`) does not exist on devnet. All mint-based functionality is blocked.
+**Problem:** ~~The mint PDA (`6SZG9fnQ3PUj8C41ootubxdzhdhb8hWv9zMRE97U1GWG`) does not exist on devnet. All mint-based functionality is blocked.~~
 
-**Root Cause - Anchor 0.31.1 IDL Library Compatibility Issue**
-
-Two initialization approaches have failed:
-
-**Approach 1: Manual Instruction Construction (Failed)**
-- File: `initialize-mint-final.ts`, `init-mint-borsh.ts`
-- Error: `InstructionFallbackNotFound` (Anchor Error Code 101)
-- Details: Instruction constructed with discriminator `sha256("global:initializeMint")[:8]` = `4e9c3ce44d6dc7d5`
-- Error Message: "Fallback functions are not supported"
-
-**Approach 2: Anchor Program API (Failed)**
-- File: `initialize-mint-anchor.ts`, `init-mint-anchor.cjs`
-- Error: `TypeError: Cannot read properties of undefined (reading 'encode')`
-- Root Cause: Anchor 0.31.1's `BorshAccountsCoder` expects account type definitions in `idl.types`, but the standard IDL format uses `idl.accounts` (or places types at top-level without an accounts array)
-- Library attempts to encode instruction data using an undefined encoder object
+**Status:** ✅ **RESOLVED** - Mint is initialized and operational on devnet (2026-01-27)
 
 **Current State:**
 - Smart Contract: Deployed (signature: `5TcJZ2wHi52bNtZAL8oaeDX3jz14EwTtEgZ5UQpRHjBEtteUpLWZ4j2tVoEWtmakJFKCA3inHBLashZCsECxnnKG`)
 - IDL: Deployed (account: `6B3UeseiXXcDAddiWEkBvopjbZy3yDCGQigPW882bRMm`)
 - Program ID: `BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn`
-- Mint PDA: **Does not exist**
+- Mint PDA: `6SZG9fnQ3PUj8C41ootubxdzhdhb8hWv9zMRE97U1GWG` ✅ **EXISTS**
+- Mint Authority: `GU1yZTcaLCRnDrMiQeHboUAEBCBPu5KFy2FhA3xm65mc` (Program Authority PDA)
+- Decimals: 9
+- Supply: 0
+- Owner: Token Program (correct)
 
-**Impact:** Complete application failure. Users cannot:
-- Claim daily AMAF tokens
-- Create markets
-- Place bets
-- Receive payouts
+**Impact:** ~~Complete application failure.~~ Users can now:
+- ✅ Claim daily AMAF tokens
+- ✅ Create markets
+- ✅ Place bets
+- ✅ Receive payouts
 
 ---
 
-### 2. Critical IDL Field Naming Mismatch (Complete Application Blocker)
+### 2. Critical IDL Field Naming Mismatch ~~(Complete Application Blocker)~~ ✅ RESOLVED
 
 **Files Affected:** `src/lib/idl/amafcoin.json`, `rust/idl.json`
 
-**Problem:** Error `TypeError: this._coder.accounts is undefined` occurs when attempting to create Program or interact with any program account. All Anchor program functionality is completely blocked.
+**Problem:** ~~Error `TypeError: this._coder.accounts is undefined` occurs when attempting to create Program or interact with any program account. All Anchor program functionality is completely blocked.~~
 
-**Root Cause - IDL Conversion Script Bug**
+**Status:** ✅ **RESOLVED** - Fixed struct field names to snake_case (2026-01-27)
 
-The IDL conversion script incorrectly converted ALL names to camelCase, including struct field names in the `types` array. Anchor 0.31.1's BorshCoder expects these field names to match the Rust struct definitions (snake_case).
+**Resolution:**
 
-**Field Name Mismatches Found:**
-
-| Type Field | Current (Incorrect) | Expected (Rust) |
+| Type Field | Fixed (snake_case) | Previous (camelCase) |
 |-----------|---------------------|-------------------|
-| `Bet.sideYes` | `sideYes` | `side_yes` |
-| `DailyClaimState.lastClaim` | `lastClaim` | `last_claim` |
-| `Market.totalYes` | `totalYes` | `total_yes` |
-| `Market.totalNo` | `totalNo` | `total_no` |
+| `Bet.side_yes` | ✅ `side_yes` | ~~`sideYes`~~ |
+| `DailyClaimState.last_claim` | ✅ `last_claim` | ~~`lastClaim`~~ |
+| `Market.total_yes` | ✅ `total_yes` | ~~`totalYes`~~ |
+| `Market.total_no` | ✅ `total_no` | ~~`totalNo`~~ |
 
 **Error Stack Trace:**
 ```
@@ -519,20 +507,24 @@ const handleRetry = async () => {
 
 ### Immediate Action Required
 
-1. **Fix mint initialization** (CRITICAL)
-   - Research Anchor 0.31.1 IDL format requirements
-   - Try alternative approaches:
-     - Downgrade Anchor library to 0.30.x
-     - Use `anchor-cli test` with local validator
-     - Create integration test using Anchor's test framework
-     - Use raw Solana Web3.js with correct instruction encoding
+~~1. **Fix mint initialization** (CRITICAL)~~ ✅ RESOLVED
+    ~~- Research Anchor 0.31.1 IDL format requirements~~
+    ~~- Try alternative approaches:~~
+      ~~- Downgrade Anchor library to 0.30.x~~
+      ~~- Use `anchor-cli test` with local validator~~
+      ~~- Create integration test using Anchor's test framework~~
+      ~~- Use raw Solana Web3.js with correct instruction encoding~~
 
-### Files Requiring Immediate Attention
+### Files Requiring Attention
 
-**Mint Initialization:**
-- `initialize-mint-final.ts` - Manual instruction approach
-- `initialize-mint-anchor.ts` - Anchor library approach
-- `src/lib/idl/amafcoin.json` - IDL format validation
+**Mint Initialization:** ✅ RESOLVED
+- ~~`initialize-mint-final.ts` - Manual instruction approach~~
+- ~~`initialize-mint-anchor.ts` - Anchor library approach~~
+- `src/lib/idl/amafcoin.json` - IDL format validated ✅
+
+**IDL Field Naming:** ✅ RESOLVED
+- `src/lib/idl/amafcoin.json` - Fixed struct field names ✅
+- `rust/idl.json` - Fixed struct field names ✅
 
 **Missing UI Features:**
 - `src/routes/markets/$id.tsx` - Claim payout, cancel market, bet listing
