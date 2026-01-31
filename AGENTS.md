@@ -18,10 +18,37 @@ npx vitest run <test-file>     # Run specific test file
 npx vitest run <test-file> -t <test-name>  # Run specific test by name
 npx vitest watch                # Watch mode for development
 
-# Solana/Smart Contract
-anchor build                   # Build Anchor program
-anchor deploy                  # Deploy program to devnet
-anchor test                    # Run Anchor tests
+# Solana/Smart Contract (via Docker Compose)
+docker compose run --rm anchor anchor build                   # Build Anchor program
+docker compose run --rm anchor anchor deploy                  # Deploy program to devnet
+docker compose run --rm anchor anchor test                    # Run Anchor tests
+docker compose run --rm anchor bash                           # Interactive shell in container
+docker compose run --rm anchor solana balance                 # Check wallet balance
+docker compose run --rm anchor solana airdrop 1               # Request 1 SOL airdrop
+docker compose run --rm anchor solana config get              # View Solana config
+```
+
+### Docker Compose Usage
+
+All Anchor and Solana CLI commands must be run via Docker Compose using the official `solanafoundation/anchor:v0.32.0` image. The container automatically mounts:
+- `~/.config/solana` for wallet keypairs and config
+- `~/.config/anchor` for Anchor deployment state
+- `./target` for Rust build artifacts
+- Current project directory as `/workspace`
+
+**Examples:**
+```bash
+# Build with verbose output
+docker compose run --rm anchor anchor build --verifiable
+
+# Deploy using specific wallet
+docker compose run --rm anchor anchor deploy --provider.wallet /root/.config/solana/custom-wallet.json
+
+# Run specific test
+docker compose run --rm anchor anchor test --skip-local-validator
+
+# Check all available wallets
+docker compose run --rm anchor ls -la /root/.config/solana/
 ```
 
 ## Code Style Guidelines
@@ -128,7 +155,7 @@ programs/amafcoin/src/lib.rs  # Anchor smart contract
 - Test files: `*.test.ts` or `*.test.tsx` in `src/`
 
 ## Tech Stack
-React 19, TypeScript 5.7, TanStack Router/Start, Vite, Tailwind CSS v4, Vitest, Solana Web3.js, Anchor 0.31.1
+React 19, TypeScript 5.7, TanStack Router/Start, Vite, Tailwind CSS v4, Vitest, Solana Web3.js, Anchor 0.32.0
 
 ## Known Issues
 Mint initialization: Anchor 0.31.1 library/IDL compatibility issues. Manual instruction fails with `InstructionFallbackNotFound`, Program API fails with encode error. Mint PDA: `6SZG9fnQ3PUj8C41ootubxdzhdhb8hWv9zMRE97U1GWG`

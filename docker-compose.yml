@@ -1,0 +1,22 @@
+services:
+  anchor:
+    image: solanafoundation/anchor:v0.32.0
+    working_dir: /workspace
+    volumes:
+      # Mount project directory
+      - .:/workspace
+      # Persist Solana config and all wallet keypairs
+      - ~/.config/solana:/root/.config/solana
+      # Persist Anchor config and program deployments
+      - ~/.config/anchor:/root/.config/anchor
+      # Persist Rust build artifacts
+      - ./target:/workspace/target
+    environment:
+      # Devnet configuration
+      - ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
+      - SOLANA_URL=https://api.devnet.solana.com
+      - SOLANA_CLUSTER=devnet
+      # Default wallet (can be overridden with --provider.wallet flag)
+      - ANCHOR_WALLET=/root/.config/solana/id.json
+    stdin_open: true
+    tty: true
