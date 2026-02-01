@@ -108,7 +108,32 @@ pub mod amafcoin {
 
         bet.claimed = true;
 
-        token::transfer(ctx.accounts.transfer_to_user(), payout)?;
+        // Create CPI accounts for transfer from escrow to user
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.escrow_token.to_account_info(),
+            to: ctx.accounts.user_token.to_account_info(),
+            authority: ctx.accounts.market.to_account_info(),
+        };
+
+        // Get the bump for the market PDA
+        let bump = ctx.bumps.market;
+
+        // Create signer seeds for the market PDA
+        let seeds = &[
+            &b"market"[..],
+            ctx.accounts.market.authority.as_ref(),
+            &[bump],
+        ];
+        let signer_seeds = &[&seeds[..]];
+
+        // Create CPI context with signer
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
+
+        token::transfer(cpi_ctx, payout)?;
 
         Ok(())
     }
@@ -121,7 +146,28 @@ pub mod amafcoin {
 
         state.last_claim = now;
 
-        token::mint_to(ctx.accounts.mint_ctx(), 100_000_000_000)?;
+        // Create CPI accounts for mint_to
+        let cpi_accounts = MintTo {
+            mint: ctx.accounts.mint.to_account_info(),
+            to: ctx.accounts.user_token.to_account_info(),
+            authority: ctx.accounts.program_authority.to_account_info(),
+        };
+
+        // Get the bump for the program_authority PDA
+        let bump = ctx.bumps.program_authority;
+
+        // Create signer seeds for the program_authority PDA
+        let seeds = &[&b"authority"[..], &[bump]];
+        let signer_seeds = &[&seeds[..]];
+
+        // Create CPI context with signer
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
+
+        token::mint_to(cpi_ctx, 100_000_000_000)?;
 
         Ok(())
     }
@@ -249,7 +295,11 @@ pub struct ResolveMarket<'info> {
 
 #[derive(Accounts)]
 pub struct ClaimPayout<'info> {
-    #[account(mut)]
+    #[account(
+        mut,
+        seeds = [&b"market"[..], market.authority.as_ref()],
+        bump
+    )]
     pub market: Account<'info, Market>,
 
     #[account(mut, has_one = user)]
@@ -288,8 +338,9 @@ pub struct ClaimDaily<'info> {
     )]
     pub mint: Account<'info, Mint>,
 
-    /// CHECK: Program authority PDA, no checks needed
+    /// CHECK: Program authority PDA used for minting tokens
     #[account(
+        mut,
         seeds = [&b"authority"[..]],
         bump
     )]
