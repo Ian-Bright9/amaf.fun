@@ -1,0 +1,25 @@
+import * as anchor from '@coral-xyz/anchor';
+import { Program } from '@coral-xyz/anchor';
+import { PublicKey } from '@solana/web3.js';
+
+describe('set_mint_authority', () => {
+  const provider = anchor.AnchorProvider.env();
+  const program = anchor.workspace.Amafcoin as Program;
+
+  it('can set mint authority', async () => {
+    const [mintPda] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from('mint')], program.programId);
+    const [programAuthorityPda] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from('authority')], program.programId);
+    const newAuthority = new anchor.web3.PublicKey('Cu6m9sKWsN6q6dVW6N1L271yn3iqe61HBHpA85kivqhg');
+
+    await program.methods
+      .setMintAuthority(newAuthority)
+      .accounts({
+        mint: mintPda[0],
+        programAuthority: programAuthorityPda[0],
+        tokenProgram: anchor.web3.PublicKey.default,
+      })
+      .rpc();
+
+    console.log('Mint authority set to:', newAuthority.toString());
+  });
+});
