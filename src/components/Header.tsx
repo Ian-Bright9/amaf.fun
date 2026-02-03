@@ -1,10 +1,7 @@
 import { Link } from '@tanstack/react-router'
 
 import { WalletConnectButton } from './WalletConnectButton'
-<<<<<<< HEAD
 import { ClientOnly } from './ClientOnly'
-=======
->>>>>>> main
 
 import './Header.css'
 
@@ -25,13 +22,9 @@ export default function Header() {
         </div>
 
         <div className="nav-item">
-<<<<<<< HEAD
           <ClientOnly>
             <WalletConnectButton />
           </ClientOnly>
-=======
-          <WalletConnectButton />
->>>>>>> main
         </div>
       </nav>
     </header>

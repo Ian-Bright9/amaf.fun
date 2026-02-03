@@ -1,17 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState } from 'react'
-<<<<<<< HEAD
 import { Link } from '@tanstack/react-router'
 
 import { getMarkets, type Market } from '@/data/markets'
 import { useConnection } from '@/lib/useConnection'
-=======
-import { Connection, clusterApiUrl } from '@solana/web3.js'
-import { Link } from '@tanstack/react-router'
-
-import { getMarkets, type Market } from '@/data/markets'
->>>>>>> main
 
 import './index.css'
 
@@ -19,10 +12,7 @@ export const Route = createFileRoute('/markets/')({ component: MarketsPage })
 
 function MarketsPage() {
   const { publicKey, connected } = useWallet()
-<<<<<<< HEAD
   const connection = useConnection()
-=======
->>>>>>> main
   const [markets, setMarkets] = useState<Market[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -33,10 +23,6 @@ function MarketsPage() {
         return
       }
       try {
-<<<<<<< HEAD
-=======
-        const connection = new Connection(clusterApiUrl('devnet'))
->>>>>>> main
         const wallet = { publicKey, signTransaction: () => null, signAllTransactions: () => null }
         const fetchedMarkets = await getMarkets(connection, wallet)
         setMarkets(fetchedMarkets)

@@ -1,15 +1,8 @@
 import { useWallet } from '@solana/wallet-adapter-react'
-<<<<<<< HEAD
 import { useState, useEffect, useCallback, useRef } from 'react'
 
 import { getTokenBalances, formatBalance, requestDevnetAirdrop } from '@/data/balances'
 import { useConnection } from '@/lib/useConnection'
-=======
-import { useState, useEffect } from 'react'
-import { Connection } from '@solana/web3.js'
-
-import { getTokenBalances, formatBalance, requestDevnetAirdrop } from '@/data/balances'
->>>>>>> main
 
 import './WalletModal.css'
 
@@ -20,10 +13,7 @@ interface WalletModalProps {
 
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const { publicKey, disconnect } = useWallet()
-<<<<<<< HEAD
   const connection = useConnection()
-=======
->>>>>>> main
   const [amafBalance, setAmafBalance] = useState(0)
   const [solBalance, setSolBalance] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -31,7 +21,6 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [copied, setCopied] = useState(false)
-<<<<<<< HEAD
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -43,19 +32,11 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   }, [])
 
   const loadBalances = useCallback(async () => {
-=======
-
-  const loadBalances = async () => {
->>>>>>> main
     if (!publicKey || !isOpen) return
 
     setLoading(true)
     setError('')
     try {
-<<<<<<< HEAD
-=======
-      const connection = new Connection('https://api.devnet.solana.com')
->>>>>>> main
       const balances = await getTokenBalances(publicKey, connection)
       setAmafBalance(balances.amafBalance)
       setSolBalance(balances.solBalance)
@@ -65,21 +46,13 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     } finally {
       setLoading(false)
     }
-<<<<<<< HEAD
   }, [publicKey, isOpen, connection, getTokenBalances])
-=======
-  }
->>>>>>> main
 
   useEffect(() => {
     if (isOpen) {
       loadBalances()
     }
-<<<<<<< HEAD
   }, [isOpen, loadBalances])
-=======
-  }, [isOpen, publicKey])
->>>>>>> main
 
   async function handleAirdrop() {
     if (!publicKey) return
@@ -89,7 +62,6 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     setSuccess('')
 
     try {
-<<<<<<< HEAD
       await requestDevnetAirdrop(publicKey, connection)
       setSuccess('Airdrop successful! Refreshing balances...')
 
@@ -97,13 +69,6 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         clearTimeout(timeoutRef.current)
       }
       timeoutRef.current = setTimeout(() => {
-=======
-      const connection = new Connection('https://api.devnet.solana.com')
-      await requestDevnetAirdrop(publicKey, connection)
-      setSuccess('Airdrop successful! Refreshing balances...')
-      
-      setTimeout(() => {
->>>>>>> main
         loadBalances()
         setSuccess('')
       }, 2000)

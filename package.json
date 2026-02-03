@@ -26,13 +26,8 @@
         "buffer": "^6.0.3",
         "lucide-react": "^0.561.0",
         "nitro": "npm:nitro-nightly@latest",
-<<<<<<< HEAD
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
-=======
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
->>>>>>> main
         "tailwindcss": "^4.1.18",
         "vite-tsconfig-paths": "^6.0.2"
     },
@@ -41,13 +36,8 @@
         "@testing-library/dom": "^10.4.0",
         "@testing-library/react": "^16.2.0",
         "@types/node": "^22.10.2",
-<<<<<<< HEAD
-        "@types/react": "^18.3.12",
-        "@types/react-dom": "^18.3.1",
-=======
         "@types/react": "^19.2.0",
         "@types/react-dom": "^19.2.0",
->>>>>>> main
         "@vitejs/plugin-react": "^5.1.2",
         "jsdom": "^27.0.0",
         "ts-mocha": "^11.1.0",

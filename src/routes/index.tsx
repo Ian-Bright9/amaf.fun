@@ -1,11 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 
-<<<<<<< HEAD
 import { DailyAmafClaim } from '@/components/DailyAmafClaim'
 
-=======
->>>>>>> main
 import './index.css'
 
 export const Route = createFileRoute('/')({ component: HomePage })
@@ -29,11 +26,7 @@ function HomePage() {
       </div>
 
       <div className="home-content">
-<<<<<<< HEAD
         <DailyAmafClaim />
-=======
-        <p>DailyAmafClaim temporarily disabled</p>
->>>>>>> main
 
         <div className="features">
           <div className="feature-card">

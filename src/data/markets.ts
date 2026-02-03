@@ -2,11 +2,7 @@ import { Connection, PublicKey } from '@solana/web3.js'
 import { Program, AnchorProvider } from '@coral-xyz/anchor'
 import idl from '@/lib/idl/amafcoin.json'
 
-<<<<<<< HEAD
-export const PROGRAM_ID = new PublicKey('Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6LvoMW')
-=======
 export const PROGRAM_ID = new PublicKey('BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn')
->>>>>>> main
 
 export interface Market {
   publicKey: PublicKey

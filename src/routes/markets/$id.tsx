@@ -1,11 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState } from 'react'
-<<<<<<< HEAD
 import { SystemProgram, PublicKey, Keypair, Transaction } from '@solana/web3.js'
-=======
-import { Connection, clusterApiUrl, SystemProgram, PublicKey, Keypair, Transaction } from '@solana/web3.js'
->>>>>>> main
 import { Link } from '@tanstack/react-router'
 
 import { getProgram, type Market } from '@/data/markets'
@@ -14,10 +10,7 @@ import {
   getOrCreateUserTokenAccount,
   getEscrowTokenAccount
 } from '@/data/tokens'
-<<<<<<< HEAD
 import { useConnection } from '@/lib/useConnection'
-=======
->>>>>>> main
 
 import './$id.css'
 
@@ -26,10 +19,7 @@ export const Route = createFileRoute('/markets/$id')({ component: MarketDetailPa
 function MarketDetailPage() {
   const { id } = Route.useParams()
   const { publicKey, connected, signTransaction } = useWallet()
-<<<<<<< HEAD
   const connection = useConnection()
-=======
->>>>>>> main
   const [market, setMarket] = useState<Market | null>(null)
   const [loading, setLoading] = useState(true)
   const [betAmount, setBetAmount] = useState('')
@@ -44,10 +34,6 @@ function MarketDetailPage() {
         return
       }
       try {
-<<<<<<< HEAD
-=======
-        const connection = new Connection(clusterApiUrl('devnet'))
->>>>>>> main
         const wallet = { publicKey, signTransaction: () => null, signAllTransactions: () => null }
         const program = await getProgram(connection, wallet)
         const marketAccount = await (program.account as any).market.fetch(new PublicKey(id))
@@ -88,10 +74,6 @@ function MarketDetailPage() {
 
     setBetting(true)
     try {
-<<<<<<< HEAD
-=======
-      const connection = new Connection('https://api.devnet.solana.com')
->>>>>>> main
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,
@@ -169,10 +151,6 @@ function MarketDetailPage() {
     }
 
     try {
-<<<<<<< HEAD
-=======
-      const connection = new Connection('https://api.devnet.solana.com')
->>>>>>> main
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,

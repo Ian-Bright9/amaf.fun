@@ -47,19 +47,11 @@ function parseAnchorError(error: AnchorError): ParsedError {
   } else if (errorCode === 'DescriptionTooLong') {
     userMessage = 'Description exceeds maximum length (500 characters)'
   } else if (errorCode === 'InvalidMint') {
-<<<<<<< HEAD
     userMessage = 'Invalid token mint address. Please contact support'
   } else if (errorCode === 'InvalidOwner') {
     userMessage = 'Token account ownership verification failed'
   } else if (errorCode === 'ClaimTooSoon') {
     userMessage = 'You must wait 24 hours between claims. Check the countdown timer above'
-=======
-    userMessage = 'Invalid token mint address'
-  } else if (errorCode === 'InvalidOwner') {
-    userMessage = 'Invalid account ownership'
-  } else if (errorCode === 'ClaimTooSoon') {
-    userMessage = 'You must wait 24 hours between claims'
->>>>>>> main
   } else if (errorCode === 'AlreadyClaimed') {
     userMessage = 'This bet has already been claimed'
   } else if (errorCode === 'NotWinner') {
@@ -84,7 +76,6 @@ function parseTransactionError(error: any): ParsedError {
     technicalDetails += `Transaction Logs:\n${error.logs.join('\n')}\n\n`
 
     if (lastLog.includes('Program log: Error:')) {
-<<<<<<< HEAD
       const errorMsg = lastLog.replace('Program log: Error: ', '')
       userMessage = errorMsg
 
@@ -93,21 +84,15 @@ function parseTransactionError(error: any): ParsedError {
       } else if (errorMsg.includes('Custom program error:')) {
         userMessage = 'A program error occurred. Please try again'
       }
-=======
-      userMessage = lastLog.replace('Program log: Error: ', '')
->>>>>>> main
     }
   }
 
   if (error.message) {
     technicalDetails += `Message: ${error.message}`
-<<<<<<< HEAD
 
     if (error.message.includes('insufficient')) {
       userMessage = 'Insufficient funds for transaction'
     }
-=======
->>>>>>> main
   }
 
   return {
@@ -121,7 +106,6 @@ function parseGenericError(error: any): ParsedError {
   let userMessage = error.message
 
   if (error.message.includes('User rejected')) {
-<<<<<<< HEAD
     userMessage = 'Transaction was cancelled. Please approve the transaction in your wallet'
   } else if (error.message.includes('User cancelled')) {
     userMessage = 'Transaction was cancelled in your wallet'
@@ -136,22 +120,12 @@ function parseGenericError(error: any): ParsedError {
   } else if (error.message.includes('nonce')) {
     userMessage = 'Transaction order error. Please try again'
   } else if (error.message.includes('Failed to fetch') || error.message.includes('ECONNREFUSED')) {
-        userMessage = 'Cannot connect to Solana network. Please check your internet connection'
-      } else if (error.message.includes('Transaction simulation failed')) {
-        userMessage = 'Transaction simulation failed. Please try again later'
-      } else if (error.message.includes('already in use') || error.message.includes('AlreadyInUse')) {
-        userMessage = 'Account already initialized. You can claim again in 24 hours. Please check the countdown timer above.'
-      }
-=======
-    userMessage = 'Transaction was rejected by wallet'
-  } else if (error.message.includes('insufficient funds')) {
-    userMessage = 'Insufficient funds for transaction'
-  } else if (error.message.includes('timeout')) {
-    userMessage = 'Transaction timed out. Please try again'
-  } else if (error.message.includes('network')) {
-    userMessage = 'Network error. Please check your connection'
+    userMessage = 'Cannot connect to Solana network. Please check your internet connection'
+  } else if (error.message.includes('Transaction simulation failed')) {
+    userMessage = 'Transaction simulation failed. Please try again later'
+  } else if (error.message.includes('already in use') || error.message.includes('AlreadyInUse')) {
+    userMessage = 'Account already initialized. You can claim again in 24 hours. Please check the countdown timer above.'
   }
->>>>>>> main
 
   return {
     userMessage,
