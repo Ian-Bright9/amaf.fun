@@ -1,0 +1,2 @@
+[dependencies]
+std = { features = ["backtrace", "panic_immediate_abort"], git = "https://github.com/rust-lang/wasm32-unknown-unknown" }

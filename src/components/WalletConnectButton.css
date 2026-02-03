@@ -1,0 +1,58 @@
+.wallet-connect {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wallet-info-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(153, 69, 255, 0.3);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wallet-info-button:hover {
+  border-color: rgba(153, 69, 255, 0.6);
+  background: rgba(153, 69, 255, 0.1);
+}
+
+.wallet-info-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wallet-address {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #ffffff;
+}
+
+.wallet-separator {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+}
+
+.wallet-amaf-balance {
+  font-size: 0.875rem;
+  color: #14f195;
+  font-weight: 600;
+}
+
+.hidden-wallet-button .wallet-adapter-button {
+  background: linear-gradient(135deg, #9945ff 0%, #14f195 100%);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.hidden-wallet-button .wallet-adapter-button:hover {
+  opacity: 0.9;
+}

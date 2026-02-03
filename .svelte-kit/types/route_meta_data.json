@@ -1,0 +1,38 @@
+{
+	"/": [
+		"src/routes/+page.server.ts"
+	],
+	"/api/bets": [
+		"src/routes/api/bets/+server.ts"
+	],
+	"/api/contracts": [
+		"src/routes/api/contracts/+page.server.ts",
+		"src/routes/api/contracts/+server.ts"
+	],
+	"/api/contracts/[id]": [
+		"src/routes/api/contracts/[id]/+server.ts"
+	],
+	"/api/contracts/[id]/resolve": [
+		"src/routes/api/contracts/[id]/resolve/+server.ts"
+	],
+	"/api/tokens/claim": [
+		"src/routes/api/tokens/claim/+server.ts"
+	],
+	"/api/tokens/initialize": [
+		"src/routes/api/tokens/initialize/+server.ts"
+	],
+	"/api/transactions/create-contract": [
+		"src/routes/api/transactions/create-contract/+server.ts"
+	],
+	"/market": [
+		"src/routes/market/+page.server.ts"
+	],
+	"/market/create": [],
+	"/market/[slug]": [
+		"src/routes/market/[slug]/+page.server.ts"
+	],
+	"/wallet": [],
+	"/(market)/[slug]": [
+		"src/routes/(market)/[slug]/+page.server.ts"
+	]
+}

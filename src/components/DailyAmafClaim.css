@@ -1,0 +1,135 @@
+.daily-claim {
+  background: linear-gradient(135deg, rgba(153, 69, 255, 0.2) 0%, rgba(20, 241, 149, 0.2) 100%);
+  border: 1px solid rgba(153, 69, 255, 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.claim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.claim-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.countdown {
+  font-size: 0.875rem;
+  color: #14f195;
+  font-weight: 600;
+}
+
+.claim-description {
+  color: #a0a0a0;
+  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
+}
+
+.error-message {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #ff6b6b;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.error-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.error-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.error-dismiss {
+  background: transparent;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.error-dismiss:hover {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.5);
+}
+
+.error-details-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(255, 107, 107, 0.5);
+  color: #ff6b6b;
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.error-details-toggle:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.error-technical {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 107, 107, 0.3);
+  font-size: 0.75rem;
+  color: #ff9999;
+}
+
+.error-technical pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.button-primary {
+  background: linear-gradient(135deg, #9945ff 0%, #14f195 100%);
+  color: white;
+}
+
+.button-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(153, 69, 255, 0.4);
+}
+
+.button-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
