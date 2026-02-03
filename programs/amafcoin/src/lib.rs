@@ -5,7 +5,7 @@ use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
 const MAX_QUESTION_LENGTH: usize = 200;
 const MAX_DESCRIPTION_LENGTH: usize = 500;
 
-declare_id!("BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn");
+declare_id!("Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6LvoMW");
 
 #[program]
 pub mod amafcoin {
@@ -354,7 +354,7 @@ pub struct ClaimDaily<'info> {
     pub user_token: Account<'info, TokenAccount>,
 
     #[account(
-        init,
+        init_if_needed,
         payer = user,
         space = 8 + 40,
         seeds = [b"claim", user.key().as_ref()],

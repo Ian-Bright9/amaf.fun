@@ -6,11 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-<<<<<<< HEAD
 amafcoin = "Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6LvoMW"
-=======
-amafcoin = "BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn"
->>>>>>> main
 
 [registry]
 url = "https://api.apr.dev"

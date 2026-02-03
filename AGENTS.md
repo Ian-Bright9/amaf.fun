@@ -8,24 +8,23 @@ This document provides guidelines for agentic coding assistants working on this 
 # Development
 npm run dev                    # Start dev server on port 3001
 
-# Building
+# Building & Quality
 npm run build                  # Build for production
 npm run preview                # Preview production build
+npm run lint                   # Run ESLint
+npm run format                 # Run Prettier (dry run)
+npm run check                  # Format + lint: prettier --write . && eslint --fix
 
 # Testing
 npm run test                   # Run all tests with vitest
 npx vitest run <test-file>     # Run specific test file
 npx vitest run <test-file> -t <test-name>  # Run specific test by name
-npx vitest watch                # Watch mode for development
+npx vitest watch               # Watch mode for development
 
 # Solana/Smart Contract (via Docker Compose)
-docker compose run --rm anchor anchor build                   # Build Anchor program
-docker compose run --rm anchor anchor deploy                  # Deploy program to devnet
-docker compose run --rm anchor anchor test                    # Run Anchor tests
-docker compose run --rm anchor bash                           # Interactive shell in container
-docker compose run --rm anchor solana balance                 # Check wallet balance
-docker compose run --rm anchor solana airdrop 1               # Request 1 SOL airdrop
-docker compose run --rm anchor solana config get              # View Solana config
+docker compose run --rm anchor anchor build   # Build Anchor program
+docker compose run --rm anchor anchor deploy  # Deploy program to devnet
+docker compose run --rm anchor anchor test    # Run Anchor tests
 ```
 
 ### Docker Compose Usage
@@ -85,7 +84,7 @@ File-based with `createFileRoute`. Use loaders: `loader: async () => await getDa
 - `@solana/web3.js` for interactions, `@solana/wallet-adapter-react` for wallet
 - `@coral-xyz/anchor` for smart contracts, `@solana/spl-token` for tokens
 - Import utilities from `@/data/tokens` for PDA/ATA calculations
-- Program ID: `BsgAgqUeekDVXqabqQXE5BZWYbhpH43zbdVanKQUpVnn` (devnet)
+- Program ID: `Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6LvoMW` (devnet)
 - Load program via `getProgram()` from `@/data/markets`, use PDAs for all program accounts
 
 ### TypeScript

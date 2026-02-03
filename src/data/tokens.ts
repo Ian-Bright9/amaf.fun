@@ -43,10 +43,9 @@ export async function getOrCreateUserTokenAccount(
 ): Promise<{ address: PublicKey; instruction: TransactionInstruction | null }> {
   const userToken = getAssociatedTokenAddressSync(mint, wallet)
 
-  try {
-    await connection.getAccountInfo(userToken)
-    return { address: userToken, instruction: null }
-  } catch (err) {
+  const accountInfo = await connection.getAccountInfo(userToken)
+  if (accountInfo === null) {
+    // Account doesn't exist, create it
     const instruction = createAssociatedTokenAccountInstruction(
       payer,
       userToken,
@@ -55,4 +54,7 @@ export async function getOrCreateUserTokenAccount(
     )
     return { address: userToken, instruction }
   }
+
+  // Account exists
+  return { address: userToken, instruction: null }
 }
