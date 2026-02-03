@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+'use client'
+
+>>>>>>> main
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
@@ -12,7 +17,11 @@ export function WalletProviders({ children }: { children: ReactNode }) {
 
   return (
     <ConnectionProvider endpoint={clusterApiUrl('devnet')}>
+<<<<<<< HEAD
       <SolanaWalletProvider wallets={wallets} autoConnect={false}>
+=======
+      <SolanaWalletProvider wallets={wallets} autoConnect>
+>>>>>>> main
         <WalletModalProvider>{children}</WalletModalProvider>
       </SolanaWalletProvider>
     </ConnectionProvider>

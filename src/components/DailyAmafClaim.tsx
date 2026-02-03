@@ -1,17 +1,27 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState, useEffect } from 'react'
+<<<<<<< HEAD
 import { SystemProgram, Transaction } from '@solana/web3.js'
+=======
+import { Connection, SystemProgram, Transaction } from '@solana/web3.js'
+>>>>>>> main
 
 import { getProgram } from '@/data/markets'
 import { getMintPDA, getProgramAuthorityPDA, getClaimStatePDA, getOrCreateUserTokenAccount } from '@/data/tokens'
 import { parseError, type ParsedError } from '@/lib/errors'
+<<<<<<< HEAD
 import { useConnection } from '@/lib/useConnection'
+=======
+>>>>>>> main
 
 import './DailyAmafClaim.css'
 
 export function DailyAmafClaim() {
   const { publicKey, connected, signTransaction } = useWallet()
+<<<<<<< HEAD
   const connection = useConnection()
+=======
+>>>>>>> main
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<ParsedError | null>(null)
   const [showDetails, setShowDetails] = useState(false)
@@ -36,10 +46,15 @@ export function DailyAmafClaim() {
 
   async function checkLastClaim() {
     try {
+<<<<<<< HEAD
+=======
+      const connection = new Connection('https://api.devnet.solana.com')
+>>>>>>> main
       const [claimStatePda] = getClaimStatePDA(publicKey!)
 
       const accountInfo = await connection.getAccountInfo(claimStatePda)
       if (accountInfo) {
+<<<<<<< HEAD
         // DailyClaimState structure:
         // - Discriminator: 8 bytes (0-7)
         // - user: Pubkey: 32 bytes (8-39)
@@ -47,6 +62,9 @@ export function DailyAmafClaim() {
         // Total: 48 bytes
         const lastClaimBytes = accountInfo.data.slice(40, 48)
         const lastClaim = new Date(Number(Buffer.from(lastClaimBytes).readBigUInt64LE()) * 1000)
+=======
+        const lastClaim = new Date(Number(accountInfo.data.slice(32, 40)) * 1000)
+>>>>>>> main
         const nextClaim = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000)
         if (nextClaim > new Date()) {
           setNextClaimTime(nextClaim)
@@ -78,12 +96,16 @@ export function DailyAmafClaim() {
 
   async function handleClaim() {
     if (!connected || !publicKey) {
+<<<<<<< HEAD
       setError({ userMessage: 'Please connect your wallet to claim AMAF tokens', technicalDetails: null, errorCode: null })
       return
     }
 
     if (!signTransaction) {
       setError({ userMessage: 'Your wallet does not support signing transactions', technicalDetails: null, errorCode: null })
+=======
+      setError({ userMessage: 'Please connect your wallet', technicalDetails: null, errorCode: null })
+>>>>>>> main
       return
     }
 
@@ -91,6 +113,7 @@ export function DailyAmafClaim() {
     setError(null)
 
     try {
+<<<<<<< HEAD
 
 
       const [mintAddress] = getMintPDA()
@@ -100,6 +123,9 @@ export function DailyAmafClaim() {
         throw new Error('Insufficient SOL for transaction fee. Please get devnet SOL at https://faucet.solana.com')
       }
 
+=======
+      const connection = new Connection('https://api.devnet.solana.com')
+>>>>>>> main
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,
@@ -107,6 +133,10 @@ export function DailyAmafClaim() {
       })
 
       const [claimStatePda] = getClaimStatePDA(publicKey)
+<<<<<<< HEAD
+=======
+      const [mintAddress] = getMintPDA()
+>>>>>>> main
       const [authorityPda] = getProgramAuthorityPDA()
 
       const userTokenResult = await getOrCreateUserTokenAccount(
@@ -137,9 +167,18 @@ export function DailyAmafClaim() {
           recentBlockhash: blockhash,
           feePayer: publicKey,
         }).add(userTokenResult.instruction, claimIx)
+<<<<<<< HEAD
 
         const signedTx = await signTransaction(transaction)
         tx = await connection.sendRawTransaction(signedTx.serialize())
+=======
+        if (signTransaction) {
+          const signedTx = await signTransaction(transaction)
+          tx = await connection.sendRawTransaction(signedTx.serialize())
+        } else {
+          throw new Error('Wallet does not support signing transactions')
+        }
+>>>>>>> main
       } else {
         tx = await program.methods
           .claimDailyAmaf()
@@ -182,6 +221,7 @@ export function DailyAmafClaim() {
       {error && (
         <div className="error-message">
           <div className="error-content">
+<<<<<<< HEAD
             <span className="error-text">{error.userMessage}</span>
             <button
               className="error-dismiss"
@@ -201,6 +241,19 @@ export function DailyAmafClaim() {
               {showDetails ? 'Hide Technical Details' : 'Show Technical Details'}
             </button>
           )}
+=======
+            {error.userMessage}
+            {error.technicalDetails && (
+              <button
+                className="error-details-toggle"
+                onClick={() => setShowDetails(!showDetails)}
+                type="button"
+              >
+                {showDetails ? 'Hide' : 'Show'} Details
+              </button>
+            )}
+          </div>
+>>>>>>> main
           {showDetails && error.technicalDetails && (
             <div className="error-technical">
               <pre>{error.technicalDetails}</pre>

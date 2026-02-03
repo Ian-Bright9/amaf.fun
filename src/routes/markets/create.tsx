@@ -1,13 +1,20 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState } from 'react'
+<<<<<<< HEAD
 import { SystemProgram } from '@solana/web3.js'
+=======
+import { Connection, SystemProgram } from '@solana/web3.js'
+>>>>>>> main
 import { Link } from '@tanstack/react-router'
 
 import { getProgram, getMarketPDA } from '@/data/markets'
 import { getMintPDA } from '@/data/tokens'
 import { parseError, type ParsedError } from '@/lib/errors'
+<<<<<<< HEAD
 import { useConnection } from '@/lib/useConnection'
+=======
+>>>>>>> main
 
 import './create.css'
 
@@ -15,7 +22,10 @@ export const Route = createFileRoute('/markets/create')({ component: CreateMarke
 
 function CreateMarketPage() {
   const { publicKey, connected, signTransaction } = useWallet()
+<<<<<<< HEAD
   const connection = useConnection()
+=======
+>>>>>>> main
   const router = useRouter()
   const [question, setQuestion] = useState('')
   const [description, setDescription] = useState('')
@@ -59,6 +69,10 @@ function CreateMarketPage() {
 
     setLoading(true)
     try {
+<<<<<<< HEAD
+=======
+      const connection = new Connection('https://api.devnet.solana.com')
+>>>>>>> main
       const program = await getProgram(connection, {
         publicKey,
         signTransaction,

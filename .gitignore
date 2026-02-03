@@ -11,6 +11,11 @@ count.txt
 .output
 .vinxi
 todos.json
+<<<<<<< HEAD
 target/
 **/target/
 .git.broken-backup/
+=======
+target/debug/
+programs/amafcoin/target/
+>>>>>>> main
