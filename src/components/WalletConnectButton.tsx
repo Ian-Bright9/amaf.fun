@@ -28,15 +28,17 @@ export function WalletConnectButton() {
     } finally {
       setLoadingBalance(false)
     }
-  }, [publicKey, connection, getTokenBalances])
+  }, [publicKey, connection])
 
+  // Only load balance once on initial connection
   useEffect(() => {
     if (connected && publicKey) {
       loadBalance()
     } else {
       setAmafBalance(0)
     }
-  }, [connected, publicKey, loadBalance])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, publicKey])
 
   function handleWalletClick() {
     if (connected && publicKey) {

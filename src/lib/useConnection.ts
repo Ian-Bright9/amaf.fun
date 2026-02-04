@@ -1,6 +1,5 @@
-import { useMemo } from 'react'
-import { Connection, clusterApiUrl } from '@solana/web3.js'
+import { useConnection as useSolanaConnection } from '@solana/wallet-adapter-react'
 
 export function useConnection() {
-  return useMemo(() => new Connection(clusterApiUrl('devnet'), 'confirmed'), [])
+  return useSolanaConnection().connection
 }

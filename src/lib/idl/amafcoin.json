@@ -1,109 +1,14 @@
 {
-  "accounts": [
-    {
-      "discriminator": [
-        147,
-        23,
-        35,
-        59,
-        15,
-        75,
-        155,
-        32
-      ],
-      "name": "Bet"
-    },
-    {
-      "discriminator": [
-        21,
-        23,
-        128,
-        212,
-        184,
-        136,
-        180,
-        172
-      ],
-      "name": "DailyClaimState"
-    },
-    {
-      "discriminator": [
-        219,
-        190,
-        213,
-        55,
-        0,
-        227,
-        198,
-        154
-      ],
-      "name": "Market"
-    }
-  ],
   "address": "Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6LvoMW",
-  "errors": [
-    {
-      "code": 6000,
-      "msg": "Market already resolved",
-      "name": "MarketResolved"
-    },
-    {
-      "code": 6001,
-      "msg": "Market not resolved",
-      "name": "MarketNotResolved"
-    },
-    {
-      "code": 6002,
-      "msg": "Bet already claimed",
-      "name": "AlreadyClaimed"
-    },
-    {
-      "code": 6003,
-      "msg": "Not a winning bet",
-      "name": "NotWinner"
-    },
-    {
-      "code": 6004,
-      "msg": "Claim too soon",
-      "name": "ClaimTooSoon"
-    },
-    {
-      "code": 6005,
-      "msg": "Question too long",
-      "name": "QuestionTooLong"
-    },
-    {
-      "code": 6006,
-      "msg": "Description too long",
-      "name": "DescriptionTooLong"
-    },
-    {
-      "code": 6007,
-      "msg": "Invalid mint",
-      "name": "InvalidMint"
-    },
-    {
-      "code": 6008,
-      "msg": "Invalid owner",
-      "name": "InvalidOwner"
-    }
-  ],
+  "metadata": {
+    "name": "amafcoin",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
   "instructions": [
     {
-      "accounts": [
-        {
-          "name": "market",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "market"
-          ],
-          "signer": true
-        }
-      ],
-      "args": [],
+      "name": "cancel_market",
       "discriminator": [
         205,
         121,
@@ -114,12 +19,37 @@
         150,
         11
       ],
-      "name": "cancel_market"
+      "accounts": [
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "market"
+          ]
+        }
+      ],
+      "args": []
     },
     {
+      "name": "claim_daily_amaf",
+      "discriminator": [
+        181,
+        96,
+        251,
+        136,
+        250,
+        244,
+        126,
+        198
+      ],
       "accounts": [
         {
           "name": "mint",
+          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -132,8 +62,7 @@
                 ]
               }
             ]
-          },
-          "writable": true
+          }
         },
         {
           "name": "program_authority",
@@ -145,6 +74,7 @@
         },
         {
           "name": "claim_state",
+          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -162,41 +92,40 @@
                 "path": "user"
               }
             ]
-          },
-          "writable": true
+          }
         },
         {
           "name": "user",
-          "signer": true,
-          "writable": true
+          "writable": true,
+          "signer": true
         },
         {
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-          "name": "token_program"
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-          "name": "associated_token_program"
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         },
         {
-          "address": "11111111111111111111111111111111",
-          "name": "system_program"
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
-      "args": [],
-      "discriminator": [
-        181,
-        96,
-        251,
-        136,
-        250,
-        244,
-        126,
-        198
-      ],
-      "name": "claim_daily_amaf"
+      "args": []
     },
     {
+      "name": "claim_payout",
+      "discriminator": [
+        127,
+        240,
+        132,
+        62,
+        227,
+        198,
+        146,
+        133
+      ],
       "accounts": [
         {
           "name": "market",
@@ -216,70 +145,32 @@
         },
         {
           "name": "user",
+          "writable": true,
+          "signer": true,
           "relations": [
             "bet"
-          ],
-          "signer": true,
-          "writable": true
+          ]
         },
         {
           "name": "mint"
         },
         {
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-          "name": "token_program"
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-          "name": "associated_token_program"
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         },
         {
-          "address": "11111111111111111111111111111111",
-          "name": "system_program"
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
-      "args": [],
-      "discriminator": [
-        127,
-        240,
-        132,
-        62,
-        227,
-        198,
-        146,
-        133
-      ],
-      "name": "claim_payout"
+      "args": []
     },
     {
-      "accounts": [
-        {
-          "name": "market",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "signer": true,
-          "writable": true
-        },
-        {
-          "name": "mint"
-        },
-        {
-          "address": "11111111111111111111111111111111",
-          "name": "system_program"
-        }
-      ],
-      "args": [
-        {
-          "name": "question",
-          "type": "string"
-        },
-        {
-          "name": "description",
-          "type": "string"
-        }
-      ],
+      "name": "create_market",
       "discriminator": [
         103,
         226,
@@ -290,189 +181,45 @@
         251,
         254
       ],
-      "name": "create_market"
-    },
-    {
       "accounts": [
         {
-          "name": "mint",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  109,
-                  105,
-                  110,
-                  116
-                ]
-              }
-            ]
-          },
+          "name": "market",
           "writable": true
         },
         {
-          "name": "program_authority",
+          "name": "user_markets_counter",
           "writable": true
         },
         {
-          "docs": [
-            "PDA derived from: [\"metadata\", metadata_program_id, mint_pubkey]"
-          ],
-          "name": "metadata_account",
-          "pda": {
-            "program": {
-              "kind": "account",
-              "path": "metadata_program"
-            },
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  109,
-                  101,
-                  116,
-                  97,
-                  100,
-                  97,
-                  116,
-                  97
-                ]
-              },
-              {
-                "kind": "const",
-                "value": [
-                  11,
-                  112,
-                  101,
-                  177,
-                  227,
-                  209,
-                  124,
-                  69,
-                  56,
-                  157,
-                  82,
-                  127,
-                  107,
-                  4,
-                  195,
-                  205,
-                  88,
-                  184,
-                  108,
-                  115,
-                  26,
-                  160,
-                  253,
-                  181,
-                  73,
-                  182,
-                  209,
-                  188,
-                  3,
-                  248,
-                  41,
-                  70
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "mint"
-              }
-            ]
-          },
-          "writable": true
+          "name": "authority",
+          "writable": true,
+          "signer": true
         },
         {
-          "name": "payer",
-          "signer": true,
-          "writable": true
+          "name": "mint"
         },
         {
-          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
-          "name": "metadata_program"
-        },
-        {
-          "address": "11111111111111111111111111111111",
-          "name": "system_program"
-        },
-        {
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-          "name": "token_program"
-        },
-        {
-          "address": "SysvarRent111111111111111111111111111111111",
-          "name": "rent"
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
         {
-          "name": "name",
+          "name": "market_index",
+          "type": "u16"
+        },
+        {
+          "name": "question",
           "type": "string"
         },
         {
-          "name": "symbol",
-          "type": "string"
-        },
-        {
-          "name": "uri",
+          "name": "description",
           "type": "string"
         }
-      ],
-      "discriminator": [
-        35,
-        215,
-        241,
-        156,
-        122,
-        208,
-        206,
-        212
-      ],
-      "name": "initialize_metadata"
+      ]
     },
     {
-      "accounts": [
-        {
-          "name": "mint",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  109,
-                  105,
-                  110,
-                  116
-                ]
-              }
-            ]
-          },
-          "writable": true
-        },
-        {
-          "name": "program_authority"
-        },
-        {
-          "name": "payer",
-          "signer": true,
-          "writable": true
-        },
-        {
-          "address": "11111111111111111111111111111111",
-          "name": "system_program"
-        },
-        {
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-          "name": "token_program"
-        },
-        {
-          "address": "SysvarRent111111111111111111111111111111111",
-          "name": "rent"
-        }
-      ],
-      "args": [],
+      "name": "initialize_mint",
       "discriminator": [
         209,
         42,
@@ -483,9 +230,59 @@
         209,
         44
       ],
-      "name": "initialize_mint"
+      "accounts": [
+        {
+          "name": "mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program_authority"
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": []
     },
     {
+      "name": "place_bet",
+      "discriminator": [
+        222,
+        62,
+        67,
+        220,
+        63,
+        166,
+        126,
+        33
+      ],
       "accounts": [
         {
           "name": "market",
@@ -493,6 +290,7 @@
         },
         {
           "name": "bet",
+          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -512,8 +310,7 @@
                 "path": "user"
               }
             ]
-          },
-          "writable": true
+          }
         },
         {
           "name": "user_token",
@@ -525,23 +322,23 @@
         },
         {
           "name": "user",
-          "signer": true,
-          "writable": true
+          "writable": true,
+          "signer": true
         },
         {
           "name": "mint"
         },
         {
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-          "name": "token_program"
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-          "name": "associated_token_program"
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         },
         {
-          "address": "11111111111111111111111111111111",
-          "name": "system_program"
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -553,39 +350,10 @@
           "name": "side_yes",
           "type": "bool"
         }
-      ],
-      "discriminator": [
-        222,
-        62,
-        67,
-        220,
-        63,
-        166,
-        126,
-        33
-      ],
-      "name": "place_bet"
+      ]
     },
     {
-      "accounts": [
-        {
-          "name": "market",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "market"
-          ],
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "outcome_yes",
-          "type": "bool"
-        }
-      ],
+      "name": "resolve_market",
       "discriminator": [
         155,
         23,
@@ -596,19 +364,133 @@
         23,
         239
       ],
-      "name": "resolve_market"
+      "accounts": [
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "market"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "outcome_yes",
+          "type": "bool"
+        }
+      ]
     }
   ],
-  "metadata": {
-    "description": "Created with Anchor",
-    "name": "amafcoin",
-    "spec": "0.1.0",
-    "version": "0.1.0"
-  },
+  "accounts": [
+    {
+      "name": "Bet",
+      "discriminator": [
+        147,
+        23,
+        35,
+        59,
+        15,
+        75,
+        155,
+        32
+      ]
+    },
+    {
+      "name": "DailyClaimState",
+      "discriminator": [
+        21,
+        23,
+        128,
+        212,
+        184,
+        136,
+        180,
+        172
+      ]
+    },
+    {
+      "name": "Market",
+      "discriminator": [
+        219,
+        190,
+        213,
+        55,
+        0,
+        227,
+        198,
+        154
+      ]
+    },
+    {
+      "name": "UserMarketsCounter",
+      "discriminator": [
+        127,
+        35,
+        208,
+        139,
+        90,
+        20,
+        242,
+        7
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "MarketResolved",
+      "msg": "Market already resolved"
+    },
+    {
+      "code": 6001,
+      "name": "MarketNotResolved",
+      "msg": "Market not resolved"
+    },
+    {
+      "code": 6002,
+      "name": "AlreadyClaimed",
+      "msg": "Bet already claimed"
+    },
+    {
+      "code": 6003,
+      "name": "NotWinner",
+      "msg": "Not a winning bet"
+    },
+    {
+      "code": 6004,
+      "name": "ClaimTooSoon",
+      "msg": "You have already claimed AMAF tokens within the last 24 hours. Please wait before claiming again."
+    },
+    {
+      "code": 6005,
+      "name": "QuestionTooLong",
+      "msg": "Question too long"
+    },
+    {
+      "code": 6006,
+      "name": "DescriptionTooLong",
+      "msg": "Description too long"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidMint",
+      "msg": "Invalid mint"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidOwner",
+      "msg": "Invalid owner"
+    }
+  ],
   "types": [
     {
       "name": "Bet",
       "type": {
+        "kind": "struct",
         "fields": [
           {
             "name": "market",
@@ -630,13 +512,13 @@
             "name": "claimed",
             "type": "bool"
           }
-        ],
-        "kind": "struct"
+        ]
       }
     },
     {
       "name": "DailyClaimState",
       "type": {
+        "kind": "struct",
         "fields": [
           {
             "name": "user",
@@ -646,17 +528,21 @@
             "name": "last_claim",
             "type": "i64"
           }
-        ],
-        "kind": "struct"
+        ]
       }
     },
     {
       "name": "Market",
       "type": {
+        "kind": "struct",
         "fields": [
           {
             "name": "authority",
             "type": "pubkey"
+          },
+          {
+            "name": "market_index",
+            "type": "u16"
           },
           {
             "name": "bump",
@@ -688,8 +574,23 @@
             "name": "total_no",
             "type": "u64"
           }
-        ],
-        "kind": "struct"
+        ]
+      }
+    },
+    {
+      "name": "UserMarketsCounter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "count",
+            "type": "u16"
+          }
+        ]
       }
     }
   ]

@@ -1,14 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState } from 'react'
-import { SystemProgram, PublicKey, Keypair, Transaction } from '@solana/web3.js'
+import { SystemProgram, PublicKey, Transaction } from '@solana/web3.js'
 import { Link } from '@tanstack/react-router'
 
 import { getProgram, type Market } from '@/data/markets'
 import {
   getMintPDA,
   getOrCreateUserTokenAccount,
-  getEscrowTokenAccount
+  getEscrowTokenAccount,
+  getBetPDA
 } from '@/data/tokens'
 import { useConnection } from '@/lib/useConnection'
 
@@ -28,7 +29,7 @@ function MarketDetailPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    async function fetchMarket() {
+    async function fetchMarket(retries = 0) {
       if (!connected) {
         setLoading(false)
         return
@@ -40,6 +41,7 @@ function MarketDetailPage() {
         setMarket({
           publicKey: new PublicKey(id),
           authority: marketAccount.authority,
+          marketIndex: marketAccount.marketIndex,
           bump: marketAccount.bump,
           question: marketAccount.question,
           description: marketAccount.description,
@@ -50,8 +52,14 @@ function MarketDetailPage() {
         })
       } catch (err) {
         console.error('Error fetching market:', err)
+        if (retries < 5) {
+          console.log(`Retrying... (${retries + 1}/5)`)
+          setTimeout(() => fetchMarket(retries + 1), 1000 * (retries + 1))
+        }
       } finally {
-        setLoading(false)
+        if (!market) {
+          setLoading(false)
+        }
       }
     }
     fetchMarket()
@@ -80,7 +88,7 @@ function MarketDetailPage() {
         signAllTransactions: async (txs: any) => Promise.all(txs.map(signTransaction)),
       })
 
-      const betKeypair = Keypair.generate()
+      const [betPda] = getBetPDA(new PublicKey(id), publicKey)
       const [mintAddress] = getMintPDA()
       const marketPublicKey = new PublicKey(id)
       const escrowTokenAddress = getEscrowTokenAccount(marketPublicKey, mintAddress)
@@ -98,7 +106,7 @@ function MarketDetailPage() {
           .placeBet(amount * 1000000, betSide === 'yes')
           .accounts({
             market: marketPublicKey,
-            bet: betKeypair.publicKey,
+            bet: betPda,
             userToken: userTokenResult.address,
             escrowToken: escrowTokenAddress,
             user: publicKey,
@@ -121,7 +129,7 @@ function MarketDetailPage() {
           .placeBet(amount * 1000000, betSide === 'yes')
           .accounts({
             market: marketPublicKey,
-            bet: betKeypair.publicKey,
+            bet: betPda,
             userToken: userTokenResult.address,
             escrowToken: escrowTokenAddress,
             user: publicKey,
@@ -130,7 +138,6 @@ function MarketDetailPage() {
             associatedTokenProgram: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
             systemProgram: SystemProgram.programId,
           })
-          .signers([betKeypair])
           .rpc()
       }
 

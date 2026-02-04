@@ -27,12 +27,26 @@ export function getProgramAuthorityPDA(): [PublicKey, number] {
   )
 }
 
+export function getUserMarketsCounterPDA(authority: PublicKey): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from('user_markets'), authority.toBuffer()],
+    PROGRAM_ID
+  )
+}
+
 export function getEscrowTokenAccount(market: PublicKey, mint: PublicKey): PublicKey {
   const [escrowPda] = PublicKey.findProgramAddressSync(
     [Buffer.from('escrow'), market.toBuffer()],
     PROGRAM_ID
   )
   return getAssociatedTokenAddressSync(mint, escrowPda)
+}
+
+export function getBetPDA(market: PublicKey, user: PublicKey): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from('bet'), market.toBuffer(), user.toBuffer()],
+    PROGRAM_ID
+  )
 }
 
 export async function getOrCreateUserTokenAccount(

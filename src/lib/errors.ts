@@ -51,7 +51,7 @@ function parseAnchorError(error: AnchorError): ParsedError {
   } else if (errorCode === 'InvalidOwner') {
     userMessage = 'Token account ownership verification failed'
   } else if (errorCode === 'ClaimTooSoon') {
-    userMessage = 'You must wait 24 hours between claims. Check the countdown timer above'
+    userMessage = 'You have already claimed AMAF tokens within the last 24 hours. Please check the countdown timer above to see when you can claim again.'
   } else if (errorCode === 'AlreadyClaimed') {
     userMessage = 'This bet has already been claimed'
   } else if (errorCode === 'NotWinner') {
@@ -80,7 +80,7 @@ function parseTransactionError(error: any): ParsedError {
       userMessage = errorMsg
 
       if (errorMsg.includes('ClaimTooSoon')) {
-        userMessage = 'You must wait 24 hours between claims. Please check the countdown timer'
+        userMessage = 'You have already claimed AMAF tokens within the last 24 hours. Please check the countdown timer above to see when you can claim again.'
       } else if (errorMsg.includes('Custom program error:')) {
         userMessage = 'A program error occurred. Please try again'
       }
@@ -124,7 +124,7 @@ function parseGenericError(error: any): ParsedError {
   } else if (error.message.includes('Transaction simulation failed')) {
     userMessage = 'Transaction simulation failed. Please try again later'
   } else if (error.message.includes('already in use') || error.message.includes('AlreadyInUse')) {
-    userMessage = 'Account already initialized. You can claim again in 24 hours. Please check the countdown timer above.'
+    userMessage = 'You have already claimed AMAF tokens within the last 24 hours. Please check the countdown timer above to see when you can claim again.'
   }
 
   return {

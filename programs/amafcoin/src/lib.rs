@@ -17,6 +17,7 @@ pub mod amafcoin {
 
     pub fn create_market(
         ctx: Context<CreateMarket>,
+        market_index: u16,
         question: String,
         description: String,
     ) -> Result<()> {
@@ -31,6 +32,7 @@ pub mod amafcoin {
 
         let market = &mut ctx.accounts.market;
         market.authority = ctx.accounts.authority.key();
+        market.market_index = market_index;
         market.bump = ctx.bumps.market;
         market.question = question;
         market.description = description;
@@ -38,6 +40,18 @@ pub mod amafcoin {
         market.outcome = None;
         market.total_yes = 0;
         market.total_no = 0;
+
+        // Initialize or update the user markets counter
+        let counter = &mut ctx.accounts.user_markets_counter;
+        if counter.authority == Pubkey::default() {
+            // First time initialization
+            counter.authority = ctx.accounts.authority.key();
+            counter.count = 1;
+        } else {
+            // Increment existing counter
+            counter.count += 1;
+        }
+
         Ok(())
     }
 
@@ -119,9 +133,11 @@ pub mod amafcoin {
         let bump = ctx.bumps.market;
 
         // Create signer seeds for the market PDA
+        let market_index_bytes = ctx.accounts.market.market_index.to_le_bytes();
         let seeds = &[
             &b"market"[..],
             ctx.accounts.market.authority.as_ref(),
+            &market_index_bytes[..],
             &[bump],
         ];
         let signer_seeds = &[&seeds[..]];
@@ -176,6 +192,7 @@ pub mod amafcoin {
 #[account]
 pub struct Market {
     pub authority: Pubkey,
+    pub market_index: u16,
     pub bump: u8,
     pub question: String,
     pub description: String,
@@ -198,6 +215,12 @@ pub struct Bet {
 pub struct DailyClaimState {
     pub user: Pubkey,
     pub last_claim: i64,
+}
+
+#[account]
+pub struct UserMarketsCounter {
+    pub authority: Pubkey,
+    pub count: u16,
 }
 
 #[derive(Accounts)]
@@ -229,15 +252,25 @@ pub struct InitializeMint<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(market_index: u16)]
 pub struct CreateMarket<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 1 + 4 + MAX_QUESTION_LENGTH + 4 + MAX_DESCRIPTION_LENGTH + 1 + 1 + 8 + 8,
-        seeds = [&b"market"[..], authority.key().as_ref()],
+        space = 8 + 32 + 2 + 1 + 4 + MAX_QUESTION_LENGTH + 4 + MAX_DESCRIPTION_LENGTH + 1 + 1 + 8 + 8,
+        seeds = [&b"market"[..], authority.key().as_ref(), &market_index.to_le_bytes()],
         bump
     )]
     pub market: Account<'info, Market>,
+
+    #[account(
+        init_if_needed,
+        payer = authority,
+        space = 8 + 32 + 2,
+        seeds = [&b"user_markets"[..], authority.key().as_ref()],
+        bump
+    )]
+    pub user_markets_counter: Account<'info, UserMarketsCounter>,
 
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -297,7 +330,7 @@ pub struct ResolveMarket<'info> {
 pub struct ClaimPayout<'info> {
     #[account(
         mut,
-        seeds = [&b"market"[..], market.authority.as_ref()],
+        seeds = [&b"market"[..], market.authority.as_ref(), &market.market_index.to_le_bytes()],
         bump
     )]
     pub market: Account<'info, Market>,
@@ -416,7 +449,7 @@ pub enum CustomError {
     AlreadyClaimed,
     #[msg("Not a winning bet")]
     NotWinner,
-    #[msg("Claim too soon")]
+    #[msg("You have already claimed AMAF tokens within the last 24 hours. Please wait before claiming again.")]
     ClaimTooSoon,
     #[msg("Question too long")]
     QuestionTooLong,

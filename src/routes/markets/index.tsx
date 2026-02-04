@@ -17,7 +17,7 @@ function MarketsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchMarkets() {
+    async function fetchMarkets(retries = 0) {
       if (!connected) {
         setLoading(false)
         return
@@ -28,6 +28,10 @@ function MarketsPage() {
         setMarkets(fetchedMarkets)
       } catch (error) {
         console.error('Error fetching markets:', error)
+        if (retries < 5 && markets.length === 0) {
+          console.log(`Retrying... (${retries + 1}/5)`)
+          setTimeout(() => fetchMarkets(retries + 1), 1000 * (retries + 1))
+        }
       } finally {
         setLoading(false)
       }

@@ -7,6 +7,7 @@ export const PROGRAM_ID = new PublicKey('Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6L
 export interface Market {
   publicKey: PublicKey
   authority: PublicKey
+  marketIndex: number
   bump: number
   question: string
   description: string
@@ -38,6 +39,7 @@ export async function getMarkets(
     return markets.map((account: any) => ({
       publicKey: account.publicKey,
       authority: account.account.authority as PublicKey,
+      marketIndex: account.account.marketIndex as number,
       bump: account.account.bump as number,
       question: account.account.question as string,
       description: account.account.description as string,
@@ -54,10 +56,11 @@ export async function getMarkets(
 
 export function getMarketPDA(
   authority: PublicKey,
+  marketIndex: number,
   programId: PublicKey = PROGRAM_ID
 ): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [Buffer.from('market'), authority.toBuffer()],
+    [Buffer.from('market'), authority.toBuffer(), Buffer.from(new Uint16Array([marketIndex]).buffer)],
     programId
   )
 }
