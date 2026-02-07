@@ -85,3 +85,29 @@ export function calculateSellPayout(
     newOptions
   }
 }
+
+export function calculateSharesFromTokens(
+  tokens: bigint,
+  options: MarketOption[],
+  collateralBalance: bigint
+): bigint {
+  if (tokens <= 0n) {
+    return 0n
+  }
+
+  const totalBefore = options.reduce((sum, opt) => sum + opt.shares, 0n)
+  const tokensForCollateral = tokens * 10n
+  
+  if (totalBefore === 0n) {
+    return tokensForCollateral / VIRTUAL_LIQUIDITY
+  }
+  
+  const denominator = collateralBalance - tokensForCollateral
+  if (denominator <= 0n) {
+    return 0n
+  }
+  
+  const ratio = tokensForCollateral * totalBefore
+  const shares = ratio / denominator
+  return shares
+}

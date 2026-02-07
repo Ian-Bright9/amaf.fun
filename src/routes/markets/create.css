@@ -235,3 +235,109 @@
   background: rgba(153, 69, 255, 0.1);
   transform: translateY(-2px);
 }
+
+.market-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.type-option-card {
+  padding: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  text-align: center;
+}
+
+.type-option-card:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(153, 69, 255, 0.5);
+}
+
+.type-option-card.active {
+  border-color: #9945ff;
+  background: rgba(153, 69, 255, 0.1);
+  box-shadow: 0 0 12px rgba(153, 69, 255, 0.3);
+}
+
+.type-option-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.binary-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.multi-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.option-row input {
+  flex: 1;
+}
+
+.remove-option {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.remove-option:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.remove-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-option {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.add-option input {
+  flex: 1;
+}
+
+.option-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.option-input:focus {
+  outline: none;
+  border-color: #9945ff;
+  box-shadow: 0 0 0 3px rgba(153, 69, 255, 0.1);
+}
+
+.option-input::placeholder {
+  color: #666;
+}

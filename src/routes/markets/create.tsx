@@ -1,11 +1,12 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState, useCallback } from 'react'
-import { SystemProgram, PublicKey } from '@solana/web3.js'
+import { SystemProgram, PublicKey, Transaction } from '@solana/web3.js'
+import { createAssociatedTokenAccountInstruction } from '@solana/spl-token'
 import { Link } from '@tanstack/react-router'
 
 import { getProgram, getMarketPDA, PROGRAM_ID, ensureMintInitialized } from '@/data/markets'
-import { getMintPDA, getUserMarketsCounterPDA } from '@/data/tokens'
+import { getMintPDA, getUserMarketsCounterPDA, getEscrowTokenAccount } from '@/data/tokens'
 import { parseError, type ParsedError } from '@/lib/errors'
 import { useConnection } from '@/lib/useConnection'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
@@ -225,6 +226,32 @@ function CreateMarketPage() {
             authority: marketAccount.authority.toString(),
             marketIndex: marketAccount.marketIndex
           })
+
+          setStatusMessage('Creating escrow token account...')
+          const escrowTokenAddress = getEscrowTokenAccount(marketPda, mintAddress)
+          console.log('Escrow token address:', escrowTokenAddress.toBase58())
+
+          const escrowAccountInfo = await connection.getAccountInfo(escrowTokenAddress)
+          if (!escrowAccountInfo) {
+            console.log('Creating escrow token account...')
+            const createEscrowIx = createAssociatedTokenAccountInstruction(
+              publicKey,
+              escrowTokenAddress,
+              marketPda,
+              mintAddress
+            )
+            const { blockhash } = await connection.getLatestBlockhash()
+            const escrowTx = new Transaction({
+              recentBlockhash: blockhash,
+              feePayer: publicKey,
+            }).add(createEscrowIx)
+            const signedEscrowTx = await signTransaction(escrowTx)
+            const escrowTxSig = await connection.sendRawTransaction(signedEscrowTx.serialize())
+            console.log('Escrow token account created with signature:', escrowTxSig)
+            await connection.confirmTransaction(escrowTxSig, 'confirmed')
+          } else {
+            console.log('Escrow token account already exists')
+          }
           break
         } catch (err: any) {
           console.log(`Market not yet available, retrying... (${retries + 1}/${maxRetries})`, err?.message)
@@ -300,10 +327,10 @@ function CreateMarketPage() {
             <div className="market-type-selector">
               <button
                 type="button"
-                className={`type-option ${marketType === 'binary' ? 'active' : ''}`}
+                className={`type-option-card ${marketType === 'binary' ? 'active' : ''}`}
                 onClick={() => {
                   setMarketType('binary')
-                  setOptions(['YES', 'NO'])
+                  setOptions(options.slice(0, 2))
                 }}
                 disabled={loading}
               >
@@ -311,10 +338,9 @@ function CreateMarketPage() {
               </button>
               <button
                 type="button"
-                className={`type-option ${marketType === 'multi' ? 'active' : ''}`}
+                className={`type-option-card ${marketType === 'multi' ? 'active' : ''}`}
                 onClick={() => {
                   setMarketType('multi')
-                  setOptions(['Option 1', 'Option 2'])
                 }}
                 disabled={loading}
               >
@@ -330,7 +356,7 @@ function CreateMarketPage() {
               type="text"
               value={question}
               onChange={handleQuestionChange}
-              placeholder="Will Bitcoin reach $100,000 by end of 2024?"
+              placeholder="Who will win the most 2026 AMAF awards?"
               maxLength={200}
               disabled={loading}
             />
@@ -357,14 +383,51 @@ function CreateMarketPage() {
             </label>
             {marketType === 'binary' ? (
               <div className="binary-options">
-                <div className="option">YES</div>
-                <div className="option">NO</div>
+                <input
+                  type="text"
+                  className="option-input"
+                  value={options[0] || ''}
+                  onChange={(e) => {
+                    const newOptions = [...options]
+                    newOptions[0] = e.target.value
+                    setOptions(newOptions)
+                  }}
+                  placeholder="Option 1"
+                  maxLength={50}
+                  disabled={loading}
+                />
+                <input
+                  type="text"
+                  className="option-input"
+                  value={options[1] || ''}
+                  onChange={(e) => {
+                    const newOptions = [...options]
+                    newOptions[1] = e.target.value
+                    setOptions(newOptions)
+                  }}
+                  placeholder="Option 2"
+                  maxLength={50}
+                  disabled={loading}
+                />
               </div>
             ) : (
               <div className="multi-options">
                 {options.map((opt, idx) => (
                   <div key={idx} className="option-row">
-                    <span>{idx + 1}. {opt}</span>
+                    <span>{idx + 1}.</span>
+                    <input
+                      type="text"
+                      className="option-input"
+                      value={opt}
+                      onChange={(e) => {
+                        const newOptions = [...options]
+                        newOptions[idx] = e.target.value
+                        setOptions(newOptions)
+                      }}
+                      placeholder={`Option ${idx + 1}`}
+                      maxLength={50}
+                      disabled={loading}
+                    />
                     {options.length > 2 && (
                       <button
                         type="button"
@@ -381,6 +444,7 @@ function CreateMarketPage() {
                   <div className="add-option">
                     <input
                       type="text"
+                      className="option-input"
                       value={newOption}
                       onChange={(e) => setNewOption(e.target.value)}
                       placeholder="Option name"

@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState } from 'react'
 import { SystemProgram, PublicKey, Transaction } from '@solana/web3.js'
+import { createAssociatedTokenAccountInstruction } from '@solana/spl-token'
 import { Link } from '@tanstack/react-router'
 
 import { getProgram, type Market, MarketType, Outcome } from '@/data/markets'
@@ -11,9 +12,10 @@ import {
   getEscrowTokenAccount,
   getBetPDA
 } from '@/data/tokens'
-import { getOptionPrices, calculateBuyCost, calculatePotentialPayout, formatPrice, calculateSellPayout } from '@/lib/pricing'
+import { getOptionPrices, calculateBuyCost, calculatePotentialPayout, calculateSharesFromTokens, formatPrice } from '@/lib/pricing'
 import { useConnection } from '@/lib/useConnection'
 import { ResolveModal } from '@/components/ResolveModal'
+import { parseError, type ParsedError } from '@/lib/errors'
 
 import './$id.css'
 
@@ -25,19 +27,20 @@ function MarketDetailPage() {
   const connection = useConnection()
   const [market, setMarket] = useState<Market | null>(null)
   const [loading, setLoading] = useState(true)
-  const [sharesAmount, setSharesAmount] = useState('')
+  const [amafAmount, setAmafAmount] = useState<string>('0')
   const [selectedOption, setSelectedOption] = useState<number>(0)
   const [buying, setBuying] = useState(false)
-  const [selling, setSelling] = useState(false)
-  const [error, setError] = useState('')
-  const [tradeMode, setTradeMode] = useState<'buy' | 'sell'>('buy')
-  const [userBet, setUserBet] = useState<any>(null)
+  const [error, setError] = useState<ParsedError | null>(null)
+  const [showErrorDetails, setShowErrorDetails] = useState(false)
+  const [userBalance, setUserBalance] = useState<bigint>(0n)
   const [showResolveModal, setShowResolveModal] = useState(false)
   const [winnerIndex, setWinnerIndex] = useState<number>(0)
   const [newOptionName, setNewOptionName] = useState('')
   const [canceling, setCanceling] = useState(false)
   const [resolving, setResolving] = useState(false)
   const [addingOption, setAddingOption] = useState(false)
+  const [initializingEscrow, setInitializingEscrow] = useState(false)
+  const [escrowExists, setEscrowExists] = useState(true)
 
   useEffect(() => {
     async function fetchMarket(retries = 0) {
@@ -69,25 +72,18 @@ function MarketDetailPage() {
           virtualLiquidity: BigInt(marketAccount.virtualLiquidity.toString()),
         })
 
+        const [mintAddress] = getMintPDA()
+        const escrowTokenAddress = getEscrowTokenAccount(new PublicKey(id), mintAddress)
+        const escrowAccountInfo = await connection.getAccountInfo(escrowTokenAddress)
+        setEscrowExists(escrowAccountInfo !== null)
+
         if (publicKey) {
           try {
-            const [betPda] = getBetPDA(new PublicKey(id), publicKey)
-            const betAccountInfo = await connection.getAccountInfo(betPda)
-            if (betAccountInfo) {
-              const betAccount = await (program.account as any).bet.fetch(betPda)
-              setUserBet({
-                publicKey: betPda,
-                market: betAccount.market,
-                user: betAccount.user,
-                shares: BigInt(betAccount.shares.toString()),
-                optionIndex: betAccount.optionIndex as number,
-                claimed: betAccount.claimed as boolean,
-              })
-            } else {
-              setUserBet(null)
-            }
+            const userTokenResult = await getOrCreateUserTokenAccount(publicKey, mintAddress, connection, publicKey)
+            const balance = await connection.getTokenAccountBalance(userTokenResult.address)
+            setUserBalance(BigInt(balance.value.amount))
           } catch (err) {
-            console.error('Error fetching bet:', err)
+            console.error('Error fetching user balance:', err)
           }
         }
       } catch (err) {
@@ -96,7 +92,7 @@ function MarketDetailPage() {
           console.log(`Retrying... (${retries + 1}/10)`)
           setTimeout(() => fetchMarket(retries + 1), 1000 * Math.min(retries + 1, 3))
         } else {
-          setError(`Failed to load market after multiple attempts. This could be a network issue or the market address ${id} may not exist. Please check your connection and try again.`)
+          setError({ userMessage: `Failed to load market after multiple attempts. This could be a network issue or the market address ${id} may not exist. Please check your connection and try again.`, technicalDetails: null, errorCode: null })
         }
       } finally {
         if (!market) {
@@ -108,25 +104,37 @@ function MarketDetailPage() {
   }, [id, connected, publicKey, connection])
 
   const optionPrices = market ? getOptionPrices(market.options) : []
-  const costPreview = sharesAmount && market
-    ? calculateBuyCost(BigInt(Math.floor(parseFloat(sharesAmount) || 0)), market.options, market.collateralBalance, selectedOption)
+  const shares = amafAmount && market
+    ? calculateSharesFromTokens(BigInt(Math.floor(parseFloat(amafAmount) * 10)), market.options, market.collateralBalance)
+    : 0n
+  const costPreview = amafAmount && market && shares > 0n
+    ? calculateBuyCost(shares, market.options, market.collateralBalance, selectedOption)
     : null
-  const sellPayoutPreview = sharesAmount && market && userBet && tradeMode === 'sell'
-    ? calculateSellPayout(BigInt(Math.floor(parseFloat(sharesAmount) || 0)), market.options, market.collateralBalance, userBet.optionIndex)
-    : null
+
+  const userBalanceAMAF = userBalance > 0n ? Number(userBalance / 1000000000n) : 0
+  const maxSliderValue = Math.max(10, Math.floor(userBalanceAMAF))
+
+  useEffect(() => {
+    if (userBalanceAMAF > 0) {
+      const currentAmount = parseFloat(amafAmount)
+      if (currentAmount > maxSliderValue) {
+        setAmafAmount(maxSliderValue.toString())
+      }
+    }
+  }, [userBalanceAMAF, maxSliderValue, amafAmount])
 
   async function handleBuyShares(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
+    setError(null)
 
     if (!connected || !publicKey) {
-      setError('Please connect your wallet')
+      setError({ userMessage: 'Please connect your wallet', technicalDetails: null, errorCode: null })
       return
     }
 
-    const shares = Math.floor(parseFloat(sharesAmount) || 0)
-    if (isNaN(shares) || shares <= 0) {
-      setError('Please enter a valid number of shares')
+    const amaflAmount = parseFloat(amafAmount)
+    if (isNaN(amaflAmount) || amaflAmount <= 0) {
+      setError({ userMessage: 'Please enter a valid AMAF amount', technicalDetails: null, errorCode: null })
       return
     }
 
@@ -143,6 +151,19 @@ function MarketDetailPage() {
       const marketPublicKey = new PublicKey(id)
       const escrowTokenAddress = getEscrowTokenAccount(marketPublicKey, mintAddress)
 
+      const escrowTokenAccountInfo = await connection.getAccountInfo(escrowTokenAddress)
+      if (!escrowTokenAccountInfo) {
+        const isAuthority = publicKey && market && market.authority.equals(publicKey)
+        setError({
+          userMessage: isAuthority
+            ? 'This market cannot be traded yet. Please initialize the escrow account using the button in Authority Controls.'
+            : 'This market cannot be traded yet. Please ask the market authority to initialize the escrow account.',
+          technicalDetails: 'The escrow token account does not exist. New markets created after this fix include escrow initialization.',
+          errorCode: 'ESCROW_NOT_INITIALIZED'
+        })
+        return
+      }
+
       const userTokenResult = await getOrCreateUserTokenAccount(
         publicKey,
         mintAddress,
@@ -153,7 +174,7 @@ function MarketDetailPage() {
       let tx: string
       if (userTokenResult.instruction) {
         const buySharesIx = await program.methods
-          .buyShares(shares, selectedOption)
+          .buyShares(Number(shares), selectedOption)
           .accounts({
             market: marketPublicKey,
             bet: betPda,
@@ -176,7 +197,7 @@ function MarketDetailPage() {
         tx = await connection.sendRawTransaction(signedTx.serialize())
       } else {
         tx = await program.methods
-          .buyShares(shares, selectedOption)
+          .buyShares(Number(shares), selectedOption)
           .accounts({
             market: marketPublicKey,
             bet: betPda,
@@ -192,91 +213,18 @@ function MarketDetailPage() {
       }
 
       console.log('Shares bought with signature:', tx)
-      setSharesAmount('')
+      setAmafAmount('0')
     } catch (err) {
       console.error('Error buying shares:', err)
-      setError('Failed to buy shares. Please try again.')
+      setError(parseError(err))
     } finally {
       setBuying(false)
     }
   }
 
-  async function handleSellShares(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-
-    if (!connected || !publicKey) {
-      setError('Please connect your wallet')
-      return
-    }
-
-    if (!userBet) {
-      setError('You have no shares in this market')
-      return
-    }
-
-    const shares = Math.floor(parseFloat(sharesAmount) || 0)
-    if (isNaN(shares) || shares <= 0) {
-      setError('Please enter a valid number of shares')
-      return
-    }
-
-    if (shares > Number(userBet.shares)) {
-      setError('You do not have enough shares')
-      return
-    }
-
-    setSelling(true)
-    try {
-      const program = await getProgram(connection, {
-        publicKey,
-        signTransaction,
-        signAllTransactions: async (txs: any) => Promise.all(txs.map(signTransaction)),
-      })
-
-      const [betPda] = getBetPDA(new PublicKey(id), publicKey)
-      const [mintAddress] = getMintPDA()
-      const marketPublicKey = new PublicKey(id)
-      const escrowTokenAddress = getEscrowTokenAccount(marketPublicKey, mintAddress)
-      const userTokenResult = await getOrCreateUserTokenAccount(publicKey, mintAddress, connection, publicKey)
-
-      let tx: string
-      const sellSharesIx = await program.methods
-        .sellShares(shares)
-        .accounts({
-          market: marketPublicKey,
-          bet: betPda,
-          userToken: userTokenResult.address,
-          escrowToken: escrowTokenAddress,
-          user: publicKey,
-          mint: mintAddress,
-          tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-          systemProgram: SystemProgram.programId,
-        })
-        .instruction()
-
-      const { blockhash } = await connection.getLatestBlockhash()
-      const transaction = new Transaction({
-        recentBlockhash: blockhash,
-        feePayer: publicKey,
-      }).add(sellSharesIx)
-
-      const signedTx = await signTransaction!(transaction)
-      tx = await connection.sendRawTransaction(signedTx.serialize())
-
-      console.log('Shares sold with signature:', tx)
-      setSharesAmount('')
-    } catch (err) {
-      console.error('Error selling shares:', err)
-      setError('Failed to sell shares. Please try again.')
-    } finally {
-      setSelling(false)
-    }
-  }
-
   async function handleResolveMarket() {
     if (!connected || !publicKey) {
-      setError('Please connect your wallet')
+      setError({ userMessage: 'Please connect your wallet', technicalDetails: null, errorCode: null })
       return
     }
 
@@ -300,7 +248,7 @@ function MarketDetailPage() {
       window.location.reload()
     } catch (err) {
       console.error('Error resolving market:', err)
-      setError('Failed to resolve market. Please try again.')
+      setError(parseError(err))
     } finally {
       setResolving(false)
     }
@@ -308,7 +256,7 @@ function MarketDetailPage() {
 
   async function handleCancelMarket() {
     if (!connected || !publicKey) {
-      setError('Please connect your wallet')
+      setError({ userMessage: 'Please connect your wallet', technicalDetails: null, errorCode: null })
       return
     }
 
@@ -332,7 +280,7 @@ function MarketDetailPage() {
       window.location.reload()
     } catch (err) {
       console.error('Error cancelling market:', err)
-      setError('Failed to cancel market. Please try again.')
+      setError(parseError(err))
     } finally {
       setCanceling(false)
     }
@@ -362,9 +310,48 @@ function MarketDetailPage() {
       window.location.reload()
     } catch (err) {
       console.error('Error adding option:', err)
-      setError('Failed to add option. Please try again.')
+      setError(parseError(err))
     } finally {
       setAddingOption(false)
+    }
+  }
+
+  async function handleInitializeEscrow() {
+    if (!connected || !publicKey || !signTransaction) {
+      setError({ userMessage: 'Please connect your wallet', technicalDetails: null, errorCode: null })
+      return
+    }
+
+    setInitializingEscrow(true)
+    try {
+      const [mintAddress] = getMintPDA()
+      const marketPublicKey = new PublicKey(id)
+      const escrowTokenAddress = getEscrowTokenAccount(marketPublicKey, mintAddress)
+
+      const createEscrowIx = createAssociatedTokenAccountInstruction(
+        publicKey,
+        escrowTokenAddress,
+        marketPublicKey,
+        mintAddress
+      )
+
+      const { blockhash } = await connection.getLatestBlockhash()
+      const transaction = new Transaction({
+        recentBlockhash: blockhash,
+        feePayer: publicKey,
+      }).add(createEscrowIx)
+
+      const signedTx = await signTransaction(transaction)
+      const tx = await connection.sendRawTransaction(signedTx.serialize())
+
+      console.log('Escrow token account initialized with signature:', tx)
+      await connection.confirmTransaction(tx, 'confirmed')
+      setEscrowExists(true)
+    } catch (err) {
+      console.error('Error initializing escrow:', err)
+      setError(parseError(err))
+    } finally {
+      setInitializingEscrow(false)
     }
   }
 
@@ -441,88 +428,139 @@ function MarketDetailPage() {
             </div>
           ) : (
           <div className="trading-section">
-            <div className="trade-tabs">
-              <button
-                className={`trade-tab ${tradeMode === 'buy' ? 'active' : ''}`}
-                onClick={() => setTradeMode('buy')}
-              >
-                Buy
-              </button>
-              <button
-                className={`trade-tab ${tradeMode === 'sell' ? 'active' : ''}`}
-                onClick={() => setTradeMode('sell')}
-                disabled={!userBet}
-              >
-                Sell {userBet && `(${formatNumber(userBet.shares)} shares)`}
-              </button>
-            </div>
+            <form onSubmit={handleBuyShares} className="trade-form">
+              <div className="form-group">
+                <label>Select Option to Buy</label>
+                <select
+                  value={selectedOption}
+                  onChange={(e) => setSelectedOption(Number(e.target.value))}
+                  disabled={buying}
+                  className="option-select"
+                >
+                  {market.options.map((option, idx) => (
+                    <option key={idx} value={idx} disabled={!option.active || market.resolved}>
+                      {option.name} - {formatPrice(optionPrices[idx])}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {tradeMode === 'buy' ? (
-              <form onSubmit={handleBuyShares} className="trade-form">
-                <div className="form-group">
-                  <label>Number of Shares</label>
-                  <input
-                    type="number"
-                    step="1"
-                    min="1"
-                    value={sharesAmount}
-                    onChange={(e) => setSharesAmount(e.target.value)}
-                    placeholder="10"
-                    disabled={buying}
-                  />
+              <div className="form-group">
+                <label>Amount to Buy (AMAF)</label>
+                <input
+                  type="range"
+                  min="10"
+                  max={maxSliderValue}
+                  step="10"
+                  value={amafAmount}
+                  onChange={(e) => setAmafAmount(e.target.value)}
+                  disabled={buying || userBalanceAMAF < 10}
+                  className="amaf-slider"
+                />
+                <div className="slider-value">
+                  <span>{parseFloat(amafAmount).toFixed(2)} AMAF</span>
                 </div>
+                <div className="quick-select">
+                  <button
+                    type="button"
+                    className={`quick-select-button ${amafAmount === '10' ? 'active' : ''}`}
+                    onClick={() => setAmafAmount('10')}
+                    disabled={buying || userBalanceAMAF < 10}
+                  >
+                    10
+                  </button>
+                  <button
+                    type="button"
+                    className={`quick-select-button ${amafAmount === '50' ? 'active' : ''}`}
+                    onClick={() => setAmafAmount('50')}
+                    disabled={buying || userBalanceAMAF < 50}
+                  >
+                    50
+                  </button>
+                  <button
+                    type="button"
+                    className={`quick-select-button ${amafAmount === '100' ? 'active' : ''}`}
+                    onClick={() => setAmafAmount('100')}
+                    disabled={buying || userBalanceAMAF < 100}
+                  >
+                    100
+                  </button>
+                  <button
+                    type="button"
+                    className={`quick-select-button ${amafAmount === '250' ? 'active' : ''}`}
+                    onClick={() => setAmafAmount('250')}
+                    disabled={buying || userBalanceAMAF < 250}
+                  >
+                    250
+                  </button>
+                  <button
+                    type="button"
+                    className={`quick-select-button ${amafAmount === '500' ? 'active' : ''}`}
+                    onClick={() => setAmafAmount('500')}
+                    disabled={buying || userBalanceAMAF < 500}
+                  >
+                    500
+                  </button>
+                </div>
+              </div>
 
-                {costPreview && (
-                  <div className="cost-preview">
-                    <p>Cost: {formatNumber(costPreview.costTokens)} AMAF</p>
-                    <p>Potential Payout: {calculatePotentialPayout(BigInt(Math.floor(parseFloat(sharesAmount) || 0))).toFixed(2)} AMAF</p>
+              {costPreview && (
+                <div className="cost-preview">
+                  <p>Cost: {formatNumber(costPreview.costTokens)} AMAF</p>
+                  <p>Potential Payout: {calculatePotentialPayout(shares).toFixed(2)} AMAF</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="error-message">
+                  <div className="error-content">
+                    <span className="error-text">{error.userMessage}</span>
+                    <button
+                      className="error-dismiss"
+                      onClick={() => setError(null)}
+                      type="button"
+                      aria-label="Dismiss error"
+                    >
+                      ✕
+                    </button>
                   </div>
-                )}
-
-                {error && <div className="error-message">{error}</div>}
-
-                <button type="submit" className="button button-primary" disabled={buying}>
-                  {buying ? 'Buying Shares...' : `Buy Shares of ${market.options[selectedOption]?.name}`}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleSellShares} className="trade-form">
-                <div className="form-group">
-                  <label>Number of Shares to Sell</label>
-                  <input
-                    type="number"
-                    step="1"
-                    min="1"
-                    value={sharesAmount}
-                    onChange={(e) => setSharesAmount(e.target.value)}
-                    placeholder={userBet ? Math.floor(Number(userBet.shares)).toString() : '0'}
-                    disabled={selling}
-                    max={userBet ? Math.floor(Number(userBet.shares)).toString() : undefined}
-                  />
-                  {userBet && (
-                    <p className="max-shares-info">
-                      You own: {formatNumber(userBet.shares)} shares
-                    </p>
+                  {error.technicalDetails && (
+                    <button
+                      className="error-details-toggle"
+                      onClick={() => setShowErrorDetails(!showErrorDetails)}
+                      type="button"
+                    >
+                      {showErrorDetails ? 'Hide Technical Details' : 'Show Technical Details'}
+                    </button>
+                  )}
+                  {showErrorDetails && error.technicalDetails && (
+                    <div className="error-technical">
+                      <pre>{error.technicalDetails}</pre>
+                    </div>
                   )}
                 </div>
+              )}
 
-                {sellPayoutPreview && (
-                  <div className="cost-preview">
-                    <p>You will receive: {formatNumber(sellPayoutPreview.payoutTokens)} AMAF</p>
-                  </div>
-                )}
-
-                {error && <div className="error-message">{error}</div>}
-
-                <button type="submit" className="button button-primary" disabled={selling}>
-                  {selling ? 'Selling Shares...' : 'Sell Shares'}
-                </button>
-              </form>
-            )}
+              <button type="submit" className="button button-primary" disabled={buying || parseFloat(amafAmount) <= 0 || parseFloat(amafAmount) > userBalanceAMAF}>
+                {buying ? 'Buying...' : `Buy ${parseFloat(amafAmount).toFixed(2)} AMAF worth of ${market.options[selectedOption]?.name}`}
+              </button>
+            </form>
 
             {market.authority.equals(publicKey!) && (
               <div className="authority-controls">
                 <h3>Authority Controls</h3>
+
+                {!escrowExists && (
+                  <div className="authority-actions">
+                    <button
+                      className="button button-primary"
+                      onClick={handleInitializeEscrow}
+                      disabled={initializingEscrow}
+                    >
+                      {initializingEscrow ? 'Initializing...' : 'Initialize Escrow Account'}
+                    </button>
+                  </div>
+                )}
 
                 <div className="authority-actions">
                   <button

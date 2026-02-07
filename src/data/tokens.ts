@@ -35,11 +35,7 @@ export function getUserMarketsCounterPDA(authority: PublicKey): [PublicKey, numb
 }
 
 export function getEscrowTokenAccount(market: PublicKey, mint: PublicKey): PublicKey {
-  const [escrowPda] = PublicKey.findProgramAddressSync(
-    [Buffer.from('escrow'), market.toBuffer()],
-    PROGRAM_ID
-  )
-  return getAssociatedTokenAddressSync(mint, escrowPda)
+  return getAssociatedTokenAddressSync(mint, market, true)
 }
 
 export function getBetPDA(market: PublicKey, user: PublicKey): [PublicKey, number] {

@@ -58,6 +58,14 @@ function parseAnchorError(error: AnchorError): ParsedError {
     userMessage = 'You did not win this bet'
   } else if (errorCode === 'MarketNotResolved') {
     userMessage = 'Market has not been resolved yet'
+  } else if (errorCode === 'DifferentOptionBet') {
+    userMessage = 'You can only buy shares of one option per market. You already have shares in a different option.'
+  } else if (errorCode === 'InsufficientAmount') {
+    userMessage = 'Amount must be greater than 0'
+  } else if (errorCode === 'InvalidOptionIndex') {
+    userMessage = 'Invalid option selected'
+  } else if (errorCode === 'OptionNotActive') {
+    userMessage = 'This option is not active for trading'
   }
 
   return {
