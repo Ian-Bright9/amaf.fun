@@ -104,23 +104,75 @@
   color: #ff6b6b;
 }
 
-.bet-section {
+.trading-section {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 2rem;
 }
 
-.bet-section h2 {
+.trade-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.trade-tab {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trade-tab:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.trade-tab.active {
+  border-color: #9945ff;
+  background: rgba(153, 69, 255, 0.1);
+}
+
+.trade-tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trading-section h2 {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 1.5rem 0;
 }
 
-.bet-form {
+.max-shares-info {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.25rem;
+}
+
+.trade-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.cost-preview {
+  background: rgba(20, 241, 149, 0.1);
+  border: 1px solid rgba(20, 241, 149, 0.3);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.cost-preview p {
+  margin: 0.25rem 0;
+  color: #14f195;
+  font-size: 0.875rem;
 }
 
 .form-group {
@@ -235,21 +287,53 @@
   margin: 0 0 1rem 0;
 }
 
-.resolve-buttons {
+.authority-actions {
   display: flex;
   gap: 1rem;
 }
 
-.button-yes {
+.button-cancel {
   flex: 1;
-  background: linear-gradient(135deg, #14f195 0%, #0da87a 100%);
-  color: white;
+  background: transparent;
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  border-radius: 6px;
+  color: #ff6b6b;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.button-no {
+.button-cancel:hover:not(:disabled) {
+  background: rgba(255, 100, 100, 0.1);
+  border-color: rgba(255, 100, 100, 0.5);
+}
+
+.button-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button-resolve {
   flex: 1;
-  background: linear-gradient(135deg, #ff6b6b 0%, #e55555 100%);
+  background: linear-gradient(135deg, #9945ff 0%, #14f195 100%);
+  border: none;
+  border-radius: 6px;
   color: white;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button-resolve:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(153, 69, 255, 0.4);
+}
+
+.button-resolve:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .market-resolved {

@@ -23,6 +23,41 @@
   color: #a0a0a0;
 }
 
+.verification-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #9945ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.verification-container p {
+  color: #ffffff;
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.verification-note {
+  color: #a0a0a0 !important;
+  font-size: 0.875rem !important;
+}
+
 .form-container {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -89,6 +124,7 @@
   padding: 0.75rem;
   color: #ff6b6b;
   font-size: 0.875rem;
+  word-break: break-word;
 }
 
 .error-content {
@@ -126,6 +162,41 @@
   white-space: pre-wrap;
   word-break: break-word;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.error-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.explorer-link {
+  color: #9945ff;
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #9945ff;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.explorer-link:hover {
+  background: rgba(153, 69, 255, 0.1);
+}
+
+.link-button {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.link-button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .button {

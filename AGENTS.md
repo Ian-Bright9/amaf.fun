@@ -84,7 +84,7 @@ File-based with `createFileRoute`. Use loaders: `loader: async () => await getDa
 - `@solana/web3.js` for interactions, `@solana/wallet-adapter-react` for wallet
 - `@coral-xyz/anchor` for smart contracts, `@solana/spl-token` for tokens
 - Import utilities from `@/data/tokens` for PDA/ATA calculations
-- Program ID: `Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6LvoMW` (devnet)
+- Program ID: `DGnE4VRytTjTfghAdvUosZoF7bDYetXSEX6WeYF2LeUe` (devnet)
 - Load program via `getProgram()` from `@/data/markets`, use PDAs for all program accounts
 
 ### TypeScript

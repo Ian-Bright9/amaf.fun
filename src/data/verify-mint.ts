@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from '@solana/web3.js'
 
-const PROGRAM_ID = 'Gh8YHDTXiRY8ZA3zkxSsrUb1az7Vxc4z9SH9U6LvoMW'
+const PROGRAM_ID = 'DGnE4VRytTjTfghAdvUosZoF7bDYetXSEX6WeYF2LeUe'
 
 export async function verifyMintExists(): Promise<boolean> {
   const connection = new Connection('https://api.devnet.solana.com')

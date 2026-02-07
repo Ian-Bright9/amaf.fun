@@ -1,8 +1,8 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState, useEffect } from 'react'
-import { Connection, SystemProgram, Transaction } from '@solana/web3.js'
+import { SystemProgram, Transaction } from '@solana/web3.js'
 
-import { getProgram } from '@/data/markets'
+import { getProgram, ensureMintInitialized } from '@/data/markets'
 import { getMintPDA, getProgramAuthorityPDA, getClaimStatePDA, getOrCreateUserTokenAccount } from '@/data/tokens'
 import { parseError, type ParsedError } from '@/lib/errors'
 import { useConnection } from '@/lib/useConnection'
@@ -92,6 +92,15 @@ export function DailyAmafClaim() {
 
     try {
 
+      const walletAdapter = {
+        publicKey,
+        signTransaction,
+        signAllTransactions: async (txs: any[]) => Promise.all(txs.map(signTransaction)),
+      }
+
+      console.log('Ensuring mint is initialized...')
+      await ensureMintInitialized(connection, walletAdapter)
+      console.log('Mint initialized or already exists')
 
       const [mintAddress] = getMintPDA()
 
@@ -100,11 +109,7 @@ export function DailyAmafClaim() {
         throw new Error('Insufficient SOL for transaction fee. Please get devnet SOL at https://faucet.solana.com')
       }
 
-      const program = await getProgram(connection, {
-        publicKey,
-        signTransaction,
-        signAllTransactions: async (txs: any) => Promise.all(txs.map(signTransaction)),
-      })
+      const program = await getProgram(connection, walletAdapter)
 
       const [claimStatePda] = getClaimStatePDA(publicKey)
       const [authorityPda] = getProgramAuthorityPDA()
